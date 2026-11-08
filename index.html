@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Fronts: a small WW2 strategy game</title>
+<link href="https://fonts.googleapis.com/css2?family=Special+Elite&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#1d2421;--panel:#27302c;--ink:#e8e2cf;--dim:#9aa196;--sea:#2f3d3d;--acc:#d9a441;color-scheme:dark}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.4 system-ui,sans-serif;display:flex;flex-wrap:wrap;min-height:100vh}
+h1,h2,button,.t{font-family:'Special Elite','Courier New',monospace;font-weight:400;margin:0}
+#map{flex:1 1 560px;min-width:0;background:var(--sea)}
+svg{width:100%;height:auto;display:block;max-height:100vh}
+svg g{cursor:pointer}
+aside{flex:0 0 290px;flex-grow:1;max-width:100%;padding:16px;background:var(--panel);display:flex;flex-direction:column;gap:12px}
+@media(min-width:900px){aside{flex-grow:0}}
+button{background:#3a463f;color:var(--ink);border:1px solid #55635a;padding:7px 12px;font-size:14px;cursor:pointer;border-radius:3px}
+button:hover,button:focus-visible{border-color:var(--acc);outline:none}
+button.on{background:var(--acc);color:#1d2421;border-color:var(--acc)}
+button:disabled{opacity:.4;cursor:default}
+.row{display:flex;gap:6px;flex-wrap:wrap}
+#log{font-size:13px;color:var(--dim);display:flex;flex-direction:column;gap:3px}
+#log div:first-child{color:var(--ink)}
+.dim{color:var(--dim);font-size:13px}
+#ov{position:fixed;inset:0;background:rgba(17,22,19,.93);display:flex;align-items:center;justify-content:center;padding:20px;z-index:5}
+#ov>div{max-width:520px}
+#ov h1{font-size:30px;margin-bottom:8px}
+#ov p{color:var(--dim)}
+#ov .row button{flex:1 1 140px;padding:12px}
+</style></head><body>
+<div id="map"><svg id="svg" viewBox="0 0 820 520" role="img" aria-label="Map of Europe"></svg></div>
+<aside>
+  <div><h2 id="date"></h2><div class="dim" id="who"></div></div>
+  <div class="row" id="speed"></div>
+  <div id="sel"></div>
+  <div class="dim" id="goal"></div>
+  <div id="log"></div>
+</aside>
+<div id="ov"></div>
+<script>
+const T={GER:{n:'Germany',f:'ax',c:'#6b7078'},ITA:{n:'Italy',f:'ax',c:'#6f9a5a'},UK:{n:'United Kingdom',f:'al',c:'#c5586a'},FRA:{n:'France',f:'al',c:'#4f7fc4'},POL:{n:'Poland',f:'al',c:'#d4b45e'},USA:{n:'United States',f:'al',c:'#3c9a9a'},SOV:{n:'Soviet Union',f:'su',c:'#b8382f'},NEU:{n:'Neutral',f:'nu',c:'#cfc8b4'}};
+const CAP={GER:'GER',ITA:'ITA',UK:'UK',FRA:'FRA',POL:'POL',USA:'USA',SOV:'MOS'};
+// id, name, owner, industry, troops, x, y
+const R0=[['UK','Britain','UK',5,6,220,125],['FRA','France','FRA',4,8,255,275],['BEN','Benelux','NEU',2,2,325,205],['GER','Germany','GER',6,12,405,225],['POL','Poland','POL',2,6,505,205],['ITA','Italy','ITA',3,7,405,335],['IBE','Iberia','NEU',2,3,190,395],['SCA','Scandinavia','NEU',2,3,420,80],['BAL','Baltics','NEU',1,2,545,120],['BLK','Balkans','NEU',2,3,515,325],['TUR','Turkey','NEU',1,3,625,405],['NAF','N. Africa','ITA',1,3,340,455],['WSU','W. Russia','SOV',3,6,635,205],['MOS','Moscow','SOV',4,8,715,130],['UKR','Ukraine','SOV',3,6,655,295],['CAU','Caucasus','SOV',2,4,765,330],['MEA','Middle East','NEU',2,2,745,445],['USA','America','USA',7,6,70,205]];
+const LINKS='UK-FRA UK-BEN UK-SCA UK-USA FRA-BEN FRA-GER FRA-ITA FRA-IBE BEN-GER GER-ITA GER-POL GER-SCA GER-BLK POL-BAL POL-WSU POL-UKR POL-BLK ITA-BLK ITA-NAF IBE-NAF IBE-USA SCA-BAL BAL-WSU BAL-MOS BLK-UKR BLK-TUR TUR-UKR TUR-CAU TUR-MEA TUR-NAF NAF-MEA NAF-USA WSU-MOS WSU-UKR MOS-UKR MOS-CAU UKR-CAU CAU-MEA'.split(' ').map(s=>s.split('-'));
+const ids=R0.map(r=>r[0]),GOAL=11,nb={};
+ids.forEach(i=>nb[i]=[]);LINKS.forEach(([a,b])=>{nb[a].push(b);nb[b].push(a)});
+let frac=1,reg,ip,W,day,me,sel,spd=0,timer,over,logs;
+const $=id=>document.getElementById(id);
+const pick=a=>a[Math.floor(Math.random()*a.length)];
+const same=(x,y)=>x===y||(T[x].f===T[y].f&&T[x].f!=='nu');
+function hostile(x,y){const a=T[x].f,b=T[y].f;if(a===b)return false;if(a==='nu'||b==='nu')return true;return W.has([a,b].sort().join())}
+function declare(x,y){const a=T[x].f,b=T[y].f;if(a==='nu'||b==='nu')return;const k=[a,b].sort().join();if(!W.has(k)){W.add(k);log(`${T[x].n} is now at war with ${T[y].n}.`)}}
+const front=i=>nb[i].filter(j=>hostile(reg[i].tag,reg[j].tag)).length;
+const log=m=>{logs.unshift(m);logs.length=Math.min(logs.length,6)};
+const owned=t=>ids.filter(i=>reg[i].tag===t);
+
+function start(t){me=t;day=0;sel=null;over=false;logs=[];W=new Set(['al,ax']);reg={};ip={};
+ R0.forEach(([id,name,tag,ind,tr,x,y])=>reg[id]={id,name,tag,ind,t:tr,x,y});
+ Object.keys(T).forEach(k=>ip[k]=0);
+ log('September 1, 1939. Germany has invaded Poland.');
+ $('ov').style.display='none';setSpeed(1);render()}
+
+function attack(f,t,fr=1){const a=reg[f],b=reg[t],n=Math.floor((a.t-1)*fr);if(n<1)return;
+ if(same(a.tag,b.tag)){a.t-=n;b.t+=n;return}
+ if(!hostile(a.tag,b.tag))declare(a.tag,b.tag);
+ a.t-=n;const A=n*(.8+Math.random()*.4),D=b.t*1.25*(.8+Math.random()*.4);
+ if(A>D){const old=b.tag;b.tag=a.tag;b.t=Math.max(1,Math.round(n*(1-D/A)));
+  if(CAP[old]===t)log(`${b.name}, capital of ${T[old].n}, has fallen to ${T[a.tag].n}!`);
+  else log(`${T[a.tag].n} took ${b.name}.`);check()}
+ else b.t=Math.max(1,Math.round(b.t*(1-A/D)))}
+
+function check(){if(reg[CAP[me]].tag!==me)return end(false);
+ if(ids.filter(i=>same(me,reg[i].tag)).length>=GOAL)end(true)}
+function end(win){over=true;setSpeed(0);const o=$('ov');o.style.display='flex';
+ o.innerHTML=`<div><h1>${win?'Victory':'Defeat'}</h1><p>${win?`Your side holds ${GOAL} of ${ids.length} regions on ${dateStr()}.`:`Your capital fell on ${dateStr()}.`}</p><button onclick="menu()">Play again</button></div>`}
+
+function ai(t){const mine=owned(t);if(!mine.length)return;
+ while(ip[t]>=4){const fr=mine.filter(i=>front(i)>0);reg[pick(fr.length?fr:mine)].t+=2;ip[t]-=4}
+ for(const i of [...mine].sort(()=>Math.random()-.5)){const a=reg[i];if(a.tag!==t||a.t<3||Math.random()>.4)continue;
+  const hs=nb[i].filter(j=>hostile(t,reg[j].tag)).sort((x,y)=>reg[x].t-reg[y].t);
+  if(hs.length){if(a.t-1>reg[hs[0]].t*1.4)attack(i,hs[0])}
+  else{const fs=nb[i].filter(j=>same(t,reg[j].tag));const fr=fs.filter(j=>front(j)>0);const c=fr.length?fr[0]:pick(fs);if(c)attack(i,c)}
+  if(over)return}}
+
+function tick(){if(over)return;day++;
+ Object.keys(T).forEach(t=>{if(t!=='NEU')ip[t]+=owned(t).reduce((s,i)=>s+reg[i].ind,0)*.25});
+ if(day===660&&me!=='GER'&&!W.has('ax,su')){W.add('ax,su');log('Germany invades the Soviet Union.')}
+ if(day===800&&!W.has('al,su')&&false){}
+ if(day===800)log('The United States enters the war.');
+ Object.keys(T).forEach(t=>{if(t!=='NEU'&&t!==me&&(t!=='USA'||day>=800))ai(t)});
+ render()}
+function setSpeed(s){spd=s;clearInterval(timer);if(s)timer=setInterval(tick,s===1?600:s===2?300:120);renderSpeed()}
+function renderSpeed(){$('speed').innerHTML=[['Pause',0],['1x',1],['2x',2],['4x',3]].map(([l,s])=>`<button class="${spd===s?'on':''}" onclick="setSpeed(${s})">${l}</button>`).join('')}
+const dateStr=()=>new Date(Date.UTC(1939,8,1+day)).toLocaleDateString('en-GB',{day:'numeric',month:'long',year:'numeric',timeZone:'UTC'});
+
+function click(id){if(over)return;const r=reg[id];
+ if(sel&&sel!==id&&reg[sel].tag===me&&nb[sel].includes(id)){attack(sel,id,frac);if(reg[sel].tag!==me||reg[sel].t<2)sel=reg[id].tag===me?id:sel}
+ else sel=id;render()}
+function setFrac(f){frac=f;render()}
+function recruit(){const r=reg[sel];if(r&&r.tag===me&&ip[me]>=4){ip[me]-=4;r.t+=2;render()}}
+
+function render(){
+ $('date').textContent=dateStr();
+ $('who').textContent=`${T[me].n} · ${Math.floor(ip[me])} industry points`;
+ const mine=ids.filter(i=>same(me,reg[i].tag)).length;
+ $('goal').textContent=`Goal: hold ${GOAL} of ${ids.length} regions with your side (${mine} now). Lose your capital and you lose.`;
+ $('log').innerHTML=logs.map(l=>`<div>${l}</div>`).join('');
+ const r=sel&&reg[sel];
+ $('sel').innerHTML=r?`<h2>${r.name}</h2><div class="dim">${T[r.tag].n} · industry ${r.ind} · ${r.t} troops</div>`+
+  (r.tag===me?`<div class="row" style="margin-top:8px"><button onclick="recruit()" ${ip[me]<4?'disabled':''}>Recruit +2 (4 pts)</button></div><div class="dim" style="margin-top:8px">Send how many? Then click a neighbouring region.</div><div class="row" style="margin-top:4px">${[['All',1],['Half',.5],['Quarter',.25]].map(([l,f])=>`<button class="${frac===f?'on':''}" onclick="setFrac(${f})">${l}</button>`).join('')}</div><div class="dim" style="margin-top:4px">Always leaves at least one troop behind.</div>`:''):`<div class="dim">Select a region. Move or attack by clicking a neighbour of one of yours.</div>`;
+ let s='';
+ LINKS.forEach(([a,b])=>{const A=reg[a],B=reg[b];s+=`<line x1="${A.x}" y1="${A.y}" x2="${B.x}" y2="${B.y}" stroke="#7d8c84" stroke-opacity=".5" stroke-width="2"/>`});
+ ids.forEach(i=>{const g=reg[i],tg=sel&&reg[sel].tag===me&&nb[sel].includes(i),isSel=sel===i;
+  s+=`<g onclick="click('${i}')" tabindex="0" onkeydown="if(event.key==='Enter')click('${i}')"><circle cx="${g.x}" cy="${g.y}" r="36" fill="${T[g.tag].c}" stroke="${isSel?'#fff':tg?'#d9a441':'#1d2421'}" stroke-width="${isSel||tg?4:2}" ${tg?'stroke-dasharray="6 4"':''}/>
+  <rect x="${g.x-17}" y="${g.y-12}" width="34" height="22" rx="2" fill="#1d2421" fill-opacity=".85"/><text x="${g.x}" y="${g.y+5}" text-anchor="middle" fill="#e8e2cf" font-size="15" font-family="Special Elite,Courier New,monospace">${g.t}</text>
+  <text x="${g.x}" y="${g.y+54}" text-anchor="middle" fill="#e8e2cf" font-size="13" font-family="system-ui,sans-serif">${CAP[g.tag]===i?'★ ':''}${g.name}</text></g>`});
+ $('svg').innerHTML=s;renderSpeed()}
+
+function menu(){const o=$('ov');o.style.display='flex';setSpeed(0);
+ o.innerHTML=`<div><h1>Fronts</h1><p>A small grand strategy game. Time runs live: recruit troops with industry, then move across the map. Pause any time.</p><div class="row">${['GER','UK','SOV','ITA','FRA'].map(t=>`<button onclick="start('${t}')">${T[t].n}</button>`).join('')}</div><p class="dim">September 1939. Germany and Italy against Britain, France and Poland. The Soviet Union stays out until someone attacks it.</p></div>`}
+menu();
+</script></body></html>
