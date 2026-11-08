@@ -27,11 +27,11 @@ button:disabled{opacity:.4;cursor:default}
 #ov p{color:var(--dim)}
 #ov .row button{flex:1 1 140px;padding:12px}
 </style></head><body>
-<div id="map"><svg id="svg" viewBox="0 0 820 520" role="img" aria-label="Map of Europe"></svg></div>
+<div id="map"><svg id="svg" onclick="if(event.target.id==='svg'&&running()){sel=null;render()}" viewBox="0 0 820 520" role="img" aria-label="Map of Europe"></svg></div>
 <aside>
   <div><h2 id="date"></h2><div class="dim" id="who"></div></div>
   <div class="row" id="speed"></div>
-  <div id="sel"></div>
+  <div id="sel"></div><div id="tech"></div>
   <div class="dim" id="goal"></div>
   <div id="log"></div>
 </aside>
@@ -44,11 +44,18 @@ const R0=[['UK','Britain','UK',5,4,6,220,125],['FRA','France','FRA',4,5,8,255,27
 const LINKS='UK-FRA UK-BEN UK-SCA UK-USA FRA-BEN FRA-GER FRA-ITA FRA-IBE BEN-GER GER-ITA GER-POL GER-SCA GER-BLK POL-BAL POL-WSU POL-UKR POL-BLK ITA-BLK ITA-NAF IBE-NAF IBE-USA SCA-BAL BAL-WSU BAL-MOS BLK-UKR BLK-TUR TUR-UKR TUR-CAU TUR-MEA TUR-NAF NAF-MEA NAF-USA WSU-MOS WSU-UKR MOS-UKR MOS-CAU UKR-CAU CAU-MEA'.split(' ').map(s=>s.split('-'));
 const ids=R0.map(r=>r[0]),GOAL=11,BARR=.2,FACT=.05,CF=25,CB=15,MAXB=12,nb={};
 const D_POLAND=1339,D_USSR=1999,D_USA=2167; // days since 1 Jan 1936
+const TER={UK:'p',FRA:'p',BEN:'p',GER:'f',POL:'p',ITA:'m',IBE:'m',SCA:'f',BAL:'f',BLK:'m',TUR:'m',NAF:'d',WSU:'f',MOS:'p',UKR:'p',CAU:'m',MEA:'d',USA:'p'};
+const TN={p:'plains',f:'forest',m:'mountains',d:'desert'},TD={p:1,f:1.15,m:1.5,d:1},TV={p:3,f:2,m:1.5,d:3};
+const TECH=[['prod','Mass production','factories +50% output',80],['train','Conscription','barracks +50% output',60],['armor','Better tanks','tanks count 4 instead of 3',90],['def','Fortification','defenders +15%',70],['guns','Heavy artillery','artillery counts 3 instead of 2',100]];
 ids.forEach(i=>nb[i]=[]);LINKS.forEach(([a,b])=>{nb[a].push(b);nb[b].push(a)});
-let reg,men,tk,prog,W,day,me,sel,spd=0,last=1,timer,over,logs,frac=1;
+let sup={},ar,tech,rp,line,reg,men,tk,prog,W,day,me,sel,spd=0,last=1,timer,over,logs,frac=1;
 const $=id=>document.getElementById(id);
 const pick=a=>a[Math.floor(Math.random()*a.length)];
-const pw=r=>r.t+3*r.k;
+const has=(t,x)=>tech[t].has(x);
+function pw(r,ter=TER[r.id],t=r.tag){return r.t+r.k*TV[ter]*(has(t,'armor')?4/3:1)+r.a*(has(t,'guns')?3:2)}
+const oos=i=>reg[i].tag!=='NEU'&&!(sup[i]<=3);
+function calcSupply(){sup={};const q=[];Object.keys(CAP).forEach(t=>{const c=CAP[t];if(reg[c].tag===t){sup[c]=0;q.push(c)}});
+ while(q.length){const i=q.shift();nb[i].forEach(j=>{if(sup[j]===undefined&&reg[j].tag!=='NEU'&&same(reg[i].tag,reg[j].tag)){sup[j]=sup[i]+1;q.push(j)}})}}
 const same=(x,y)=>x===y||(T[x].f===T[y].f&&T[x].f!=='nu');
 function hostile(x,y){const a=T[x].f,b=T[y].f;if(a===b)return false;if(a==='nu'||b==='nu')return true;return W.has([a,b].sort().join())}
 function declare(x,y){const a=T[x].f,b=T[y].f;if(a==='nu'||b==='nu')return;const k=[a,b].sort().join();if(!W.has(k)){W.add(k);log(`${T[x].n} is now at war with ${T[y].n}.`)}}
@@ -58,20 +65,22 @@ const owned=t=>ids.filter(i=>reg[i].tag===t);
 const sum=(t,k)=>owned(t).reduce((s,i)=>s+reg[i][k],0);
 const aggr=()=>day>=D_POLAND||W.size>0;
 
-function start(t){me=t;day=0;sel=null;over=false;logs=[];W=new Set();reg={};men={};tk={};prog={};
- R0.forEach(([id,name,tag,fa,ba,tr,x,y])=>reg[id]={id,name,tag,fa,ba,t:tr,k:Math.floor(fa/3),x,y});
- Object.keys(T).forEach(k=>{men[k]=sum(k,'ba')*3;tk[k]=0;prog[k]=0});
+function start(t){me=t;day=0;sel=null;over=false;logs=[];W=new Set();reg={};men={};tk={};prog={};ar={};tech={};rp={};line={};
+ R0.forEach(([id,name,tag,fa,ba,tr,x,y])=>reg[id]={id,name,tag,fa,ba,t:tr,k:Math.floor(fa/3),a:Math.floor(fa/4),x,y});
+ Object.keys(T).forEach(k=>{men[k]=sum(k,'ba')*3;tk[k]=0;prog[k]=0;ar[k]=0;tech[k]=new Set();rp[k]=0;line[k]=Math.random()<.7?'k':'a'});line[me]='k';
  log('January 1, 1936. Europe is at peace. Build up your forces.');
  $('ov').style.display='none';setSpeed(1);render()}
 
-function attack(f,t,fr=1){const a=reg[f],b=reg[t],n=Math.floor((a.t-1)*fr),k=Math.floor(a.k*fr);if(n+k<1)return;
- if(same(a.tag,b.tag)){a.t-=n;a.k-=k;b.t+=n;b.k+=k;return}
+function attack(f,t,fr=1){const a=reg[f],b=reg[t],n=Math.floor((a.t-1)*fr),k=Math.floor(a.k*fr),g=Math.floor(a.a*fr);if(n+k+g<1)return;
+ if(same(a.tag,b.tag)){a.t-=n;a.k-=k;a.a-=g;b.t+=n;b.k+=k;b.a+=g;return}
  if(!hostile(a.tag,b.tag))declare(a.tag,b.tag);
- a.t-=n;a.k-=k;const r=()=>.8+Math.random()*.4,A=(n+3*k)*r(),D=pw(b)*1.25*r();
- if(A>D){const old=b.tag,s=1-D/A;b.tag=a.tag;b.t=Math.max(1,Math.round(n*s));b.k=Math.round(k*s);
+ calcSupply();const ter=TER[t];a.t-=n;a.k-=k;a.a-=g;
+ const r=()=>.8+Math.random()*.4,A=pw({t:n,k,a:g},ter,a.tag)*r()*(oos(f)?.6:1),
+ D=pw(b,ter)*1.25*TD[ter]*(has(b.tag,'def')?1.15:1)*(oos(t)?.8:1)*r();
+ if(A>D){const old=b.tag,s=1-D/A;b.tag=a.tag;b.t=Math.max(1,Math.round(n*s));b.k=Math.round(k*s);b.a=Math.round(g*s);
   if(CAP[old]===t)log(`${b.name}, capital of ${T[old].n}, has fallen to ${T[a.tag].n}!`);
   else log(`${T[a.tag].n} took ${b.name}.`);check()}
- else{const s=1-A/D;b.t=Math.max(1,Math.round(b.t*s));b.k=Math.round(b.k*s)}}
+ else{const s=1-A/D;b.t=Math.max(1,Math.round(b.t*s));b.k=Math.round(b.k*s);b.a=Math.round(b.a*s)}}
 
 function check(){if(reg[CAP[me]].tag!==me)return end(false);
  if(ids.filter(i=>same(me,reg[i].tag)).length>=GOAL)end(true)}
@@ -79,12 +88,12 @@ function end(win){over=true;setSpeed(0);const o=$('ov');o.style.display='flex';
  o.innerHTML=`<div><h1>${win?'Victory':'Defeat'}</h1><p>${win?`Your side holds ${GOAL} of ${ids.length} regions on ${dateStr()}.`:`Your capital fell on ${dateStr()}.`}</p><button onclick="menu()">Play again</button></div>`}
 
 function build(t,r,type){const c=type==='fa'?CF:CB;if(men[t]>=c&&r[type]<MAXB){men[t]-=c;r[type]++;return true}}
-function deploy(t,r,m,k){r.t+=m;men[t]-=m;r.k+=k;tk[t]-=k}
+function deploy(t,r,m,k,g=0){r.t+=m;men[t]-=m;r.k+=k;tk[t]-=k;r.a+=g;ar[t]-=g}
 
 function ai(t){const mine=owned(t);if(!mine.length)return;
  if(men[t]>=25&&Math.random()<.3){const r=pick(mine);if(!build(t,r,Math.random()<.5?'fa':'ba'))build(t,r,'ba')}
  const fr=mine.filter(i=>front(i)>0),p=reg[pick(fr.length?fr:mine)];
- deploy(t,p,Math.max(0,Math.floor(men[t])-8),Math.floor(tk[t]));
+ deploy(t,p,Math.max(0,Math.floor(men[t])-8),Math.floor(tk[t]),Math.floor(ar[t]));
  if(!aggr()||(t==='USA'&&day<D_USA))return;
  for(const i of [...mine].sort(()=>Math.random()-.5)){const a=reg[i];if(a.tag!==t||pw(a)<4||Math.random()>.4)continue;
   const hs=nb[i].filter(j=>hostile(t,reg[j].tag)).sort((x,y)=>pw(reg[x])-pw(reg[y]));
@@ -94,9 +103,11 @@ function ai(t){const mine=owned(t);if(!mine.length)return;
 
 function tick(){if(over)return;day++;
  Object.keys(T).forEach(t=>{if(t==='NEU')return;
-  men[t]+=sum(t,'ba')*BARR;prog[t]+=sum(t,'fa')*FACT;
-  while(prog[t]>=1&&men[t]>=1){prog[t]--;men[t]--;tk[t]++}
-  prog[t]=Math.min(prog[t],1.5)});
+  men[t]+=sum(t,'ba')*BARR*(has(t,'train')?1.5:1);prog[t]+=sum(t,'fa')*FACT*(has(t,'prod')?1.5:1);rp[t]+=(sum(t,'fa')+sum(t,'ba'))*.02;
+  const c=line[t]==='k'?1:.6;
+  while(prog[t]>=c&&men[t]>=1){prog[t]-=c;men[t]--;line[t]==='k'?tk[t]++:ar[t]++}
+  prog[t]=Math.min(prog[t],1.5);
+  if(t!==me){const nx=TECH.find(x=>!has(t,x[0])&&rp[t]>=x[3]);if(nx){rp[t]-=nx[3];tech[t].add(nx[0])}}});
  if(day===D_POLAND&&me!=='GER'&&!W.has('al,ax')){W.add('al,ax');log('Germany invades Poland. Britain and France declare war.')}
  if(day===D_USSR&&me!=='GER'&&W.has('al,ax')&&!W.has('ax,su')){W.add('ax,su');log('Germany invades the Soviet Union.')}
  if(day===D_USA)log('The United States enters the war.');
@@ -107,38 +118,43 @@ function renderSpeed(){$('speed').innerHTML=[['Pause',0],['1',1],['2',2],['3',3]
 const dateStr=()=>new Date(Date.UTC(1936,0,1+day)).toLocaleDateString('en-GB',{day:'numeric',month:'long',year:'numeric',timeZone:'UTC'});
 const running=()=>reg&&!over&&$('ov').style.display==='none';
 addEventListener('keydown',e=>{if(!running())return;
- if(e.code==='Space'){e.preventDefault();setSpeed(spd?0:last)}
+ if(e.key==='Escape'){sel=null;render()}
+ else if(e.code==='Space'){e.preventDefault();setSpeed(spd?0:last)}
  else if(/^[1-5]$/.test(e.key))setSpeed(+e.key)});
 addEventListener('keyup',e=>{if(e.code==='Space'&&running())e.preventDefault()});
 
-function click(id){if(over)return;
- if(sel&&sel!==id&&reg[sel].tag===me&&nb[sel].includes(id)){attack(sel,id,frac);if(reg[sel].tag!==me||reg[sel].t<2)sel=reg[id].tag===me?id:sel}
+function click(id,e){if(over)return;
+ if(sel&&sel!==id&&!(e&&e.shiftKey)&&reg[sel].tag===me&&nb[sel].includes(id)){attack(sel,id,frac);if(reg[sel].tag!==me||reg[sel].t<2)sel=reg[id].tag===me?id:sel}
  else sel=id;render()}
 function act(kind){const r=reg[sel];if(!r||r.tag!==me)return;
  if(kind==='m')deploy(me,r,Math.floor(men[me]),0);
  else if(kind==='k')deploy(me,r,0,Math.floor(tk[me]));
+ else if(kind==='a')deploy(me,r,0,0,Math.floor(ar[me]));
  else build(me,r,kind);render()}
 function setFrac(f){frac=f;render()}
+function setLine(v){line[me]=v;render()}
+function buy(id){const x=TECH.find(z=>z[0]===id);if(rp[me]>=x[3]){rp[me]-=x[3];tech[me].add(id);render()}}
 
-function render(){
+function render(){calcSupply();
  $('date').textContent=dateStr();
- const F=sum(me,'fa'),B=sum(me,'ba'),stall=prog[me]>=1&&men[me]<1;
- $('who').innerHTML=`${T[me].n}<br>Men ${Math.floor(men[me])} · Tanks ${Math.floor(tk[me])}<br>${F} factories · ${B} barracks<br>+${(B*BARR).toFixed(1)} men/day · +${(F*FACT).toFixed(2)} tanks/day${stall?'<br>Tanks are waiting for crews.':''}`;
+ const F=sum(me,'fa'),B=sum(me,'ba'),stall=prog[me]>=(line[me]==='k'?1:.6)&&men[me]<1;
+ $('who').innerHTML=`${T[me].n}<br>Men ${Math.floor(men[me])} · Tanks ${Math.floor(tk[me])} · Guns ${Math.floor(ar[me])}<br>Research ${Math.floor(rp[me])} pts<br>${F} factories · ${B} barracks<br>+${(B*BARR*(has(me,'train')?1.5:1)).toFixed(1)} men/day · +${(F*FACT*(has(me,'prod')?1.5:1)/(line[me]==='k'?1:.6)).toFixed(2)} ${line[me]==='k'?'tanks':'guns'}/day${stall?'<br>Tanks are waiting for crews.':''}`;
  const mine=ids.filter(i=>same(me,reg[i].tag)).length;
- $('goal').textContent=`Goal: hold ${GOAL} of ${ids.length} regions with your side (${mine} now). Lose your capital and you lose. Each region shows men on top, tanks below.`;
+ $('goal').textContent=`Goal: hold ${GOAL} of ${ids.length} regions with your side (${mine} now). Lose your capital and you lose. Each region shows men, then tanks (T) and artillery (A). Red numbers mean out of supply.`;
+ $('tech').innerHTML=`<div class="dim">Factories build:</div><div class="row" style="margin:4px 0 10px">${[['k','Tanks'],['a','Artillery']].map(([v,l])=>`<button class="${line[me]===v?'on':''}" onclick="setLine('${v}')">${l}</button>`).join('')}</div><div class="dim">Research</div><div class="row" style="margin-top:4px">${TECH.filter(x=>!has(me,x[0])).map(x=>`<button onclick="buy('${x[0]}')" ${rp[me]<x[3]?'disabled':''}>${x[1]} (${x[3]})</button>`).join('')||'<span class="dim">All researched.</span>'}</div><div class="dim" style="margin-top:4px">${TECH.map(x=>(has(me,x[0])?'✓ ':'')+x[1]+': '+x[2]).join('. ')}</div>`;
  $('log').innerHTML=logs.map(l=>`<div>${l}</div>`).join('');
- const r=sel&&reg[sel],mm=Math.floor(men[me]),kk=Math.floor(tk[me]);
- $('sel').innerHTML=r?`<h2>${r.name}</h2><div class="dim">${T[r.tag].n} · ${r.fa} factories · ${r.ba} barracks<br>${r.t} men · ${r.k} tanks</div>`+
-  (r.tag===me?`<div class="row" style="margin-top:8px"><button onclick="act('m')" ${mm<1?'disabled':''}>Deploy ${mm} men</button><button onclick="act('k')" ${kk<1?'disabled':''}>Deploy ${kk} tanks</button><button onclick="act('fa')" ${men[me]<CF||r.fa>=MAXB?'disabled':''}>Factory (${CF} men)</button><button onclick="act('ba')" ${men[me]<CB||r.ba>=MAXB?'disabled':''}>Barracks (${CB} men)</button></div><div class="dim" style="margin-top:8px">Send how many? Then click a neighbouring region.</div><div class="row" style="margin-top:4px">${[['All',1],['Half',.5],['Quarter',.25]].map(([l,f])=>`<button class="${frac===f?'on':''}" onclick="setFrac(${f})">${l}</button>`).join('')}</div><div class="dim" style="margin-top:4px">At least one man always stays behind.</div>`:''):`<div class="dim">Select a region. Move or attack by clicking a neighbour of one of yours.</div>`;
+ const r=sel&&reg[sel],mm=Math.floor(men[me]),kk=Math.floor(tk[me]),gg=Math.floor(ar[me]);
+ $('sel').innerHTML=r?`<h2>${r.name}</h2><div class="dim">${T[r.tag].n} · ${r.fa} factories · ${r.ba} barracks<br>${r.t} men · ${r.k} tanks · ${r.a} guns<br>${TN[TER[r.id]]}${oos(r.id)?' · out of supply':''}</div>`+
+  (r.tag===me?`<div class="row" style="margin-top:8px"><button onclick="act('m')" ${mm<1?'disabled':''}>Deploy ${mm} men</button><button onclick="act('k')" ${kk<1?'disabled':''}>Deploy ${kk} tanks</button><button onclick="act('a')" ${gg<1?'disabled':''}>Deploy ${gg} guns</button><button onclick="act('fa')" ${men[me]<CF||r.fa>=MAXB?'disabled':''}>Factory (${CF} men)</button><button onclick="act('ba')" ${men[me]<CB||r.ba>=MAXB?'disabled':''}>Barracks (${CB} men)</button></div><div class="dim" style="margin-top:8px">Send how many? Then click a neighbouring region.</div><div class="row" style="margin-top:4px">${[['All',1],['Half',.5],['Quarter',.25]].map(([l,f])=>`<button class="${frac===f?'on':''}" onclick="setFrac(${f})">${l}</button>`).join('')}</div><div class="dim" style="margin-top:4px">At least one man always stays behind.</div>`:''):`<div class="dim">Select a region. Move or attack by clicking a neighbour of one of yours. Shift-click selects without moving.</div>`;
  let s='';
  LINKS.forEach(([a,b])=>{const A=reg[a],B2=reg[b];s+=`<line x1="${A.x}" y1="${A.y}" x2="${B2.x}" y2="${B2.y}" stroke="#7d8c84" stroke-opacity=".5" stroke-width="2"/>`});
  ids.forEach(i=>{const g=reg[i],tg=sel&&reg[sel].tag===me&&nb[sel].includes(i),isSel=sel===i,ff='font-family="Special Elite,Courier New,monospace"';
-  s+=`<g onclick="click('${i}')" tabindex="0" onkeydown="if(event.key==='Enter')click('${i}')"><circle cx="${g.x}" cy="${g.y}" r="36" fill="${T[g.tag].c}" stroke="${isSel?'#fff':tg?'#d9a441':'#1d2421'}" stroke-width="${isSel||tg?4:2}" ${tg?'stroke-dasharray="6 4"':''}/>
-  <rect x="${g.x-19}" y="${g.y-18}" width="38" height="32" rx="2" fill="#1d2421" fill-opacity=".85"/><text x="${g.x}" y="${g.y-3}" text-anchor="middle" fill="#e8e2cf" font-size="15" ${ff}>${g.t}</text><text x="${g.x}" y="${g.y+10}" text-anchor="middle" fill="#d9a441" font-size="12" ${ff}>${g.k}T</text>
+  s+=`<g onclick="click('${i}',event)" tabindex="0" onkeydown="if(event.key==='Enter')click('${i}')"><circle cx="${g.x}" cy="${g.y}" r="36" fill="${T[g.tag].c}" stroke="${isSel?'#fff':tg?'#d9a441':'#1d2421'}" stroke-width="${isSel||tg?4:2}" ${tg?'stroke-dasharray="6 4"':''}/>
+  <rect x="${g.x-28}" y="${g.y-18}" width="56" height="32" rx="2" fill="#1d2421" fill-opacity=".85"/><text x="${g.x}" y="${g.y-3}" text-anchor="middle" fill="${oos(i)?'#e8806e':'#e8e2cf'}" font-size="15" ${ff}>${g.t}</text><text x="${g.x}" y="${g.y+10}" text-anchor="middle" fill="#d9a441" font-size="12" ${ff}>${g.k}T ${g.a}A</text>
   <text x="${g.x}" y="${g.y+54}" text-anchor="middle" fill="#e8e2cf" font-size="13" font-family="system-ui,sans-serif">${CAP[g.tag]===i?'★ ':''}${g.name}</text></g>`});
  $('svg').innerHTML=s;renderSpeed()}
 
 function menu(){const o=$('ov');o.style.display='flex';setSpeed(0);
- o.innerHTML=`<div><h1>Fronts</h1><p>A small grand strategy game. Factories build tanks, barracks train men, and every tank needs a man to crew it. Space pauses, keys 1 to 5 set the speed.</p><div class="row">${['GER','UK','SOV','ITA','FRA','POL'].map(t=>`<button onclick="start('${t}')">${T[t].n}</button>`).join('')}</div><p class="dim">January 1936. Everyone is at peace, and some nations start with far bigger industry than others. Tensions rise toward 1939.</p></div>`}
+ o.innerHTML=`<div><h1>Fronts</h1><p>A small grand strategy game. Factories build tanks, barracks train men, and every tank needs a man to crew it. Terrain and supply lines matter, and research unlocks upgrades. Space pauses, keys 1 to 5 set the speed.</p><div class="row">${['GER','UK','SOV','ITA','FRA','POL'].map(t=>`<button onclick="start('${t}')">${T[t].n}</button>`).join('')}</div><p class="dim">January 1936. Everyone is at peace, and some nations start with far bigger industry than others. Tensions rise toward 1939.</p></div>`}
 menu();
 </script></body></html>
