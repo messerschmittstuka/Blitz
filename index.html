@@ -28,8 +28,11 @@ main{flex:1;min-width:0;position:relative;display:flex;flex-direction:column}
 #top{display:flex;flex-wrap:wrap;gap:8px 18px;align-items:center;padding:8px 14px;background:var(--panel);border-bottom:1px solid #33403a}
 #top b{color:var(--acc);font-weight:400}
 .tick{flex:1 1 200px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-#mapwrap{flex:1;min-height:0;display:flex;align-items:center;justify-content:center;background:#263438}
-canvas{max-width:100%;max-height:100%;cursor:pointer}
+#mapwrap{flex:1;min-height:0;display:flex;align-items:center;justify-content:center;background:#263438;position:relative;overflow:hidden;touch-action:none}
+#zoom{position:absolute;right:10px;top:10px;display:flex;flex-direction:column;gap:6px;z-index:2}
+#zoom button{width:36px;height:36px;padding:0;font-size:18px}
+.tr{margin-left:auto;display:flex;gap:14px;align-items:center;flex-wrap:wrap;justify-content:flex-end}
+canvas{max-width:100%;max-height:100%;cursor:pointer;transform-origin:0 0}
 .tn{margin:6px 0;border-left:2px solid #55635a;padding-left:8px}.tn.done{border-color:#d9a441}.tn.lock{opacity:.7}
 #drawer.wide{width:min(480px,calc(100vw - 56px))}
 #card{position:absolute;right:10px;bottom:10px;width:min(310px,calc(100% - 20px));background:var(--panel);border:1px solid #55635a;border-radius:4px;padding:12px;display:none}
@@ -41,13 +44,13 @@ canvas{max-width:100%;max-height:100%;cursor:pointer}
 </style></head><body>
 <nav id="rail"></nav>
 <section id="drawer"></section>
-<main><div id="top"></div><div id="mapwrap"><canvas id="cv" width="1620" height="1296" aria-label="Map of Europe"></canvas></div><div id="card"></div></main>
+<main><div id="top"></div><div id="mapwrap"><canvas id="cv" width="1620" height="1296" aria-label="Map of Europe"></canvas><div id="zoom"><button onmousedown="zoomBy(1.4)" aria-label="Zoom in">+</button><button onmousedown="zoomBy(1/1.4)" aria-label="Zoom out">−</button><button onmousedown="zoomReset()" aria-label="Reset view">⟲</button></div></div><div id="card"></div></main>
 <div id="ov"></div>
 <script>
 const C=[["GER", "Germany", "ax", "#6b7078", "Central Europe"], ["ITA", "Italy", "ax", "#6f9a5a", "Mediterranean"], ["UK", "United Kingdom", "al", "#c5586a", "British Isles"], ["FRA", "France", "al", "#4f7fc4", "Western Europe"], ["POL", "Poland", "al", "#d4b45e", "Central Europe"], ["USA", "United States", "al", "#3c9a9a", "Americas"], ["SOV", "Soviet Union", "su", "#b8382f", "Eastern Europe"], ["IRL", "Ireland", "nu", null, "British Isles"], ["BEL", "Belgium", "nu", null, "Western Europe"], ["NED", "Netherlands", "nu", null, "Western Europe"], ["SPA", "Spain", "nu", null, "Western Europe"], ["POR", "Portugal", "nu", null, "Western Europe"], ["AUT", "Austria", "nu", null, "Central Europe"], ["CZE", "Czechoslovakia", "nu", null, "Central Europe"], ["HUN", "Hungary", "nu", null, "Central Europe"], ["NOR", "Norway", "nu", null, "Scandinavia"], ["SWE", "Sweden", "nu", null, "Scandinavia"], ["FIN", "Finland", "nu", null, "Scandinavia"], ["DEN", "Denmark", "nu", null, "Scandinavia"], ["EST", "Estonia", "nu", null, "Baltics"], ["LAT", "Latvia", "nu", null, "Baltics"], ["LIT", "Lithuania", "nu", null, "Baltics"], ["ROM", "Romania", "nu", null, "Balkans"], ["BUL", "Bulgaria", "nu", null, "Balkans"], ["YUG", "Yugoslavia", "nu", null, "Balkans"], ["GRE", "Greece", "nu", null, "Balkans"], ["TUR", "Turkey", "nu", null, "Middle East"], ["LEV", "Levant", "nu", null, "Middle East"]];
 const R0=[["ENG", "England", "UK", 4, 3, 5, -1.5, 52.3, "p"], ["SCO", "Scotland", "UK", 1, 1, 2, -4, 56.7, "m"], ["EGY", "Egypt", "UK", 0, 1, 3, 30, 30.8, "d"], ["PAR", "Paris Basin", "FRA", 2, 2, 4, 2.5, 48.8, "p"], ["SWF", "Aquitaine", "FRA", 1, 1, 2, -0.3, 44.7, "p"], ["SEF", "Provence", "FRA", 1, 2, 2, 5, 44.2, "m"], ["FNA", "French N. Africa", "FRA", 0, 1, 3, 1, 34, "d"], ["RHN", "Rhineland", "GER", 3, 3, 5, 7.5, 50.8, "f"], ["BER", "Brandenburg", "GER", 4, 3, 6, 13.4, 52.5, "p"], ["BAV", "Bavaria", "GER", 2, 2, 4, 11.3, 48.6, "f"], ["EPR", "East Prussia", "GER", 0, 1, 3, 20.5, 54.3, "f"], ["WAR", "Central Poland", "POL", 1, 2, 4, 20.5, 52.3, "p"], ["GAL", "Galicia", "POL", 1, 1, 3, 22.5, 50, "p"], ["NIT", "North Italy", "ITA", 2, 2, 3, 10.5, 45, "p"], ["CIT", "Central Italy", "ITA", 1, 1, 3, 12.8, 42.6, "m"], ["SIT", "South Italy", "ITA", 0, 1, 2, 16, 40.3, "m"], ["LBY", "Libya", "ITA", 0, 1, 3, 16, 31.5, "d"], ["SOB", "Belarus", "SOV", 1, 2, 4, 28.5, 53.6, "f"], ["UKR", "Ukraine", "SOV", 3, 3, 5, 32, 49.3, "p"], ["MOS", "Moscow", "SOV", 4, 3, 6, 37.5, 56, "p"], ["LEN", "Leningrad", "SOV", 2, 2, 3, 32.5, 60.5, "f"], ["CAU", "Caucasus", "SOV", 2, 2, 3, 42, 44.5, "m"], ["USA", "United States", "USA", 8, 5, 6, -19, 45, "p"], ["IRL", "Ireland", "IRL", 0, 1, 2, -8, 53.3, "p"], ["BEL", "Belgium", "BEL", 1, 1, 2, 4.6, 50.7, "p"], ["NED", "Netherlands", "NED", 1, 1, 2, 5.4, 52.3, "p"], ["SPN", "Northern Spain", "SPA", 1, 1, 3, -3.5, 41.8, "m"], ["SPS", "Southern Spain", "SPA", 1, 1, 3, -4.5, 38.2, "m"], ["POR", "Portugal", "POR", 0, 1, 2, -8, 39.8, "p"], ["AUT", "Austria", "AUT", 1, 1, 2, 14.5, 47.3, "m"], ["CZE", "Bohemia", "CZE", 2, 2, 3, 15.5, 49.8, "f"], ["HUN", "Hungary", "HUN", 1, 1, 2, 19.5, 47.2, "p"], ["NOR", "Norway", "NOR", 1, 1, 2, 9.5, 61.5, "m"], ["SWE", "Sweden", "SWE", 1, 1, 3, 15.5, 60, "f"], ["FIN", "Finland", "FIN", 0, 1, 3, 26, 63, "f"], ["DEN", "Denmark", "DEN", 0, 1, 2, 9.5, 56.2, "p"], ["EST", "Estonia", "EST", 0, 1, 1, 25.5, 58.7, "f"], ["LAT", "Latvia", "LAT", 0, 1, 1, 25.3, 56.9, "f"], ["LIT", "Lithuania", "LIT", 0, 1, 1, 23.8, 55.4, "p"], ["ROM", "Romania", "ROM", 1, 2, 3, 25, 45.8, "f"], ["BUL", "Bulgaria", "BUL", 0, 1, 2, 25.5, 42.7, "m"], ["YUG", "Yugoslavia", "YUG", 1, 2, 3, 19.5, 44.5, "m"], ["GRE", "Greece", "GRE", 0, 1, 2, 22.5, 39.3, "m"], ["WTU", "Western Turkey", "TUR", 1, 1, 3, 31, 39.5, "m"], ["ETU", "Eastern Turkey", "TUR", 0, 1, 3, 38.5, 38.8, "m"], ["LEV", "Levant", "LEV", 0, 1, 2, 38, 34, "d"]];
 const SEA=["ENG-PAR", "ENG-BEL", "ENG-NED", "ENG-IRL", "SCO-IRL", "SCO-NOR", "DEN-SWE", "DEN-NOR", "SIT-LBY", "SIT-GRE", "SPS-FNA", "FIN-EST", "GRE-WTU", "UKR-WTU", "EGY-LEV", "USA-ENG", "USA-IRL", "USA-POR", "USA-SPN", "USA-FNA"];
-const MASK=[[-9, 37, -9.5, 39, -8.8, 42, -9.3, 43.2, -8, 43.7, -2, 43.5, -1.3, 46, -2.3, 47.3, -4.5, 48.4, -2, 48.7, -1.5, 49.7, 0.2, 49.4, 1.6, 50.9, 3.5, 51.4, 4.5, 52.5, 5, 53.4, 7, 53.6, 8.6, 54, 8.3, 55.5, 8.3, 57, 10.5, 57.7, 10.6, 56.5, 9.8, 55, 10.2, 54.4, 12, 54.1, 14, 54, 16, 54.5, 18.5, 54.8, 21, 55.2, 21, 56.5, 21.5, 57.5, 23, 57.2, 24, 57.1, 24.4, 58.3, 23.5, 59.2, 25, 59.6, 28, 59.5, 30, 59.9, 30, 66, 45, 66, 45, 30, 35, 30, 34.8, 31.3, 35, 33, 35.8, 36, 33, 36.2, 30.5, 36.6, 28, 36.8, 26.5, 38.3, 26.2, 40, 24, 40.5, 23.5, 38, 22.5, 36.5, 21.5, 37, 21, 39, 19.5, 40.5, 19, 42, 16, 43.5, 13.7, 45.2, 12.3, 45.3, 13.5, 43.6, 14.5, 42, 16, 41.9, 18.5, 40.2, 17, 39.5, 16.5, 38.2, 15.7, 38, 15.8, 40, 14, 40.8, 12, 41.8, 10.5, 43, 9, 44.3, 7.5, 43.8, 6, 43.1, 3.5, 43.3, 3, 42, 0.5, 40.5, -0.5, 38.7, -2, 36.8, -5.5, 36.1, -6.3, 36.7], [5, 58.5, 5, 61, 6, 62.5, 9, 63.5, 12, 65.5, 13, 66, 30, 66, 30, 60.2, 27, 60.4, 23, 59.9, 21.5, 60.2, 21.5, 61.5, 21.5, 63, 23, 64.5, 25, 65.3, 22, 65.5, 21, 64.5, 19, 63.5, 17.5, 62, 17.5, 60.5, 19, 59.7, 16.8, 58, 16.5, 56.8, 14.3, 56, 12.8, 56, 11.8, 58, 10.5, 59, 8, 58], [-5.5, 50, -3, 50.6, 1.3, 51.1, 1.7, 52.7, 0, 53.5, -1.5, 55, -2, 56, -1.8, 57.6, -3.5, 58.6, -5, 58.5, -6, 57, -5.5, 55.5, -3, 54.8, -3, 53.4, -4.5, 53.3, -5.2, 52, -3.3, 51.5], [-10, 51.7, -6, 52, -6, 54.3, -8, 55.2, -10, 54], [-9.5, 30, -9.5, 32, -9.2, 34, -6, 35.8, -2, 35.2, 3, 36.8, 10, 37.3, 11, 35, 10, 33.3, 15, 32.5, 20, 32, 25, 31.8, 30, 31, 32, 31.3, 33, 30.8, 33, 30], [-25, 35, -14, 35, -14, 55, -25, 55]];
+const MASK=[[-9, 37, -9.5, 39, -8.8, 42, -9.3, 43.2, -8, 43.7, -2, 43.5, -1.3, 46, -2.3, 47.3, -4.5, 48.4, -2, 48.7, -1.5, 49.7, 0.2, 49.4, 1.6, 50.9, 3.5, 51.4, 4.5, 52.5, 5, 53.4, 7, 53.6, 8.6, 54, 8.3, 55.5, 8.3, 57, 10.5, 57.7, 10.6, 56.5, 9.8, 55, 10.2, 54.4, 12, 54.1, 14, 54, 16, 54.5, 18.5, 54.8, 21, 55.2, 21, 56.5, 21.5, 57.5, 23, 57.2, 24, 57.1, 24.4, 58.3, 23.5, 59.2, 25, 59.6, 28, 59.5, 30, 59.9, 30, 66, 45, 66, 45, 30, 35, 30, 34.8, 31.3, 35, 33, 35.8, 36, 33, 36.2, 30.5, 36.6, 28, 36.8, 26.5, 38.3, 26.2, 40, 24, 40.5, 23.5, 38, 22.5, 36.5, 21.5, 37, 21, 39, 19.5, 40.5, 19, 42, 16, 43.5, 13.7, 45.2, 12.3, 45.3, 13.5, 43.6, 14.5, 42, 16, 41.9, 18.5, 40.2, 17, 39.5, 16.5, 38.2, 15.7, 38, 15.8, 40, 14, 40.8, 12, 41.8, 10.5, 43, 9, 44.3, 7.5, 43.8, 6, 43.1, 3.5, 43.3, 3, 42, 0.5, 40.5, -0.5, 38.7, -2, 36.8, -5.5, 36.1, -6.3, 36.7], [5, 58.5, 5, 61, 6, 62.5, 9, 63.5, 12, 65.5, 13, 66, 30, 66, 30, 60.2, 27, 60.4, 23, 59.9, 21.5, 60.2, 21.5, 61.5, 21.5, 63, 23, 64.5, 25, 65.3, 22, 65.5, 21, 64.5, 19, 63.5, 17.5, 62, 17.5, 60.5, 19, 59.7, 16.8, 58, 16.5, 56.8, 14.3, 56, 12.8, 56, 11.8, 58, 10.5, 59, 8, 58], [-5.5, 50, -3, 50.6, 1.3, 51.1, 1.7, 52.7, 0, 53.5, -1.5, 55, -2, 56, -1.8, 57.6, -3.5, 58.6, -5, 58.5, -6, 57, -5.5, 55.5, -3, 54.8, -3, 53.4, -4.5, 53.3, -5.2, 52, -3.3, 51.5], [-10, 51.7, -6, 52, -6, 54.3, -8, 55.2, -10, 54], [-9.5, 30, -9.5, 32, -9.2, 34, -6, 35.8, -2, 35.2, 3, 36.8, 10, 37.3, 11, 35, 10, 33.3, 15, 32.5, 20, 32, 25, 31.8, 30, 31, 32, 31.3, 33, 30.8, 33, 30], [-25,64,-21,64,-19.5,61,-18.5,58.5,-16.5,57,-16,55,-18,53.5,-17,52,-16.2,50,-17.5,48.5,-16,47,-15.5,45.5,-16.2,44,-17,42.5,-17,41,-16.5,39.5,-17.2,38,-18.5,36.5,-19.3,34.5,-20.5,32.5,-21.5,30.5,-22,30,-25,30]];
 const HOLE=[28, 41.9, 28.7, 43.5, 29, 45, 30.7, 46.5, 33, 46.1, 33.5, 44.5, 36, 45.2, 38, 47, 37.5, 44.5, 40, 43.5, 41.5, 41.5, 39, 41, 36, 41.3, 33, 42, 31, 41.1, 29.2, 41.2];
 const T={};C.forEach(([t,n,f,c,g],i)=>T[t]={n,f,c:c||`hsl(${i*47%360},28%,64%)`,g});
 const CAP={};R0.forEach(r=>{if(!CAP[r[2]])CAP[r[2]]=r[0]});
@@ -81,7 +84,7 @@ const TECH=[
 const tById=q=>TECH.find(z=>z[0]===q);
 const dep=x=>x[4].length?1+Math.max(...x[4].map(q=>dep(tById(q)))):0;
 ids.forEach(i=>nb[i]=[]);
-let sup={},ar,tech,rp,line,reg,men,tk,prog,W,day,me,sel,spd=0,last=1,timer,over,logs,frac=1;
+let battles=[],sup={},ar,tech,rp,line,reg,men,tk,prog,W,day,me,sel,spd=0,last=1,timer,over,logs,frac=1;
 const $=id=>document.getElementById(id);
 const pick=a=>a[Math.floor(Math.random()*a.length)];
 const has=(t,x)=>tech[t].has(x);
@@ -91,9 +94,10 @@ const tot=r=>r.t+r.k*3+r.a*2;
 // effective strength per weapon [men, tanks, guns]; they are never merged into one number
 function eff(u,tag,ter,att,low){const tf=TV[ter]/3,f=att?tf+(1-tf)*(bn(tag,'tt')?.5:0):1,m=(att?1:TD[ter]*(1+bn(tag,'df')))*(low?(att?.6:.8):1);
  return [u.t*(1+bn(tag,'ia'))*m,u.k*(1+bn(tag,'ta'))*f*m,u.a*(1+bn(tag,'aa'))*m]}
-function odds(f,t,fr=1,th=3){const a=reg[f],b=reg[t],ter=TER[t];
- const A=eff({t:Math.floor((a.t-1)*fr),k:Math.floor(a.k*fr),a:Math.floor(a.a*fr)},a.tag,ter,1,oos(f)),D=eff(b,b.tag,ter,0,oos(t));
- const q=A.map((x,i)=>D[i]>0?x/D[i]:null);return [q,q.every(v=>v===null||v>=th)&&A.some(x=>x>0)]}
+const edge=(A,D)=>{let t=0,n=0;A.forEach((x,i)=>{if(x+D[i]>0){t+=x/(x+D[i]);n++}});return n?t/n:.5};
+function edgeOf(f,t,fr=1){const a=reg[f],b=reg[t],ter=TER[t];
+ const A=eff({t:Math.floor((a.t-1)*fr),k:Math.floor(a.k*fr),a:Math.floor(a.a*fr)},a.tag,ter,1,oos(f)),D=eff(b,b.tag,ter,0,oos(t));return edge(A,D)}
+const lose=(c,r)=>{const x=c*r;return Math.min(c,Math.floor(x)+(Math.random()<x%1?1:0))};
 const oos=i=>T[reg[i].tag].f!=='nu'&&!(sup[i]<=3+bn(reg[i].tag,'sr'));
 function calcSupply(){sup={};const q=[];Object.keys(CAP).forEach(t=>{const c=CAP[t];if(T[t].f!=='nu'&&reg[c].tag===t){sup[c]=0;q.push(c)}});
  while(q.length){const i=q.shift();nb[i].forEach(j=>{if(sup[j]===undefined&&T[reg[j].tag].f!=='nu'&&same(reg[i].tag,reg[j].tag)){sup[j]=sup[i]+1;q.push(j)}})}}
@@ -106,26 +110,35 @@ const owned=t=>ids.filter(i=>reg[i].tag===t);
 const sum=(t,k)=>owned(t).reduce((s,i)=>s+reg[i][k],0);
 const aggr=()=>day>=D_POLAND||W.size>0;
 
-function start(t){me=t;day=0;sel=null;over=false;logs=[];W=new Set();reg={};men={};tk={};prog={};ar={};tech={};rp={};line={};
+function start(t){me=t;day=0;sel=null;over=false;logs=[];W=new Set();reg={};men={};tk={};prog={};ar={};tech={};rp={};line={};battles=[];
  R0.forEach(([id,name,tag,fa,ba,tr])=>reg[id]={id,name,tag,fa,ba,t:tr,k:Math.floor(fa/3),a:Math.floor(fa/4)});
  Object.keys(T).forEach(k=>{men[k]=sum(k,'ba')*3;tk[k]=0;prog[k]=0;ar[k]=0;tech[k]=new Set();rp[k]=0;line[k]=Math.random()<.7?'k':'a'});line[me]='k';
  log('January 1, 1936. Europe is at peace. Build up your forces.');
  $('ov').style.display='none';setSpeed(1);render()}
 
-function attack(f,t,fr=1){const a=reg[f],b=reg[t],n=Math.floor((a.t-1)*fr),k=Math.floor(a.k*fr),g=Math.floor(a.a*fr);if(n+k+g<1)return;
- if(same(a.tag,b.tag)){a.t-=n;a.k-=k;a.a-=g;b.t+=n;b.k+=k;b.a+=g;return}
+function attack(f,t,fr=1){const a=reg[f],b=reg[t],n=Math.floor((a.t-1)*fr),k=Math.floor(a.k*fr),g=Math.floor(a.a*fr);
+ if(same(a.tag,b.tag)){if(n+k+g<1)return;a.t-=n;a.k-=k;a.a-=g;b.t+=n;b.k+=k;b.a+=g;return}
+ if(n<1)return;
  if(!hostile(a.tag,b.tag))declare(a.tag,b.tag);
- calcSupply();const ter=TER[t],rn=()=>.9+Math.random()*.2,cnt=[n,k,g],dc=[b.t,b.k,b.a];
- const A=eff({t:n,k,a:g},a.tag,ter,1,oos(f)).map(x=>x*rn()),D=eff(b,b.tag,ter,0,oos(t));
- const win=A.some(x=>x>0)&&A.every((x,i)=>D[i]<=0||x>=3*D[i]);
- const left=cnt.map((c,i)=>c-(A[i]>0&&D[i]>0?Math.ceil(c*Math.min(.9,.5*D[i]/A[i])):0));
  a.t-=n;a.k-=k;a.a-=g;
- if(win){const old=b.tag;b.tag=a.tag;b.t=Math.max(1,left[0]);b.k=left[1];b.a=left[2];
-  if(CAP[old]===t)log(`${b.name}, capital of ${T[old].n}, has fallen to ${T[a.tag].n}!`);
-  else log(`${T[a.tag].n} took ${b.name}.`);check()}
- else{a.t+=left[0];a.k+=left[1];a.a+=left[2];
-  const ld=dc.map((c,i)=>A[i]>0&&D[i]>0?Math.floor(c*Math.min(.8,.25*A[i]/D[i])):0);b.t=Math.max(1,b.t-ld[0]);b.k-=ld[1];b.a-=ld[2];
-  if(a.tag===me||b.tag===me)log(`Attack on ${b.name} failed. Odds (men / tanks / guns, 3 needed in each): ${A.map((x,i)=>D[i]>0?(x/D[i]).toFixed(1):'-').join(' / ')}`)}}
+ const bt=battles.find(x=>x.to===t&&same(x.tag,a.tag));
+ if(bt){bt.t+=n;bt.k+=k;bt.a+=g;bt.t0+=n;return}
+ battles.push({from:f,to:t,tag:a.tag,t:n,k,a:g,t0:n,d0:b.t,day:0,E:.5});
+ if(a.tag===me||b.tag===me)log(`${T[a.tag].n} attacks ${b.name}.`)}
+// one round per day: both sides lose units, the side with more of each weapon loses less
+function stepBattles(){const keep=[];
+ for(const bt of battles){const b=reg[bt.to],h=reg[bt.from],ter=TER[bt.to];
+  if(!hostile(bt.tag,b.tag)){const d=same(bt.tag,b.tag)?b:h.tag===bt.tag?h:null;if(d){d.t+=bt.t;d.k+=bt.k;d.a+=bt.a}continue}
+  const A=eff(bt,bt.tag,ter,1,oos(bt.from)),D=eff(b,b.tag,ter,0,oos(bt.to)),E=edge(A,D),Ed=Math.min(.97,Math.max(.03,E+(Math.random()-.5)*.12)),ra=.24*(1-Ed),rd=.24*Ed;
+  bt.t-=lose(bt.t,ra);bt.k-=lose(bt.k,ra);bt.a-=lose(bt.a,ra*.6);
+  b.t-=lose(b.t,rd);b.k-=lose(b.k,rd);b.a-=lose(b.a,rd*.6);bt.day++;bt.E=E;
+  const aB=bt.t<=0||bt.t<.3*bt.t0,dB=b.t<=0||b.t<.25*bt.d0;
+  if((b.t<=0&&bt.t>0)||(!aB&&dB)){const old=b.tag;b.tag=bt.tag;b.t=Math.max(1,bt.t);b.k=bt.k;b.a=bt.a;
+   log(CAP[old]===bt.to?`${b.name}, capital of ${T[old].n}, has fallen to ${T[bt.tag].n} after ${bt.day} days!`:`${T[bt.tag].n} took ${b.name} after ${bt.day} days.`);check();continue}
+  if(aB){if(h.tag===bt.tag){h.t+=bt.t;h.k+=bt.k;h.a+=bt.a}
+   if(bt.tag===me||b.tag===me)log(`${T[bt.tag].n} failed to take ${b.name} after ${bt.day} days.`);continue}
+  keep.push(bt)}
+ battles=keep}
 
 function check(){if(reg[CAP[me]].tag!==me)return end(false);
  if(ids.filter(i=>same(me,reg[i].tag)).length>=GOAL)end(true)}
@@ -142,7 +155,7 @@ function ai(t){const mine=owned(t);if(!mine.length)return;
  if(!aggr()||(t==='USA'&&day<D_USA))return;
  for(const i of [...mine].sort(()=>Math.random()-.5)){const a=reg[i];if(a.tag!==t||a.t<4||Math.random()>.4)continue;
   const hs=nb[i].filter(j=>hostile(t,reg[j].tag)).sort((x,y)=>tot(reg[x])-tot(reg[y]));
-  if(hs.length){const w=hs.find(j=>odds(i,j,1,3.3)[1]);if(w)attack(i,w)}
+  if(hs.length){const w=hs.find(j=>edgeOf(i,j,1)>=.62);if(w)attack(i,w)}
   else{const fs=nb[i].filter(j=>same(t,reg[j].tag));const f2=fs.filter(j=>front(j)>0);const c=f2.length?f2[0]:pick(fs);if(c)attack(i,c)}
   if(over)return}}
 
@@ -156,6 +169,7 @@ function tick(){if(over)return;day++;calcSupply();
  if(day===D_POLAND&&me!=='GER'&&!W.has('al,ax')){W.add('al,ax');log('Germany invades Poland. Britain and France declare war.')}
  if(day===D_USSR&&me!=='GER'&&W.has('al,ax')&&!W.has('ax,su')){W.add('ax,su');log('Germany invades the Soviet Union.')}
  if(day===D_USA)log('The United States enters the war.');
+ stepBattles();
  Object.keys(T).forEach(t=>{if(T[t].f!=='nu'&&t!==me)ai(t)});
  render()}
 function setSpeed(s){spd=s;if(s)last=s;clearInterval(timer);if(s)timer=setInterval(tick,[0,700,350,200,100,40][s]);renderSpeed()}
@@ -207,9 +221,24 @@ function buildMap(){
  cc=mk();cctx=cc.getContext('2d');lay=mk();lctx=lay.getContext('2d');img=lctx.createImageData(MW,MH);
  base=mk();const bx=base.getContext('2d'),gr=bx.createLinearGradient(0,0,0,MH);gr.addColorStop(0,'#2d4248');gr.addColorStop(1,'#1f2f36');bx.fillStyle=gr;bx.fillRect(0,0,MW,MH);bx.shadowColor='rgba(150,195,195,.5)';bx.shadowBlur=28*S;bx.drawImage(m,0,0);
  const at=e=>{const r=cv.getBoundingClientRect(),x=Math.floor((e.clientX-r.left)*MW/r.width),y=Math.floor((e.clientY-r.top)*MH/r.height);return x<0||y<0||x>=MW||y>=MH?-1:rid[y*MW+x]};
- cv.onclick=e=>{const i=at(e);if(i>=0)click(ids[i],e);else if(running()){sel=null;render()}};
+ cv.onclick=e=>{if(moved)return;const i=at(e);if(i>=0)click(ids[i],e);else if(running()){sel=null;render()}};
  cv.onmousemove=e=>{const i=at(e);cv.title=i>=0&&reg?`${R0[i][1]} (${T[reg[ids[i]].tag].n})`:''};
+ const wp=$('mapwrap');
+ wp.addEventListener('wheel',e=>{e.preventDefault();zoomAt(e.deltaY<0?1.15:1/1.15,e.clientX,e.clientY)},{passive:false});
+ wp.onpointerdown=e=>{if(e.target.closest('#zoom'))return;drag={x:e.clientX,y:e.clientY,ox:zv.x,oy:zv.y,id:e.pointerId};moved=false};
+ wp.onpointermove=e=>{if(!drag)return;const dx=e.clientX-drag.x,dy=e.clientY-drag.y;if(!moved&&Math.hypot(dx,dy)>5){moved=true;wp.setPointerCapture(drag.id)}if(moved){zv.x=drag.ox+dx;zv.y=drag.oy+dy;applyView()}};
+ wp.onpointerup=wp.onpointercancel=()=>{drag=null;setTimeout(()=>moved=false,0)};
+ addEventListener('resize',applyView);
 }
+let zv={z:1,x:0,y:0},drag=null,moved=false;
+function applyView(){const w=$('mapwrap'),cw=cv.offsetWidth*zv.z,ch=cv.offsetHeight*zv.z;
+ zv.x=Math.min(w.clientWidth-80-cv.offsetLeft,Math.max(80-cw-cv.offsetLeft,zv.x));
+ zv.y=Math.min(w.clientHeight-80-cv.offsetTop,Math.max(80-ch-cv.offsetTop,zv.y));
+ cv.style.transform=`translate(${zv.x}px,${zv.y}px) scale(${zv.z})`}
+function zoomAt(f,px,py){const r=$('mapwrap').getBoundingClientRect(),ox=px-r.left-cv.offsetLeft,oy=py-r.top-cv.offsetTop,z2=Math.min(5,Math.max(1,zv.z*f)),k=z2/zv.z;
+ zv.x=ox-(ox-zv.x)*k;zv.y=oy-(oy-zv.y)*k;zv.z=z2;applyView()}
+function zoomBy(f){const r=$('mapwrap').getBoundingClientRect();zoomAt(f,r.left+r.width/2,r.top+r.height/2)}
+function zoomReset(){zv={z:1,x:0,y:0};applyView()}
 function rgbOf(tag){if(rgbs[tag])return rgbs[tag];ctx.fillStyle=T[tag].c;const h=ctx.fillStyle;return rgbs[tag]=[1,3,5].map(k=>parseInt(h.substr(k,2),16))}
 function drawMap(){
  const key=ids.map(i=>reg[i].tag).join()+'|'+sel+'|'+(sel&&reg[sel].tag===me);
@@ -220,6 +249,10 @@ function drawMap(){
    const f=BF[bd[p]];d[o]=pr[r]*f;d[o+1]=pg[r]*f;d[o+2]=pb[r]*f;d[o+3]=255}
   lctx.putImageData(img,0,0);cctx.drawImage(base,0,0);cctx.drawImage(lay,0,0)}
  ctx.drawImage(cc,0,0);ctx.textAlign='center';ctx.textBaseline='middle';
+ battles.forEach(bt=>{const[x1,y1]=cen[ids.indexOf(bt.from)],[x2,y2]=cen[ids.indexOf(bt.to)];
+  ctx.strokeStyle='rgba(235,95,75,.95)';ctx.lineWidth=3*S;ctx.setLineDash([9*S,6*S]);ctx.beginPath();ctx.moveTo(x1,y1);ctx.lineTo(x2,y2);ctx.stroke();ctx.setLineDash([]);
+  const bx=x2+(x1-x2)*.3,by=y2+(y1-y2)*.3,tx='⚔ '+Math.round(bt.E*100)+'%';ctx.font=11*S+'px system-ui,sans-serif';const w=ctx.measureText(tx).width+10*S;
+  ctx.fillStyle='rgba(150,40,30,.95)';ctx.beginPath();if(ctx.roundRect)ctx.roundRect(bx-w/2,by-9*S,w,18*S,9*S);else ctx.rect(bx-w/2,by-9*S,w,18*S);ctx.fill();ctx.fillStyle='#fff';ctx.fillText(tx,bx,by+S/2)});
  const mono='"Special Elite","Courier New",monospace';
  ids.forEach((id,i)=>{const g=reg[id],[x,y,ar]=cen[i],bad=oos(id),parts=[g.t+''];
   if(g.k)parts.push(g.k+'T');if(g.a)parts.push(g.a+'A');
@@ -240,23 +273,24 @@ function togP(p){openP=openP===p?null:p;render()}
 const rate=()=>({m:sum(me,'ba')*BARR*(1+bn(me,'man')),f:sum(me,'fa')*FACT*(1+bn(me,'fac'))/(line[me]==='k'?1:.6)});
 function panelHtml(){const mine=owned(me),F=sum(me,'fa'),B=sum(me,'ba'),r=rate(),u=line[me]==='k'?'tanks':'guns';
  if(openP==='prod')return `<h2>Production</h2><p class="dim">${F} factories and ${B} barracks in ${mine.length} regions.<br>Barracks train ${r.m.toFixed(1)} men a day. Factories build ${r.f.toFixed(2)} ${u} a day, and each one takes a man as crew.${prog[me]>=(line[me]==='k'?1:.6)&&men[me]<1?'<br><b>Production is waiting for crews.</b>':''}</p><div class="dim">Factories build</div><div class="row" style="margin-top:4px">${[['k','Tanks'],['a','Artillery']].map(([v,l])=>`<button class="${line[me]===v?'on':''}" onmousedown="setLine('${v}')">${l}</button>`).join('')}</div><p class="dim">Select a region and use its card to build a factory (${CF} men) or barracks (${CB} men).</p>${mine.map(i=>rowR(i,`${reg[i].name} · ${reg[i].fa} fac · ${reg[i].ba} bar`)).join('')}`;
- if(openP==='mil')return `<h2>Military</h2><p class="dim">Pool: ${Math.floor(men[me])} men, ${Math.floor(tk[me])} tanks, ${Math.floor(ar[me])} guns. Deploy them from a region card.</p>${mine.map(i=>rowR(i,`${reg[i].name} · ${reg[i].t} men ${reg[i].k}T ${reg[i].a}A${oos(i)?' · no supply':''}`)).join('')}`;
+ if(openP==='mil')return `<h2>Military</h2><p class="dim">Pool: ${Math.floor(men[me])} men, ${Math.floor(tk[me])} tanks, ${Math.floor(ar[me])} guns. Deploy them from a region card.</p>${battleRows()}${mine.map(i=>rowR(i,`${reg[i].name} · ${reg[i].t} men ${reg[i].k}T ${reg[i].a}A${oos(i)?' · no supply':''}`)).join('')}`;
  if(openP==='res')return `<h2>Research</h2><p class="dim">${Math.floor(rp[me])} points. Factories and barracks generate more. Each branch unlocks in order.</p>`+Object.keys(BR).map(b=>`<h2 style="margin-top:14px;font-size:15px">${BR[b]}</h2>`+TECH.filter(x=>x[2]===b).map(x=>{const st=has(me,x[0])?'done':can(me,x)?'ok':'lock';return `<div class="tn ${st}" style="margin-left:${dep(x)*14}px"><button onmousedown="buy('${x[0]}')" ${st!=='ok'||rp[me]<x[3]?'disabled':''}>${st==='done'?'✓ ':st==='lock'?'🔒 ':''}${x[1]} (${x[3]})</button><div class="dim">${x[6]}${st==='lock'?' Needs '+x[4].map(q=>tById(q)[1]).join(', ')+'.':''}</div></div>`}).join('')).join('');
  if(openP==='log')return `<h2>Log</h2>${logs.map(l=>`<p class="dim">${l}</p>`).join('')}`;
  const n=ids.filter(i=>same(me,reg[i].tag)).length,wars=[...W].map(k=>k.split(',').map(x=>WN[x]).join(' vs ')).join('; ')||'nobody';
  return `<h2>World</h2><p class="dim">Goal: hold ${GOAL} of ${ids.length} regions with your side (${n} now). Losing your capital (★) loses the game.</p><p class="dim">At war: ${wars}</p>`+[...new Set(C.map(c=>c[4]))].map(g=>`<details ${openG.has(g)?'open':''} ontoggle="this.open?openG.add('${g}'):openG.delete('${g}')"><summary>${g}</summary>${C.filter(c=>c[4]===g).map(c=>`<div class="dim" style="margin-top:6px"><b>${c[1]}</b></div>${R0.filter(r=>r[2]===c[0]).map(r=>rowR(r[0],`${r[1]}${reg[r[0]].tag!==c[0]?' · '+T[reg[r[0]].tag].n:''}`)).join('')}`).join('')}</details>`).join('');
 }
-function topHtml(){return `<div><h2>${dateStr()}</h2><div class="dim">${T[me].n}</div></div><div class="row">${[['Pause',0],['1',1],['2',2],['3',3],['4',4],['5',5]].map(([l,s])=>`<button class="${spd===s?'on':''}" onmousedown="setSpeed(${s})">${l}</button>`).join('')}</div><div>Men <b>${Math.floor(men[me])}</b> · Tanks <b>${Math.floor(tk[me])}</b> · Guns <b>${Math.floor(ar[me])}</b> · Research <b>${Math.floor(rp[me])}</b></div><div class="dim tick">${logs[0]||''}</div>`}
+function topHtml(){return `<div>Men <b>${Math.floor(men[me])}</b> · Tanks <b>${Math.floor(tk[me])}</b> · Guns <b>${Math.floor(ar[me])}</b> · Research <b>${Math.floor(rp[me])}</b></div><div class="dim tick">${logs[0]||''}</div><div class="tr"><div style="text-align:right"><h2>${dateStr()}</h2><div class="dim">${T[me].n}</div></div><div class="row">${[['Pause',0],['1',1],['2',2],['3',3],['4',4],['5',5]].map(([l,s])=>`<button class="${spd===s?'on':''}" onmousedown="setSpeed(${s})">${l}</button>`).join('')}</div></div>`}
 function cardHtml(){const r=sel&&reg[sel];if(!r)return'';const o=R0[ids.indexOf(sel)][2],mm=Math.floor(men[me]),kk=Math.floor(tk[me]),gg=Math.floor(ar[me]);
- return `<div class="row" style="justify-content:space-between"><h2>${r.name}</h2><button onmousedown="sel=null;render()" aria-label="Close">×</button></div><div class="dim">${T[o].n}${o!==r.tag?', held by '+T[r.tag].n:''} · ${T[o].g}<br>${r.fa} factories · ${r.ba} barracks · ${TN[TER[sel]]}${oos(sel)?' · out of supply':''}<br>${r.t} men · ${r.k} tanks · ${r.a} guns</div>`+
+ return `<div class="row" style="justify-content:space-between"><h2>${r.name}</h2><button onmousedown="sel=null;render()" aria-label="Close">×</button></div><div class="dim">${T[o].n}${o!==r.tag?', held by '+T[r.tag].n:''} · ${T[o].g}<br>${r.fa} factories · ${r.ba} barracks · ${TN[TER[sel]]}${oos(sel)?' · out of supply':''}<br>${r.t} men · ${r.k} tanks · ${r.a} guns</div>${battles.filter(b=>b.to===sel).map(b=>`<div style="color:#e8806e;font-size:13px;margin-top:4px">${T[b.tag].n} attacking, day ${b.day}, attacker edge ${Math.round(b.E*100)}%</div>`).join('')}`+
  (r.tag===me?`<div class="row" style="margin-top:8px"><button onmousedown="act('m')" ${mm<1?'disabled':''}>Deploy ${mm} men</button><button onmousedown="act('k')" ${kk<1?'disabled':''}>Deploy ${kk} tanks</button><button onmousedown="act('a')" ${gg<1?'disabled':''}>Deploy ${gg} guns</button><button onmousedown="act('fa')" ${men[me]<CF||r.fa>=MAXB?'disabled':''}>Factory (${CF} men)</button><button onmousedown="act('ba')" ${men[me]<CB||r.ba>=MAXB?'disabled':''}>Barracks (${CB} men)</button></div><div class="dim" style="margin-top:8px">Send how many? Then click a neighbouring region.</div><div class="row" style="margin-top:4px">${[['All',1],['Half',.5],['Quarter',.25]].map(([l,f])=>`<button class="${frac===f?'on':''}" onmousedown="setFrac(${f})">${l}</button>`).join('')}</div><div class="dim" style="margin-top:4px">At least one man always stays behind. Shift-click selects without moving.</div>${oddsHtml()}`:'')}
-function oddsHtml(){const rows=nb[sel].filter(j=>!same(me,reg[j].tag)).map(j=>{const [q,ok]=odds(sel,j,frac);return `<div class="dim">${reg[j].name}: ${q.map(v=>v===null?'-':v.toFixed(1)).join(' / ')}${ok?' ✓':''}</div>`});return rows.length?`<div class="dim" style="margin-top:8px">Odds against neighbours (men / tanks / guns). You need 3.0 in every weapon to win.</div>${rows.join('')}`:''}
+function oddsHtml(){const rows=nb[sel].filter(j=>!same(me,reg[j].tag)).map(j=>{const E=edgeOf(sel,j,frac);return `<div class="dim">${reg[j].name}: ${Math.round(E*100)}% edge · ${E>=.65?'favoured':E>=.45?'even':'risky'}</div>`});return rows.length?`<div class="dim" style="margin-top:8px">Your edge if you attack now. More of each weapon gives a better edge, and battles last several days:</div>${rows.join('')}`:''}
+function battleRows(){return battles.length?`<h2 style="margin:12px 0 4px;font-size:15px">Battles</h2>`+battles.slice(0,12).map(bt=>`<div class="rw" onmousedown="pickR('${bt.to}')"><span>${reg[bt.from].name} → ${reg[bt.to].name} · day ${bt.day} · ${Math.round(bt.E*100)}% edge · ${bt.t} men ${bt.k}T ${bt.a}A (${T[bt.tag].n})</span></div>`).join(''):'<p class="dim">No battles under way.</p>'}
 function render(){if(!reg)return;calcSupply();drawMap();
  put($('rail'),PANELS.map(([k,g,n])=>`<button class="${openP===k?'on':''}" title="${n}" aria-label="${n}" onmousedown="togP('${k}')">${g}</button>`).join(''));
  const d=$('drawer');d.style.display=openP?'block':'none';d.className=openP==='res'?'wide':'';if(openP)put(d,panelHtml());
  const c=$('card'),h=cardHtml();c.style.display=h?'block':'none';put(c,h);put($('top'),topHtml())}
 
 function menu(){const o=$('ov');o.style.display='flex';setSpeed(0);
- o.innerHTML=`<div><h1>Fronts</h1><p>A small grand strategy game on a map of Europe. Factories build tanks and artillery, barracks train the men who crew them, and terrain, supply and research change how battles go. Men, tanks and artillery are separate weapons: to take a region you need three times the enemy's strength in each of them. Space pauses, keys 1 to 5 set the speed. Use the buttons on the left for production, military, research and the world.</p><div class="row">${['GER','UK','SOV','ITA','FRA','POL'].map(t=>`<button onmousedown="start('${t}')">${T[t].n}</button>`).join('')}</div><p class="dim">January 1936. Everyone is at peace, and nations start with very different industry. Tensions rise toward 1939.</p></div>`}
+ o.innerHTML=`<div><h1>Fronts</h1><p>A small grand strategy game on a map of Europe. Factories build tanks and artillery, barracks train the men who crew them, and terrain, supply and research change how battles go. Men, tanks and artillery are separate weapons, and having more of each gives you an edge. Battles take several days, with losses on both sides until one gives way. Space pauses, keys 1 to 5 set the speed. Use the buttons on the left for production, military, research and the world.</p><div class="row">${['GER','UK','SOV','ITA','FRA','POL'].map(t=>`<button onmousedown="start('${t}')">${T[t].n}</button>`).join('')}</div><p class="dim">January 1936. Everyone is at peace, and nations start with very different industry. Tensions rise toward 1939.</p></div>`}
 buildMap();menu();
 </script></body></html>
