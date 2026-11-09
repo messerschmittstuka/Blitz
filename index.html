@@ -32,12 +32,13 @@ main{flex:1;min-width:0;position:relative;display:flex;flex-direction:column}
 #zoom{position:absolute;right:10px;top:10px;display:flex;flex-direction:column;gap:6px;z-index:2}
 #zoom button{width:36px;height:36px;padding:0;font-size:18px}
 .tr{margin-left:auto;display:flex;gap:14px;align-items:center;flex-wrap:wrap;justify-content:flex-end}
-canvas{max-width:100%;max-height:100%;cursor:pointer;transform-origin:0 0}
+canvas{position:absolute;inset:0;width:100%;height:100%;cursor:pointer;display:block}
+.evo.pick{border-color:var(--acc);background:#46513f}
 .tn{margin:6px 0;border-left:2px solid #55635a;padding-left:8px}.tn.done{border-color:#d9a441}.tn.lock{opacity:.7}
 #drawer.wide{width:min(480px,calc(100vw - 56px))}
 #card{position:absolute;right:10px;bottom:10px;width:min(310px,calc(100% - 20px));background:var(--panel);border:1px solid #55635a;border-radius:4px;padding:12px;display:none}
 #evt{position:fixed;inset:0;background:rgba(10,14,12,.72);display:none;align-items:center;justify-content:center;padding:16px;z-index:8;overflow:auto}
-.evc{width:min(560px,100%);background:var(--panel);border:1px solid #6a7a70;border-radius:6px;overflow:hidden;box-shadow:0 12px 40px #000a;padding-bottom:12px}
+.evc{max-height:92vh;overflow:auto;width:min(560px,100%);background:var(--panel);border:1px solid #6a7a70;border-radius:6px;overflow:hidden;box-shadow:0 12px 40px #000a;padding-bottom:12px}
 .evb{height:110px;display:flex;align-items:center;justify-content:center;font-size:54px;background:linear-gradient(135deg,#3f5046,#1b2420)}
 .evc h1{font-size:24px;padding:14px 18px 0}
 .evc p{padding:0 18px;margin:8px 0 12px;color:#cfc9b5}
@@ -53,20 +54,21 @@ input[type=range]{flex:1;min-width:90px;accent-color:#d9a441}
 </style></head><body>
 <nav id="rail"></nav>
 <section id="drawer"></section>
-<main><div id="top"></div><div id="mapwrap"><canvas id="cv" width="1620" height="1296" aria-label="Map of Europe"></canvas><div id="zoom"><button onmousedown="zoomBy(1.4)" aria-label="Zoom in">+</button><button onmousedown="zoomBy(1/1.4)" aria-label="Zoom out">−</button><button onmousedown="zoomReset()" aria-label="Reset view">⟲</button></div></div><div id="card"></div></main>
+<main><div id="top"></div><div id="mapwrap"><canvas id="cv" width="300" height="200" aria-label="World map"></canvas><div id="zoom"><button onmousedown="zoomBy(1.4)" aria-label="Zoom in">+</button><button onmousedown="zoomBy(1/1.4)" aria-label="Zoom out">−</button><button onmousedown="zoomReset()" aria-label="Reset view">⟲</button></div></div><div id="card"></div></main>
 <div id="ov"></div>
 <div id="evt"></div>
 <script>
-const C=[["GER", "Germany", "ax", "#6b7078", "Central Europe"], ["ITA", "Italy", "ax", "#6f9a5a", "Mediterranean"], ["UK", "United Kingdom", "al", "#c5586a", "British Isles"], ["FRA", "France", "al", "#4f7fc4", "Western Europe"], ["POL", "Poland", "al", "#d4b45e", "Central Europe"], ["USA", "United States", "al", "#3c9a9a", "Americas"], ["SOV", "Soviet Union", "su", "#b8382f", "Eastern Europe"], ["IRL", "Ireland", "nu", null, "British Isles"], ["BEL", "Belgium", "nu", null, "Western Europe"], ["NED", "Netherlands", "nu", null, "Western Europe"], ["SPA", "Spain", "nu", null, "Western Europe"], ["POR", "Portugal", "nu", null, "Western Europe"], ["AUT", "Austria", "nu", null, "Central Europe"], ["CZE", "Czechoslovakia", "nu", null, "Central Europe"], ["HUN", "Hungary", "nu", null, "Central Europe"], ["NOR", "Norway", "nu", null, "Scandinavia"], ["SWE", "Sweden", "nu", null, "Scandinavia"], ["FIN", "Finland", "nu", null, "Scandinavia"], ["DEN", "Denmark", "nu", null, "Scandinavia"], ["EST", "Estonia", "nu", null, "Baltics"], ["LAT", "Latvia", "nu", null, "Baltics"], ["LIT", "Lithuania", "nu", null, "Baltics"], ["ROM", "Romania", "nu", null, "Balkans"], ["BUL", "Bulgaria", "nu", null, "Balkans"], ["YUG", "Yugoslavia", "nu", null, "Balkans"], ["GRE", "Greece", "nu", null, "Balkans"], ["TUR", "Turkey", "nu", null, "Middle East"], ["LEV", "Levant", "nu", null, "Middle East"]];
-const R0=[["ENG", "England", "UK", 4, 3, 5, -1.5, 52.3, "p"], ["SCO", "Scotland", "UK", 1, 1, 2, -4, 56.7, "m"], ["EGY", "Egypt", "UK", 0, 1, 3, 30, 30.8, "d"], ["PAR", "Paris Basin", "FRA", 2, 2, 4, 2.5, 48.8, "p"], ["SWF", "Aquitaine", "FRA", 1, 1, 2, -0.3, 44.7, "p"], ["SEF", "Provence", "FRA", 1, 2, 2, 5, 44.2, "m"], ["FNA", "French N. Africa", "FRA", 0, 1, 3, 1, 34, "d"], ["RHN", "Rhineland", "GER", 3, 3, 5, 7.5, 50.8, "f"], ["BER", "Brandenburg", "GER", 4, 3, 6, 13.4, 52.5, "p"], ["BAV", "Bavaria", "GER", 2, 2, 4, 11.3, 48.6, "f"], ["EPR", "East Prussia", "GER", 0, 1, 3, 20.5, 54.3, "f"], ["WAR", "Central Poland", "POL", 1, 2, 4, 20.5, 52.3, "p"], ["GAL", "Galicia", "POL", 1, 1, 3, 22.5, 50, "p"], ["NIT", "North Italy", "ITA", 2, 2, 3, 10.5, 45, "p"], ["CIT", "Central Italy", "ITA", 1, 1, 3, 12.8, 42.6, "m"], ["SIT", "South Italy", "ITA", 0, 1, 2, 16, 40.3, "m"], ["LBY", "Libya", "ITA", 0, 1, 3, 16, 31.5, "d"], ["SOB", "Belarus", "SOV", 1, 2, 4, 28.5, 53.6, "f"], ["UKR", "Ukraine", "SOV", 3, 3, 5, 32, 49.3, "p"], ["MOS", "Moscow", "SOV", 4, 3, 6, 37.5, 56, "p"], ["LEN", "Leningrad", "SOV", 2, 2, 3, 32.5, 60.5, "f"], ["CAU", "Caucasus", "SOV", 2, 2, 3, 42, 44.5, "m"], ["USA", "United States", "USA", 8, 5, 6, -19, 45, "p"], ["IRL", "Ireland", "IRL", 0, 1, 2, -8, 53.3, "p"], ["BEL", "Belgium", "BEL", 1, 1, 2, 4.6, 50.7, "p"], ["NED", "Netherlands", "NED", 1, 1, 2, 5.4, 52.3, "p"], ["SPN", "Northern Spain", "SPA", 1, 1, 3, -3.5, 41.8, "m"], ["SPS", "Southern Spain", "SPA", 1, 1, 3, -4.5, 38.2, "m"], ["POR", "Portugal", "POR", 0, 1, 2, -8, 39.8, "p"], ["AUT", "Austria", "AUT", 1, 1, 2, 14.5, 47.3, "m"], ["CZE", "Bohemia", "CZE", 2, 2, 3, 15.5, 49.8, "f"], ["HUN", "Hungary", "HUN", 1, 1, 2, 19.5, 47.2, "p"], ["NOR", "Norway", "NOR", 1, 1, 2, 9.5, 61.5, "m"], ["SWE", "Sweden", "SWE", 1, 1, 3, 15.5, 60, "f"], ["FIN", "Finland", "FIN", 0, 1, 3, 26, 63, "f"], ["DEN", "Denmark", "DEN", 0, 1, 2, 9.5, 56.2, "p"], ["EST", "Estonia", "EST", 0, 1, 1, 25.5, 58.7, "f"], ["LAT", "Latvia", "LAT", 0, 1, 1, 25.3, 56.9, "f"], ["LIT", "Lithuania", "LIT", 0, 1, 1, 23.8, 55.4, "p"], ["ROM", "Romania", "ROM", 1, 2, 3, 25, 45.8, "f"], ["BUL", "Bulgaria", "BUL", 0, 1, 2, 25.5, 42.7, "m"], ["YUG", "Yugoslavia", "YUG", 1, 2, 3, 19.5, 44.5, "m"], ["GRE", "Greece", "GRE", 0, 1, 2, 22.5, 39.3, "m"], ["WTU", "Western Turkey", "TUR", 1, 1, 3, 31, 39.5, "m"], ["ETU", "Eastern Turkey", "TUR", 0, 1, 3, 38.5, 38.8, "m"], ["LEV", "Levant", "LEV", 0, 1, 2, 38, 34, "d"]];
-const SEA=["ENG-PAR", "ENG-BEL", "ENG-NED", "ENG-IRL", "SCO-IRL", "SCO-NOR", "DEN-SWE", "DEN-NOR", "SIT-LBY", "SIT-GRE", "SPS-FNA", "FIN-EST", "GRE-WTU", "UKR-WTU", "EGY-LEV", "USA-ENG", "USA-IRL", "USA-POR", "USA-SPN", "USA-FNA"];
-const MASK=[[-9, 37, -9.5, 39, -8.8, 42, -9.3, 43.2, -8, 43.7, -2, 43.5, -1.3, 46, -2.3, 47.3, -4.5, 48.4, -2, 48.7, -1.5, 49.7, 0.2, 49.4, 1.6, 50.9, 3.5, 51.4, 4.5, 52.5, 5, 53.4, 7, 53.6, 8.6, 54, 8.3, 55.5, 8.3, 57, 10.5, 57.7, 10.6, 56.5, 9.8, 55, 10.2, 54.4, 12, 54.1, 14, 54, 16, 54.5, 18.5, 54.8, 21, 55.2, 21, 56.5, 21.5, 57.5, 23, 57.2, 24, 57.1, 24.4, 58.3, 23.5, 59.2, 25, 59.6, 28, 59.5, 30, 59.9, 30, 66, 45, 66, 45, 30, 35, 30, 34.8, 31.3, 35, 33, 35.8, 36, 33, 36.2, 30.5, 36.6, 28, 36.8, 26.5, 38.3, 26.2, 40, 24, 40.5, 23.5, 38, 22.5, 36.5, 21.5, 37, 21, 39, 19.5, 40.5, 19, 42, 16, 43.5, 13.7, 45.2, 12.3, 45.3, 13.5, 43.6, 14.5, 42, 16, 41.9, 18.5, 40.2, 17, 39.5, 16.5, 38.2, 15.7, 38, 15.8, 40, 14, 40.8, 12, 41.8, 10.5, 43, 9, 44.3, 7.5, 43.8, 6, 43.1, 3.5, 43.3, 3, 42, 0.5, 40.5, -0.5, 38.7, -2, 36.8, -5.5, 36.1, -6.3, 36.7], [5, 58.5, 5, 61, 6, 62.5, 9, 63.5, 12, 65.5, 13, 66, 30, 66, 30, 60.2, 27, 60.4, 23, 59.9, 21.5, 60.2, 21.5, 61.5, 21.5, 63, 23, 64.5, 25, 65.3, 22, 65.5, 21, 64.5, 19, 63.5, 17.5, 62, 17.5, 60.5, 19, 59.7, 16.8, 58, 16.5, 56.8, 14.3, 56, 12.8, 56, 11.8, 58, 10.5, 59, 8, 58], [-5.5, 50, -3, 50.6, 1.3, 51.1, 1.7, 52.7, 0, 53.5, -1.5, 55, -2, 56, -1.8, 57.6, -3.5, 58.6, -5, 58.5, -6, 57, -5.5, 55.5, -3, 54.8, -3, 53.4, -4.5, 53.3, -5.2, 52, -3.3, 51.5], [-10, 51.7, -6, 52, -6, 54.3, -8, 55.2, -10, 54], [-9.5, 30, -9.5, 32, -9.2, 34, -6, 35.8, -2, 35.2, 3, 36.8, 10, 37.3, 11, 35, 10, 33.3, 15, 32.5, 20, 32, 25, 31.8, 30, 31, 32, 31.3, 33, 30.8, 33, 30], [-25,64,-21,64,-19.5,61,-18.5,58.5,-16.5,57,-16,55,-18,53.5,-17,52,-16.2,50,-17.5,48.5,-16,47,-15.5,45.5,-16.2,44,-17,42.5,-17,41,-16.5,39.5,-17.2,38,-18.5,36.5,-19.3,34.5,-20.5,32.5,-21.5,30.5,-22,30,-25,30]];
-const HOLE=[28, 41.9, 28.7, 43.5, 29, 45, 30.7, 46.5, 33, 46.1, 33.5, 44.5, 36, 45.2, 38, 47, 37.5, 44.5, 40, 43.5, 41.5, 41.5, 39, 41, 36, 41.3, 33, 42, 31, 41.1, 29.2, 41.2];
+const C=[["GER","Germany","ax","#6b7078","Central Europe"],["ITA","Italy","ax","#6f9a5a","Mediterranean"],["UK","United Kingdom","al","#c5586a","British Isles"],["FRA","France","al","#4f7fc4","Western Europe"],["POL","Poland","al","#d4b45e","Central Europe"],["USA","United States","al","#3c9a9a","Americas"],["SOV","Soviet Union","su","#b8382f","Eastern Europe"],["JAP","Japan","ax","#d8cf9c","Asia-Pacific"],["IRL","Ireland","nu",null,"British Isles"],["BEL","Belgium","nu",null,"Western Europe"],["NED","Netherlands","nu",null,"Western Europe"],["SPA","Spain","nu",null,"Western Europe"],["POR","Portugal","nu",null,"Western Europe"],["AUT","Austria","nu",null,"Central Europe"],["CZE","Czechoslovakia","nu",null,"Central Europe"],["HUN","Hungary","nu",null,"Central Europe"],["NOR","Norway","nu",null,"Scandinavia"],["SWE","Sweden","nu",null,"Scandinavia"],["FIN","Finland","nu",null,"Scandinavia"],["DEN","Denmark","nu",null,"Scandinavia"],["EST","Estonia","nu",null,"Baltics"],["LAT","Latvia","nu",null,"Baltics"],["LIT","Lithuania","nu",null,"Baltics"],["ROM","Romania","nu",null,"Balkans"],["BUL","Bulgaria","nu",null,"Balkans"],["YUG","Yugoslavia","nu",null,"Balkans"],["GRE","Greece","nu",null,"Balkans"],["TUR","Turkey","nu",null,"Middle East"],["LEV","Levant","nu",null,"Middle East"],["CAN","Canada","nu",null,"Americas"],["MEX","Mexico","nu",null,"Americas"],["CAM","Central America","nu",null,"Americas"],["COL","Colombia","nu",null,"Americas"],["PRU","Peru","nu",null,"Americas"],["BRA","Brazil","nu",null,"Americas"],["BOL","Bolivia and Paraguay","nu",null,"Americas"],["ARG","Argentina","nu",null,"Americas"],["CHL","Chile","nu",null,"Americas"],["CHN","China","nu",null,"Asia-Pacific"],["MON","Mongolia","nu",null,"Asia-Pacific"],["THA","Thailand","nu",null,"Asia-Pacific"],["AFG","Afghanistan","nu",null,"Asia-Pacific"],["ETH","Ethiopia","nu",null,"Africa"],["SAF","South Africa","nu",null,"Africa"],["PRS","Persia","nu",null,"Middle East"],["ARA","Arabia","nu",null,"Middle East"]];
+const R0=[["USE","Eastern US","USA",5,3,5,-76,40.5,"p"],["USS","Southern US","USA",2,2,3,-90,33,"p"],["USM","Midwest","USA",2,2,3,-98,42,"p"],["USW","Western US","USA",1,1,3,-119,38,"m"],["ALA","Alaska","USA",0,1,2,-152,64,"m"],["PHI","Philippines","USA",0,1,2,122.5,12.5,"f"],["ENG","England","UK",4,3,5,-1.5,52.3,"p"],["SCO","Scotland","UK",1,1,2,-4,56.7,"m"],["EGY","Egypt","UK",0,1,3,30,30.8,"d"],["PAR","Paris Basin","FRA",2,2,4,2.5,48.8,"p"],["SWF","Aquitaine","FRA",1,1,2,-0.3,44.7,"p"],["SEF","Provence","FRA",1,2,2,5,44.2,"m"],["FNA","French N. Africa","FRA",0,1,3,1,34,"d"],["RHN","Rhineland","GER",3,3,5,7.5,50.8,"f"],["BER","Brandenburg","GER",4,3,6,13.4,52.5,"p"],["BAV","Bavaria","GER",2,2,4,11.3,48.6,"f"],["EPR","East Prussia","GER",0,1,3,20.5,54.3,"f"],["WAR","Central Poland","POL",1,2,4,20.5,52.3,"p"],["GAL","Galicia","POL",1,1,3,22.5,50,"p"],["NIT","North Italy","ITA",2,2,3,10.5,45,"p"],["CIT","Central Italy","ITA",1,1,3,12.8,42.6,"m"],["SIT","South Italy","ITA",0,1,2,16,40.3,"m"],["LBY","Libya","ITA",0,1,3,16,31.5,"d"],["SOB","Belarus","SOV",1,2,4,28.5,53.6,"f"],["UKR","Ukraine","SOV",3,3,5,32,49.3,"p"],["MOS","Moscow","SOV",4,3,6,37.5,56,"p"],["LEN","Leningrad","SOV",2,2,3,32.5,60.5,"f"],["CAU","Caucasus","SOV",2,2,3,42,44.5,"m"],["IRL","Ireland","IRL",0,1,2,-8,53.3,"p"],["BEL","Belgium","BEL",1,1,2,4.6,50.7,"p"],["NED","Netherlands","NED",1,1,2,5.4,52.3,"p"],["SPN","Northern Spain","SPA",1,1,3,-3.5,41.8,"m"],["SPS","Southern Spain","SPA",1,1,3,-4.5,38.2,"m"],["POR","Portugal","POR",0,1,2,-8,39.8,"p"],["AUT","Austria","AUT",1,1,2,14.5,47.3,"m"],["CZE","Bohemia","CZE",2,2,3,15.5,49.8,"f"],["HUN","Hungary","HUN",1,1,2,19.5,47.2,"p"],["NOR","Norway","NOR",1,1,2,9.5,61.5,"m"],["SWE","Sweden","SWE",1,1,3,15.5,60,"f"],["FIN","Finland","FIN",0,1,3,26,63,"f"],["DEN","Denmark","DEN",0,1,2,9.5,56.2,"p"],["EST","Estonia","EST",0,1,1,25.5,58.7,"f"],["LAT","Latvia","LAT",0,1,1,25.3,56.9,"f"],["LIT","Lithuania","LIT",0,1,1,23.8,55.4,"p"],["ROM","Romania","ROM",1,2,3,25,45.8,"f"],["BUL","Bulgaria","BUL",0,1,2,25.5,42.7,"m"],["YUG","Yugoslavia","YUG",1,2,3,19.5,44.5,"m"],["GRE","Greece","GRE",0,1,2,22.5,39.3,"m"],["WTU","Western Turkey","TUR",1,1,3,31,39.5,"m"],["ETU","Eastern Turkey","TUR",0,1,3,38.5,38.8,"m"],["LEV","Levant","LEV",0,1,2,38,34,"d"],["CAE","Eastern Canada","CAN",1,1,3,-72,50,"f"],["CAW","Western Canada","CAN",0,1,3,-112,56,"f"],["MEX","Mexico","MEX",0,1,3,-102,23,"d"],["CAM","Central America","CAM",0,1,2,-88,14,"f"],["COL","Colombia","COL",0,1,2,-73,5,"f"],["PRU","Peru","PRU",0,1,2,-75,-10,"m"],["BRN","Northern Brazil","BRA",0,1,3,-60,-5,"f"],["BRS","Southern Brazil","BRA",1,2,3,-48,-20,"f"],["BOL","Bolivia and Paraguay","BOL",0,1,2,-62,-18,"f"],["ARG","Argentina","ARG",1,2,3,-64,-34,"p"],["PAT","Patagonia","ARG",0,1,1,-69,-47,"d"],["CHL","Chile","CHL",0,1,2,-71,-31,"m"],["FWA","French West Africa","FRA",0,1,3,-4,14,"d"],["CON","Belgian Congo","BEL",0,1,2,23,-3,"f"],["ETH","Ethiopia and Kenya","ETH",0,1,3,38,6,"m"],["SUD","Sudan","UK",0,1,2,30,15,"d"],["SAF","South Africa","SAF",1,2,3,25,-28,"p"],["PAF","Portuguese Africa","POR",0,1,2,19,-12,"f"],["MAD","Madagascar","FRA",0,1,2,47,-19,"f"],["WSB","West Siberia","SOV",1,2,3,72,60,"f"],["ESB","East Siberia","SOV",0,1,2,110,62,"f"],["FAR","Soviet Far East","SOV",0,1,2,135,57,"f"],["CAS","Central Asia","SOV",0,1,2,65,43,"d"],["MON","Mongolia","MON",0,1,2,103,47,"d"],["JPN","Japan","JAP",4,4,6,138,36.5,"m"],["KOR","Korea","JAP",1,1,3,127.5,37,"m"],["MCH","Manchukuo","JAP",1,2,4,125,45,"f"],["NCH","North China","CHN",1,3,6,115,37,"p"],["SCH","South China","CHN",1,3,6,112,27,"f"],["WCH","West China","CHN",0,2,4,102,31,"m"],["XIN","Xinjiang and Tibet","CHN",0,1,3,88,38,"m"],["NIN","Northern India","UK",1,2,4,77,27,"p"],["SIN","Southern India","UK",1,1,3,78,15,"p"],["BUR","Burma","UK",0,1,2,96,21,"f"],["MAL","Malaya","UK",0,1,2,101.5,4,"f"],["AFG","Afghanistan","AFG",0,1,3,67,33,"m"],["PRS","Persia","PRS",0,1,3,54,33,"d"],["ARA","Arabia","ARA",0,1,2,45,23,"d"],["IDC","Indochina","FRA",0,1,3,105.5,16,"f"],["THA","Thailand","THA",0,1,2,100.5,15.5,"f"],["SUM","Sumatra","NED",0,1,2,101,-0.5,"f"],["JAV","Java","NED",1,1,2,110,-7.5,"f"],["BRO","Borneo","NED",0,1,2,114,0.5,"f"],["NGU","New Guinea","NED",0,1,2,141,-5,"f"],["WAU","Western Australia","UK",0,1,2,123,-26,"d"],["EAU","Eastern Australia","UK",1,2,3,146,-27,"p"],["NZL","New Zealand","UK",0,1,2,174,-40,"m"]];
+const SEA=["ENG-PAR","ENG-BEL","ENG-NED","ENG-IRL","SCO-IRL","SCO-NOR","DEN-SWE","DEN-NOR","SIT-LBY","SIT-GRE","SPS-FNA","FIN-EST","GRE-WTU","UKR-WTU","EGY-LEV","USE-ENG","USE-IRL","USE-POR","USE-SPN","USE-FNA","USW-JPN","USW-PHI","USE-BRN","ALA-FAR","JPN-KOR","JPN-MCH","JPN-FAR","PHI-BRO","PHI-SCH","PHI-JPN","MAL-SUM","SUM-JAV","JAV-BRO","BRO-NGU","NGU-EAU","NZL-EAU","JAV-WAU","MAD-ETH","MAD-PAF","EGY-ARA","SUD-ARA","BRO-MAL","CAM-COL","FWA-BRN"];
+const MASK=[[-9,37,-9.5,39,-8.8,42,-9.3,43.2,-8,43.7,-2,43.5,-1.3,46,-2.3,47.3,-4.5,48.4,-2,48.7,-1.5,49.7,0.2,49.4,1.6,50.9,3.5,51.4,4.5,52.5,5,53.4,7,53.6,8.6,54,8.3,55.5,8.3,57,10.5,57.7,10.6,56.5,9.8,55,10.2,54.4,12,54.1,14,54,16,54.5,18.5,54.8,21,55.2,21,56.5,21.5,57.5,23,57.2,24,57.1,24.4,58.3,23.5,59.2,25,59.6,28,59.5,30,59.9,30,66,45,66,45,30,35,30,34.8,31.3,35,33,35.8,36,33,36.2,30.5,36.6,28,36.8,26.5,38.3,26.2,40,24,40.5,23.5,38,22.5,36.5,21.5,37,21,39,19.5,40.5,19,42,16,43.5,13.7,45.2,12.3,45.3,13.5,43.6,14.5,42,16,41.9,18.5,40.2,17,39.5,16.5,38.2,15.7,38,15.8,40,14,40.8,12,41.8,10.5,43,9,44.3,7.5,43.8,6,43.1,3.5,43.3,3,42,0.5,40.5,-0.5,38.7,-2,36.8,-5.5,36.1,-6.3,36.7],[5,58.5,5,61,6,62.5,9,63.5,12,65.5,13,66,30,66,30,60.2,27,60.4,23,59.9,21.5,60.2,21.5,61.5,21.5,63,23,64.5,25,65.3,22,65.5,21,64.5,19,63.5,17.5,62,17.5,60.5,19,59.7,16.8,58,16.5,56.8,14.3,56,12.8,56,11.8,58,10.5,59,8,58],[-5.5,50,-3,50.6,1.3,51.1,1.7,52.7,0,53.5,-1.5,55,-2,56,-1.8,57.6,-3.5,58.6,-5,58.5,-6,57,-5.5,55.5,-3,54.8,-3,53.4,-4.5,53.3,-5.2,52,-3.3,51.5],[-10,51.7,-6,52,-6,54.3,-8,55.2,-10,54],[-168,65,-166,68.5,-156,71,-141,69.5,-128,70.5,-115,68.5,-105,68.5,-95,68,-90,69,-83,69,-80,64,-77,63,-72,62,-68,60,-64,60,-62,57,-58,54,-56,52,-60,50,-65,49,-67,47.5,-61,46,-60,45.5,-64,44.5,-70,43,-70,41.8,-74,40.5,-75.5,38.5,-76,36.5,-78,34,-80.5,32,-81,30.5,-80,27,-80,25.2,-81.5,26,-82.8,28,-83.5,30,-86,30.3,-89,30.2,-90,29,-93,29.7,-97,27.8,-97.3,25.8,-97.8,22,-96,19,-94.5,18.2,-91,19,-90.5,21,-87,21.5,-87.5,18,-88,16,-84,15.8,-83.5,14,-83.5,10,-81,8.5,-79,9.5,-77.5,8.5,-80,7.5,-83,8.5,-85.5,10,-87.5,13,-91,14,-94.5,16,-97,15.8,-101,17.5,-105.5,20,-105.5,22.5,-109,25.5,-112,27,-114.5,30,-117,32.5,-118.5,34,-121,35,-122.5,37.5,-124,40.5,-124,46,-124.7,48.4,-127,50.5,-130,54,-133,57,-136,58.5,-140,60,-145,60,-148,60.3,-152,59,-154,57.5,-158,56,-162,55,-165,54.5,-159,58,-162,58.8,-165,61,-165,63.5,-168,65],[-77,8.5,-73,12,-71,12,-68,10.5,-64,10.5,-61,10.6,-60,8.5,-57,6,-53,5.5,-51,4,-50,1,-48,-1,-44,-2.5,-40,-3,-35,-5.5,-34.8,-8,-37,-11.5,-39,-14,-39.5,-18,-41,-22,-44,-23,-48,-25.5,-48.7,-28,-51,-31,-53.5,-34,-57,-35,-58,-38.5,-62,-39,-62.5,-41,-65,-42,-65,-45,-67.5,-46.5,-66,-48,-69,-51,-68,-55.5,-72,-54,-75,-50,-74,-46,-73.5,-41,-72.5,-37,-71.5,-32,-71.3,-27,-70.2,-20,-71,-17.5,-75,-15,-77,-12,-79.5,-7.5,-81,-5,-80,-2.5,-80.5,0,-79,2,-77.5,4,-77.3,7],[-9.5,32,-9.2,34,-6,35.8,-2,35.2,3,36.8,10,37.3,11,35,10,33.3,15,32.5,20,32,25,31.8,30,31,32,31.3,33,30.8,32.5,29.9,34,27.5,35.5,24,37,21,38.5,18,40,15.5,42.5,12.5,44,10.5,48,11.5,51,11.8,51,10.5,49.5,8,47.5,4.5,44,1.5,41,-1.5,39.5,-5,39,-8,40.5,-11,40.5,-15,37,-18,35,-20.5,35,-24,32.5,-26,32.8,-28.5,31,-30,28,-33,25,-34,20,-34.8,18.5,-34,18,-31,15,-27,14,-22,12,-17,13.5,-12,12,-6,9,-1,9.5,3.8,7,4.2,4,6.3,-1,5,-4,5.2,-8,4.5,-12,7.5,-14.5,10.5,-17.3,14.7,-16.5,19,-16,22,-14.5,26,-12.5,28,-10,30],[49,-12,50.5,-15,49.5,-19,47,-25,44,-24.5,43.5,-21,44.5,-16,47,-14],[44,66,44,31,48,30,49,30,50,28,51.5,27,54,26.7,56.3,27,57.5,25.5,61.5,25.2,68,24,72,24.5,80,24.5,88,25,92,25,97,24,101,22,106,21,108,21.5,111,21.5,114,22.3,117,23.5,119.5,25.5,121.8,29,122,31.2,121,32.5,119.5,34.5,120.8,36.5,122.5,37,121,38.5,121.5,40,124.5,40,129.5,43,133,45,138,52,141.5,53,137,55,143,59,150,59.2,156,61,156.5,57.5,158,52.5,160,54,163,57.5,163,60,170,60,179.9,63,179.9,66],[28,64,28,70,31,70,41,67,44,68.5,48,69.5,53,68.5,60,69.5,66,69,69,73,73,73.5,78,72,81,73.5,87,75.5,97,76,105,77.5,113,74,120,73,128,72.5,140,72.5,150,71,160,69.5,170,70,179.9,68.5,179.9,64,44,64],[12,64,13.5,66,15.5,68.5,18.5,70,22,70.5,26,71,29.5,70.5,31,69.8,30,66,12,64],[34.5,29.5,35,27.5,37,24.5,39,21.5,41,18.5,43,15.5,43.5,13,45,12.8,48.5,14.2,52,16,55,17.5,57.5,19.5,59.8,22.4,58.5,23.8,56.5,26.2,54,24.2,51.5,24.2,51,26,50,26.8,48.5,29.8,47.5,30.2,45,32,35,32],[66.5,25.4,68.5,23.5,70,20.8,72.8,19.5,73.5,16,75,12.5,76.5,9,77.5,8.1,79,9.3,80,13,80.3,15.5,82,17,84.5,19,87,21.5,89,22,92,22,92,27,80,30,68,30],[92,22,94,18,94.5,16,97.5,16.5,98,13,98.5,9,100,6.5,100.5,4,103.5,1.5,104.2,1.3,104,3,103,5,102.5,6.5,100.5,8.5,100,12.5,102.5,12,104.5,10,106,8.7,107.5,10.8,109,12.5,109.2,15,108,16.5,106.5,19,105.8,20.5,106.5,21.4,101,22,97,24,92,24.5],[124.5,40,126,38,126,36,126.8,34.5,129.3,35.2,129.5,37,128,38.6,129.7,41,128,42,126,41],[130,33,131,31.2,132.5,33.8,135,33.5,136.8,34.5,139.8,34.8,140.9,36,141,38.5,141.5,40.5,140,40.8,139.8,39,137.5,37.2,136,36,133.2,35.5,131,34.3],[140,42,141.5,43.2,145.5,43.4,143,45,141.5,45.3,141.5,43.7],[120.5,18.5,122.2,18.3,122,15.5,124,13,125.5,10,126.5,7.5,125.5,6,122,7,122.5,10.5,121,13.5,120,16],[109,1,110.5,2.5,113.5,4,116.8,7,118.5,5.5,117.8,2.5,119,0.5,117.5,-1.5,116,-3.8,114,-4,110.5,-3,109,-1.5],[95.3,5.6,98,4,100.5,2,103.5,-1,106,-3,106,-5.8,104.5,-5.5,102,-4,100,-1.5,98,1.5,96,3.5],[105.3,-6.5,108,-6.4,110.5,-6.7,114.4,-7.8,114.5,-8.7,110,-8.3,106,-7.5],[131,-1,134,-0.8,138,-1.7,141,-2.7,145,-4.5,147.5,-6.2,150.5,-10.5,147,-10,144.5,-7.8,141,-9.2,138.5,-8,137.5,-5.5,135,-4,132.5,-3.5],[113,-22,114.5,-26,115,-33.5,118,-35,123,-34,129,-31.5,134,-32.8,138,-35,140,-37.7,143,-38.8,146.5,-39,150,-37.5,152.5,-32,153.5,-28,153,-25,150,-22.5,146,-19,145.5,-15,143.5,-13,142.5,-10.8,141.5,-13,140.5,-17.5,137,-15.8,135.5,-12,132,-11.5,130,-12.5,126.5,-14,124,-17,122,-18,118,-20.5,114,-21.8],[172.8,-34.5,175,-36.5,178,-37.7,177,-39.5,175,-41.5,174.5,-39,173.5,-37],[172.5,-40.5,174.3,-41.7,172,-44,170.5,-46.5,167,-46,168,-44,171.5,-42]];
+const HOLE=[[28,41.9,28.7,43.5,29,45,30.7,46.5,33,46.1,33.5,44.5,36,45.2,38,47,37.5,44.5,40,43.5,41.5,41.5,39,41,36,41.3,33,42,31,41.1,29.2,41.2],[47.2,45,49.5,46.8,53,46.8,53.5,44,51,43,52,41,53.9,40,53.8,37,50.5,36.8,49,38.5,49.5,40.5,48.3,42,47,44],[-93,60,-88,56.5,-82,54.5,-79,52,-78,56,-77,60,-73,62.5,-82,64,-88,64,-93,62]];
 const T={};C.forEach(([t,n,f,c,g],i)=>T[t]={n,f,c:c||`hsl(${i*47%360},28%,64%)`,g});
-const CAP={};R0.forEach(r=>{if(!CAP[r[2]])CAP[r[2]]=r[0]});
+const CAP={};R0.forEach(r=>{if(!CAP[r[2]])CAP[r[2]]=r[0]});Object.assign(CAP,{SOV:'MOS',GER:'BER',ITA:'CIT',JAP:'JPN',USA:'USE'});
 const TER=Object.fromEntries(R0.map(r=>[r[0],r[8]]));
-const ids=R0.map(r=>r[0]),GOAL=Math.ceil(ids.length*.5),BARR=.2,FACT=.05,CF=25,CB=15,MAXB=12,nb={};
-const MW=1620,MH=1296,S=2,X=lon=>(lon+25)*11.57*S,Y=lat=>(66-lat)*18*S;
+const ids=R0.map(r=>r[0]),GOAL=Math.ceil(ids.length*.4),BARR=.2,FACT=.05,CF=25,CB=15,MAXB=12,nb={};
+const MW=3185,MH=1716,X=lon=>(lon+170)*9.1,Y=lat=>(76-lat)*13;
+const HUB=["EGY","SUD","NIN","EAU","ALA","PHI","FNA","FWA","IDC","MAD"];
 const D_POLAND=1339,D_USSR=1999,D_USA=2167; // days since 1 Jan 1936
 const TN={p:'plains',f:'forest',m:'mountains',d:'desert'},TD={p:1,f:1.15,m:1.5,d:1},TV={p:3,f:2,m:1.5,d:3};
 const BR={nat:'National',inf:'Infantry',arm:'Armour',art:'Artillery',ind:'Industry',log:'Logistics and defence'};
@@ -93,7 +95,7 @@ const TECH=[
 const tById=q=>TECH.find(z=>z[0]===q);
 const dep=x=>x[4].length?1+Math.max(...x[4].map(q=>dep(tById(q)))):0;
 ids.forEach(i=>nb[i]=[]);
-let sendMode=false,battles=[],sup={},ar,tech,rp,line,reg,men,tk,prog,wars,day,me,sel,spd=0,last=1,timer,over,logs,frac=1;
+let WARS=[],wid=0,sendMode=false,battles=[],sup={},ar,tech,rp,line,reg,men,tk,prog,wars,day,me,sel,spd=0,last=1,timer,over,logs,frac=1;
 const $=id=>document.getElementById(id);
 const pick=a=>a[Math.floor(Math.random()*a.length)];
 const has=(t,x)=>tech[t].has(x);
@@ -109,7 +111,7 @@ function edgeOf(f,t,fr=1){const a=reg[f],b=reg[t],ter=TER[t];
  const A=eff({t:Math.floor((a.t-1)*fr),k:Math.floor(a.k*fr),a:Math.floor(a.a*fr)},a.tag,ter,1,oos(f)),D=eff(b,b.tag,ter,0,oos(t));return edge(A,D)}
 const lose=(c,r)=>{const x=c*r;return Math.min(c,Math.floor(x)+(Math.random()<x%1?1:0))};
 const oos=i=>T[reg[i].tag].f!=='nu'&&!(sup[i]<=3+bn(reg[i].tag,'sr'));
-function calcSupply(){sup={};const q=[];Object.keys(CAP).forEach(t=>{const c=CAP[t];if(T[t].f!=='nu'&&reg[c].tag===t){sup[c]=0;q.push(c)}});
+function calcSupply(){sup={};const q=[];[...Object.values(CAP),...HUB].forEach(c=>{if(T[reg[c].tag].f!=='nu'&&sup[c]===undefined){sup[c]=0;q.push(c)}});
  while(q.length){const i=q.shift();nb[i].forEach(j=>{if(sup[j]===undefined&&T[reg[j].tag].f!=='nu'&&same(reg[i].tag,reg[j].tag)){sup[j]=sup[i]+1;q.push(j)}})}}
 const same=(x,y)=>x===y||(T[x].f===T[y].f&&T[x].f!=='nu');
 const wk=(x,y)=>x<y?x+'|'+y:y+'|'+x;
@@ -117,28 +119,30 @@ function hostile(x,y){if(x===y)return false;const a=T[x].f,b=T[y].f;if(a===b)ret
 const members=f=>Object.keys(T).filter(t=>T[t].f===f);
 function warF(fa,fb){members(fa).forEach(p=>members(fb).forEach(q=>wars.add(wk(p,q))))}
 const atWarF=(fa,fb)=>members(fa).some(p=>members(fb).some(q=>wars.has(wk(p,q))));
-function declareWar(x,y){if(x===y||same(x,y)||hostile(x,y)||pacts.has([T[x].f,T[y].f].sort().join()))return;
+function declareWar(x,y,goal){if(x===y||same(x,y)||hostile(x,y)||pacts.has([T[x].f,T[y].f].sort().join()))return;
  const A=T[x].f==='nu'?[x]:members(T[x].f),B=T[y].f==='nu'?[y]:members(T[y].f);
  A.forEach(p=>B.forEach(q=>{if(!pacts.has([T[p].f,T[q].f].sort().join()))wars.add(wk(p,q))}));
  B.forEach(q=>{if(q!==me&&owned(q).length){if(T[q].f==='nu')owned(q).forEach(i=>reg[i].t+=2);else addM(q,15)}});
- const m=`${T[x].n} declares war on ${T[y].n}.`+(B.length>1?` ${B.filter(q=>q!==y).map(q=>T[q].n).join(', ')} join${B.length>2?'':'s'} them.`:'');
+ const w={id:++wid,a:A,b:B,mx:x,my:y,goals:[goal||{by:x,type:'country',t:y}],score:0,day,offer:-999};WARS.push(w);
+ const g=w.goals[0],gt=g.type==='country'?`conquer ${T[g.t].n}`:g.type==='region'?`take ${reg[g.t].name}`:`humiliate ${T[g.t].n} and demand tribute`;
+ const m=`${T[x].n} declares war on ${T[y].n} (war goal: ${gt}).`+(B.length>1?` ${B.filter(q=>q!==y).map(q=>T[q].n).join(', ')} join${B.length>2?'':'s'} them.`:'');
  log(m);if(A.includes(me)||B.includes(me)){wl(m);sfx('war')}}
 const front=i=>nb[i].filter(j=>hostile(reg[i].tag,reg[j].tag)).length;
 const log=m=>{logs.unshift(m);logs.length=Math.min(logs.length,40)};
 const owned=t=>ids.filter(i=>reg[i].tag===t);
 const sum=(t,k)=>owned(t).reduce((s,i)=>s+reg[i][k],0);
-const aggr=()=>day>=D_POLAND||wars.size>0;
+const aggr=()=>day>=D_POLAND||atWarF('al','ax');
 
-function start(t){me=t;day=0;sel=null;over=false;logs=[];wars=new Set();reg={};wlogs=[];wstat={won:0,lost:0};aid=0;men={};tk={};prog={};ar={};tech={};rp={};line={};battles=[];flags={};pacts=new Set();evQ=[];evOpen=null;lastRand=0;fireAt={};T.SOV.f='su';EV.forEach(e=>{if(e.day)fireAt[e.id]=e.day[0]+Math.floor(Math.random()*(e.day[1]-e.day[0]+1))});EV.forEach(e=>{if(e.after)fireAt[e.id]=fireAt[e.after]+2});
- R0.forEach(([id,name,tag,fa,ba,tr])=>reg[id]={id,name,tag,fa,ba,t:tr,k:Math.floor(fa/3),a:Math.floor(fa/4)});
+function start(t){me=t;day=0;sel=null;over=false;logs=[];wars=new Set();reg={};wlogs=[];wstat={won:0,lost:0};aid=0;WARS=[];wid=0;men={};tk={};prog={};ar={};tech={};rp={};line={};battles=[];flags={};pacts=new Set();evQ=[];evOpen=null;lastRand=0;fireAt={};T.SOV.f='su';EV.forEach(e=>{if(e.day)fireAt[e.id]=e.day[0]+Math.floor(Math.random()*(e.day[1]-e.day[0]+1))});EV.forEach(e=>{if(e.after)fireAt[e.id]=fireAt[e.after]+2});
+ R0.forEach(([id,name,tag,fa,ba,tr])=>reg[id]={id,name,tag,own:tag,fa,ba,t:tr,k:Math.floor(fa/3),a:Math.floor(fa/4)});
  Object.keys(T).forEach(k=>{men[k]=sum(k,'ba')*3;tk[k]=0;prog[k]=0;ar[k]=0;tech[k]=new Set();rp[k]=0;line[k]=Math.random()<.7?'k':'a'});line[me]='k';
  log('January 1, 1936. The game is paused: press Space or a speed button to begin.');
- $('ov').style.display='none';last=1;setSpeed(0);audioInit();render()}
+ $('ov').style.display='none';last=1;setSpeed(0);audioInit();focusOn(CAP[me],3.5);render()}
 
 let wlogs=[],wstat={won:0,lost:0},aid=0;
 const wl=m=>{wlogs.unshift(dateStr()+': '+m);wlogs.length=Math.min(wlogs.length,200)};
 const cpos=id=>{const i=ids.indexOf(id);return cen[i]||[X(R0[i][6]),Y(R0[i][7])]};
-const march=(f,t)=>{const a=cpos(f),b=cpos(t);return Math.max(2,Math.round(Math.hypot(a[0]-b[0],a[1]-b[1])/60))+(SEA.includes(f+'-'+t)||SEA.includes(t+'-'+f)?3:0)};
+const march=(f,t)=>{const a=cpos(f),b=cpos(t);return Math.max(2,Math.round(Math.hypot(a[0]-b[0],a[1]-b[1])/30))+(SEA.includes(f+'-'+t)||SEA.includes(t+'-'+f)?3:0)};
 const inv=bt=>bt.tag===me||reg[bt.to].tag===me;
 const note=(bt,m)=>{log(m);if(inv(bt))wl(m)};
 function back(bt){const h=reg[bt.from];if(same(h.tag,bt.tag)){h.t+=bt.t;h.k+=bt.k;h.a+=bt.a}}
@@ -148,29 +152,29 @@ function attack(f,t,fr=1){const a=reg[f],b=reg[t],n=Math.floor((a.t-1)*fr),k=Mat
  if(n<1)return;
  a.t-=n;a.k-=k;a.a-=g;const mob=2+Math.min(6,Math.floor((n+3*k+2*g)/20));
  battles.push({id:++aid,kind:'atk',st:'mob',wait:mob,from:f,to:t,tag:a.tag,t:n,k,a:g,t0:n,d0:b.t,day:0,E:.5});
- if(a.tag===me)wl(`Orders given: ${n} men, ${k} tanks and ${g} guns mobilise to attack ${b.name}. Ready in ${mob} days.`);
- else if(b.tag===me)wl(`Warning: ${T[a.tag].n} is mobilising forces against ${b.name}.`)}
+ if(a.tag===me)wl(`Orders given: ${n} men, ${k} tanks and ${g} guns mobilise in ${a.name} to attack ${b.name}. Ready in ${mob} days.`);
+ else if(b.tag===me)wl(`Warning: ${T[a.tag].n} is mobilising forces in ${a.name} to attack ${b.name}.`)}
 // each day: armies mobilise, then march, then fight one round; the side with more of each weapon loses less
 function stepBattles(){const keep=[];
  for(const bt of battles){const b=reg[bt.to],ter=TER[bt.to];
   if(bt.st!=='fight'){
    if(--bt.wait>0){keep.push(bt);continue}
-   if(bt.st==='mob'){bt.st='move';bt.wait=march(bt.from,bt.to);if(bt.tag===me)wl(`The army marches on ${b.name}. Arrival in ${bt.wait} days.`);keep.push(bt);continue}
+   if(bt.st==='mob'){bt.st='move';bt.wait=march(bt.from,bt.to);if(bt.tag===me)wl(`The army from ${reg[bt.from].name} marches on ${b.name}. Arrival in ${bt.wait} days.`);keep.push(bt);continue}
    if(same(bt.tag,b.tag)){b.t+=bt.t;b.k+=bt.k;b.a+=bt.a;continue}
    if(bt.kind==='mv'||!hostile(bt.tag,b.tag)){back(bt);continue}
    const ex=[...keep,...battles].find(x=>x!==bt&&x.st==='fight'&&x.to===bt.to&&same(x.tag,bt.tag));
-   if(ex){ex.t+=bt.t;ex.k+=bt.k;ex.a+=bt.a;ex.t0+=bt.t;if(inv(bt))wl(`Reinforcements reach the battle for ${b.name}.`);continue}
-   bt.st='fight';bt.d0=b.t;bt.day=0;if(inv(bt))wl(`Battle for ${b.name} begins: ${T[bt.tag].n} attacks with ${bt.t} men, ${bt.k} tanks and ${bt.a} guns.`);keep.push(bt);continue}
+   if(ex){ex.t+=bt.t;ex.k+=bt.k;ex.a+=bt.a;ex.t0+=bt.t;if(inv(bt))wl(`Reinforcements from ${reg[bt.from].name} reach the battle for ${b.name}.`);continue}
+   bt.st='fight';bt.d0=b.t;bt.day=0;if(inv(bt))wl(`Battle for ${b.name} begins: ${T[bt.tag].n} attacks from ${reg[bt.from].name} with ${bt.t} men, ${bt.k} tanks and ${bt.a} guns.`);keep.push(bt);continue}
   if(!hostile(bt.tag,b.tag)){const d=same(bt.tag,b.tag)?b:reg[bt.from];if(same(d.tag,bt.tag)){d.t+=bt.t;d.k+=bt.k;d.a+=bt.a}continue}
   const A=eff(bt,bt.tag,ter,1,oos(bt.from)),D=eff(b,b.tag,ter,0,oos(bt.to)),E=edge(A,D),Ed=Math.min(.97,Math.max(.03,E+(Math.random()-.5)*.12)),ra=.16*(1-Ed),rd=.16*Ed;
   bt.t-=lose(bt.t,ra);bt.k-=lose(bt.k,ra);bt.a-=lose(bt.a,ra*.6);
   b.t-=lose(b.t,rd);b.k-=lose(b.k,rd);b.a-=lose(b.a,rd*.6);bt.day++;bt.E=E;
-  if(bt.day%7===0&&inv(bt))wl(`Battle for ${b.name}, day ${bt.day}: attacker edge ${Math.round(E*100)}%. Attackers ${bt.t} men ${bt.k}T ${bt.a}A, defenders ${b.t} men ${b.k}T ${b.a}A.`);
+  if(bt.day%7===0&&inv(bt))wl(`Battle for ${b.name}, day ${bt.day} (attack from ${reg[bt.from].name}): attacker edge ${Math.round(E*100)}%. Attackers ${bt.t} men ${bt.k}T ${bt.a}A, defenders ${b.t} men ${b.k}T ${b.a}A.`);
   const aB=bt.t<=0||bt.t<.3*bt.t0,dB=b.t<=0||b.t<.25*bt.d0;
   if((b.t<=0&&bt.t>0)||(!aB&&dB)){const old=b.tag;b.tag=bt.tag;b.t=Math.max(1,bt.t);b.k=bt.k;b.a=bt.a;
-   if(bt.tag===me)wstat.won++;if(old===me)wstat.lost++;
-   note(bt,CAP[old]===bt.to?`${b.name}, capital of ${T[old].n}, has fallen to ${T[bt.tag].n} after ${bt.day} days!`:`${T[bt.tag].n} took ${b.name} after ${bt.day} days.`);if(bt.tag===me)sfx('win');else if(old===me)sfx('loss');check();continue}
-  if(aB){back(bt);note(bt,`${T[bt.tag].n} failed to take ${b.name} after ${bt.day} days.`);continue}
+   if(bt.tag===me)wstat.won++;if(old===me)wstat.lost++;{const w=warOf(bt.tag,old);if(w)w.score=Math.max(-100,Math.min(100,w.score+(w.a.includes(bt.tag)?1:-1)*rval(b)))}
+   note(bt,CAP[old]===bt.to?`${b.name}, capital of ${T[old].n}, has fallen to ${T[bt.tag].n} after ${bt.day} days, attacking from ${reg[bt.from].name}!`:`${T[bt.tag].n} took ${b.name} after ${bt.day} days, attacking from ${reg[bt.from].name}.`);if(bt.tag===me)sfx('win');else if(old===me)sfx('loss');check();continue}
+  if(aB){back(bt);note(bt,`${T[bt.tag].n} failed to take ${b.name} from ${reg[bt.from].name} after ${bt.day} days.`);continue}
   keep.push(bt)}
  battles=keep}
 
@@ -186,8 +190,8 @@ function ai(t){const mine=owned(t);if(!mine.length)return;
  if(men[t]>=25&&Math.random()<.3){const r=pick(mine);if(!build(t,r,Math.random()<.5?'fa':'ba'))build(t,r,'ba')}
  const fr=mine.filter(i=>front(i)>0),tg=fr.length?fr:[pick(mine)],q=tg.length,m=Math.max(0,Math.floor(men[t])-8),k=Math.floor(tk[t]),g=Math.floor(ar[t]);
  tg.forEach(id=>deploy(t,reg[id],Math.floor(m/q),Math.floor(k/q),Math.floor(g/q)));
- if(!aggr()||(t==='USA'&&day<D_USA))return;
- if(Math.random()<.006){const c=new Set();mine.forEach(i=>nb[i].forEach(j=>{const o=reg[j].tag;if(T[o].f==='nu'&&mine.some(m=>nb[m].includes(j)&&edgeOf(m,j,1)>=.7))c.add(o)}));if(c.size)declareWar(t,rnd([...c]))}
+ if(t==='USA'&&day<D_USA)return;
+ if(aggr()&&Math.random()<.006){const c=new Set();mine.forEach(i=>nb[i].forEach(j=>{const o=reg[j].tag;if(T[o].f==='nu'&&mine.some(m=>nb[m].includes(j)&&edgeOf(m,j,1)>=.7))c.add(o)}));if(c.size)declareWar(t,rnd([...c]))}
  for(const i of [...mine].sort(()=>Math.random()-.5)){const a=reg[i];if(a.tag!==t||a.t<4||Math.random()>.15)continue;
   const hs=nb[i].filter(j=>hostile(t,reg[j].tag)).sort((x,y)=>tot(reg[x])-tot(reg[y]));
   if(hs.length){const w=hs.find(j=>edgeOf(i,j,1)>=.62);if(w)attack(i,w)}
@@ -197,7 +201,7 @@ function ai(t){const mine=owned(t);if(!mine.length)return;
 let flags={},pacts=new Set(),evQ=[],evOpen=null,evPrev=1,fireAt={},lastRand=0;
 const rnd=a=>a[Math.floor(Math.random()*a.length)];
 const addM=(t,n)=>{men[t]=Math.max(0,men[t]+n)},addRP=(t,n)=>{rp[t]=Math.max(0,rp[t]+n)};
-const annex=(id,t)=>{const r=reg[id];if(T[r.tag].f==='nu'){r.tag=t;r.t=Math.max(r.t,3);log(`${T[t].n} annexes ${r.name}.`);check()}};
+const annex=(id,t)=>{const r=reg[id];if(T[r.tag].f==='nu'){r.tag=r.own=t;r.t=Math.max(r.t,3);log(`${T[t].n} annexes ${r.name}.`);check()}};
 const bld=(t,k)=>{const r=rnd(owned(t).filter(i=>reg[i][k]<MAXB));if(r){reg[r][k]++;log(`New ${k==='fa'?'factory':'barracks'} in ${reg[r].name}.`)}};
 const pactMsg=()=>{if(flags.pact_GER&&flags.pact_SOV&&!pacts.has('ax,su')){pacts.add('ax,su');flags.pact=1;log('The Molotov–Ribbentrop Pact is signed. Germany and the Soviet Union are at peace.')}};
 const EV=[
@@ -224,7 +228,7 @@ function fire(ev){if(ev.when&&!ev.when())return;flags['done_'+ev.id]=day;const w
 function showEv(){if(evOpen||!evQ.length)return;const ev=evQ.shift();evOpen=ev;evPrev=spd||last;setSpeed(0);
  const o=ev.opts.filter(x=>!x.for||x.for.includes(me)),e=$('evt');e.style.display='flex';sfx('event');
  e.innerHTML=`<div class="evc"><div class="evb">${ev.icon}</div><h1>${ev.title}</h1><p>${ev.text(me)}</p>${o.map((x,i)=>`<button class="evo" onmousedown="pickEv(${i})"><b>${x.l}</b><span>${x.d}</span></button>`).join('')}</div>`}
-function pickEv(i){const ev=evOpen,o=ev.opts.filter(x=>!x.for||x.for.includes(me));o[i].f(me);evOpen=null;$('evt').style.display='none';if(over)return;setSpeed(evPrev);render();showEv()}
+function pickEv(i){const ev=evOpen,o=ev.opts.filter(x=>!x.for||x.for.includes(me));evOpen=null;$('evt').style.display='none';o[i].f(me);if(over)return;if(!evOpen){setSpeed(evPrev);render();showEv()}}
 function evTick(){EV.forEach(e=>{if(fireAt[e.id]===day)fire(e)});
  if(!evOpen&&day-lastRand>=120&&Math.random()<.02){const c=EV.filter(e=>e.rand&&(flags['done_'+e.id]===undefined||day-flags['done_'+e.id]>700)&&(!e.when||e.when()));if(c.length){lastRand=day;fire(pick(c))}}}
 // ---------- audio: everything is generated in the browser, no files needed
@@ -269,18 +273,77 @@ function setAud(k,v){AU[k]=v;setVol()}
 function togAud(k){AU[k]=!AU[k];audioInit();setVol();render()}
 if(typeof addEventListener!=='undefined')addEventListener('mousedown',()=>{if(AU.ctx&&AU.ctx.state==='suspended')AU.ctx.resume()});
 // ---------- saving and loading (browser storage, plus export/import of a file)
-const SK='fronts_save_',meta=n=>{try{return localStorage.getItem(SK+'meta'+n)}catch(e){return null}};
-function snap(){return JSON.stringify({v:1,day,me,reg,men,tk,prog,ar,rp,line,tech:Object.fromEntries(Object.entries(tech).map(([k,v])=>[k,[...v]])),wars:[...wars],pacts:[...pacts],battles,flags,logs,wlogs,wstat,fireAt,lastRand,aid,frac,f:Object.fromEntries(Object.keys(T).map(k=>[k,T[k].f]))})}
-function unsnap(j){const d=JSON.parse(j);if(!d.reg||!d.me)throw 0;
+const SK='fronts2_save_',meta=n=>{try{return localStorage.getItem(SK+'meta'+n)}catch(e){return null}};
+function snap(){return JSON.stringify({v:2,day,me,reg,men,tk,prog,ar,rp,line,tech:Object.fromEntries(Object.entries(tech).map(([k,v])=>[k,[...v]])),wars:[...wars],pacts:[...pacts],battles,flags,logs,wlogs,wstat,fireAt,lastRand,aid,frac,WARS,wid,f:Object.fromEntries(Object.keys(T).map(k=>[k,T[k].f]))})}
+function unsnap(j){const d=JSON.parse(j);if(d.v!==2||!d.reg||!d.me)throw 0;
  day=d.day;me=d.me;reg=d.reg;men=d.men;tk=d.tk;prog=d.prog;ar=d.ar;rp=d.rp;line=d.line;tech={};Object.entries(d.tech).forEach(([k,v])=>tech[k]=new Set(v));
- wars=new Set(d.wars);pacts=new Set(d.pacts);battles=d.battles;flags=d.flags;logs=d.logs;wlogs=d.wlogs;wstat=d.wstat;fireAt=d.fireAt;lastRand=d.lastRand;aid=d.aid;frac=d.frac||1;
- Object.keys(d.f).forEach(k=>T[k].f=d.f[k]);sel=null;sendMode=false;over=false;evQ=[];evOpen=null;$('ov').style.display='none';$('evt').style.display='none';lk='';last=1;setSpeed(0);render()}
+ wars=new Set(d.wars);pacts=new Set(d.pacts);battles=d.battles;flags=d.flags;logs=d.logs;wlogs=d.wlogs;wstat=d.wstat;fireAt=d.fireAt;lastRand=d.lastRand;aid=d.aid;frac=d.frac||1;WARS=d.WARS||[];wid=d.wid||0;
+ Object.keys(d.f).forEach(k=>T[k].f=d.f[k]);sel=null;sendMode=false;over=false;evQ=[];evOpen=null;$('ov').style.display='none';$('evt').style.display='none';lk='';last=1;setSpeed(0);focusOn(CAP[me],3.5);render()}
 function saveSlot(n){try{localStorage.setItem(SK+n,snap());localStorage.setItem(SK+'meta'+n,`${T[me].n}, ${dateStr()}`);log(n==='auto'?'Autosaved.':`Game saved to slot ${n}.`);render()}catch(e){log('Could not save: browser storage is unavailable or full.')}}
 function loadSlot(n){try{const j=localStorage.getItem(SK+n);if(j){audioInit();unsnap(j);log('Game loaded. The game is paused.')}}catch(e){if(logs)log('Could not load that save.')}}
 function exportSave(){const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([snap()],{type:'application/json'}));a.download='fronts-save-'+day+'.json';a.click()}
 function importSave(el){const f=el.files[0];if(!f)return;const r=new FileReader();r.onload=()=>{try{audioInit();unsnap(r.result);log('Save imported. The game is paused.')}catch(e){if(logs)log('That file is not a valid save.')}};r.readAsText(f)}
 function syncSliders(){if(typeof document.querySelectorAll!=='function')return;const r=document.querySelectorAll('#drawer input[type=range]');if(r[0])r[0].value=AU.mus*100;if(r[1])r[1].value=AU.sfx*100}
-function tick(){if(over)return;day++;calcSupply();evTick();if(day%90===0)saveSlot('auto');
+const rval=r=>Math.round(4+r.fa*2+r.ba*1.5+(CAP[r.own]===r.id?10:0));
+const wsc=(w,t)=>w.a.includes(t)?w.score:-w.score;
+const warOf=(p,q)=>WARS.find(w=>(w.a.includes(p)&&w.b.includes(q))||(w.b.includes(p)&&w.a.includes(q)));
+const isGoal=(w,ws,i)=>{const L=ws==='a'?w.a:w.b;return w.goals.some(g=>L.includes(g.by)&&(g.type==='country'?reg[i].own===g.t:g.type==='region'?g.t===i:false))};
+const dcost=(w,ws,i)=>{const L=ws==='a'?w.a:w.b,r=reg[i];return Math.max(1,Math.round(rval(r)*(L.includes(r.tag)?1:2)*(isGoal(w,ws,i)?.5:1)))};
+const mainOf=(w,ws)=>{const L=ws==='a'?w.a:w.b,m=ws==='a'?w.mx:w.my;return owned(m).length?m:(L.find(t=>owned(t).length)||m)};
+const goalTxt=g=>g.type==='country'?'conquer '+T[g.t].n:g.type==='region'?'take '+reg[g.t].name:'tribute from '+T[g.t].n;
+function autoDemand(w,ws,avail){const WT=ws==='a'?w.a:w.b,LT=ws==='a'?w.b:w.a,out=[];let rest=avail;
+ const cand=ids.filter(i=>LT.includes(reg[i].own)&&(WT.includes(reg[i].tag)||isGoal(w,ws,i)));
+ cand.sort((x,y)=>(isGoal(w,ws,y)-isGoal(w,ws,x))||rval(reg[y])-rval(reg[x]));
+ for(const i of cand){const c=dcost(w,ws,i);if(c<=rest){out.push(i);rest-=c}}return out}
+function peace(w,ws,dem,trib,dt){if(!WARS.includes(w))return;
+ const A=w.a,B=w.b,inA=t=>A.includes(t),inB=t=>B.includes(t),opp=(p,q)=>(inA(p)&&inB(q))||(inB(p)&&inA(q));
+ battles=battles.filter(bt=>{if(bt.kind==='atk'&&opp(bt.tag,reg[bt.to].tag)){back(bt);return false}return true});
+ const evac=r=>{const home=ids.find(i=>i!==r.id&&reg[i].tag===r.tag&&CAP[r.tag]===i)||ids.find(i=>i!==r.id&&reg[i].tag===r.tag);if(home){const h=reg[home];h.t+=r.t;h.k+=r.k;h.a+=r.a}r.t=2;r.k=0;r.a=0};
+ ids.forEach(i=>{const r=reg[i];
+  if(dem.includes(i)){const prev=r.tag;r.own=dt;if(prev!==dt){evac(r);r.tag=dt;r.t=3}return}
+  if(r.tag!==r.own&&opp(r.tag,r.own)){evac(r);r.tag=r.own;r.t=Math.max(2,r.t)}});
+ if(trib&&ws){const lt=ws==='a'?w.my:w.mx,x=Math.floor(men[lt]*.4),y=Math.floor(rp[lt]*.4);addM(lt,-x);addM(dt,x);addRP(lt,-y);addRP(dt,y)}
+ A.forEach(p=>B.forEach(q=>wars.delete(wk(p,q))));WARS=WARS.filter(x=>x!==w);lk='';
+ const nA=A.map(t=>T[t].n).join(', '),nB=B.map(t=>T[t].n).join(', ');
+ const m=ws?`Peace: ${T[dt].n} imposes terms on ${ws==='a'?nB:nA}${dem.length?' and takes '+dem.map(i=>reg[i].name).join(', '):''}${trib?', plus tribute':''}.`:`Peace: the war between ${nA} and ${nB} ends in a white peace.`;
+ log(m);if(inA(me)||inB(me)){wl(m);sfx(ws&&dt===me?'win':ws?'loss':'event')}
+ check()}
+function goalOpts(y){const mb=ids.filter(i=>reg[i].own===y&&nb[i].some(j=>reg[j].tag===me)).slice(0,3),mk=g=>()=>declareWar(me,y,g);
+ return [{l:`Conquer ${T[y].n}`,d:'War goal: annex every region of the country. Half price at the peace table.',f:mk({by:me,type:'country',t:y})},
+  ...mb.map(i=>({l:`Take ${reg[i].name}`,d:'War goal: annex this region. Half price at the peace table.',f:mk({by:me,type:'region',t:i})})),
+  {l:'Humiliate and demand tribute',d:'War goal: 40% of their men and research. Half price at the peace table.',f:mk({by:me,type:'tribute',t:y})},
+  {l:'Not yet',d:'Stay at peace.',f:()=>{}}]}
+function warsHtml(){const L=WARS.filter(w=>w.a.includes(me)||w.b.includes(me));return L.length?`<h2 style="margin:12px 0 4px;font-size:15px">Wars</h2>`+L.map(w=>{const my=w.a.includes(me)?w.a:w.b,en=(w.a.includes(me)?w.b:w.a).filter(t=>owned(t).length).map(t=>T[t].n).join(', ')||'defeated enemies',s=Math.round(wsc(w,me));
+  return `<div class="rw" style="cursor:default"><span style="flex:1">Against ${en}<br><span class="dim">Day ${day-w.day} · war score ${s>=0?'+':''}${s} · your goals: ${w.goals.filter(g=>my.includes(g.by)).map(goalTxt).join('; ')||'none'}</span></span><button onmousedown="openTreaty(${w.id})">Peace talks</button></div>`}).join(''):''}
+let TR=null;
+function openTreaty(id){const w=WARS.find(x=>x.id===id);if(!w)return;const s=w.a.includes(me)?'a':w.b.includes(me)?'b':null;if(!s)return;
+ TR={w,s,picks:new Set(ids.filter(i=>(s==='a'?w.b:w.a).includes(reg[i].own)&&isGoal(w,s,i))),trib:false,msg:''};
+ if(spd)evPrev=spd;setSpeed(0);evOpen={treaty:1};showTreaty()}
+function showTreaty(){const {w,s}=TR,my=s==='a'?w.a:w.b,en=s==='a'?w.b:w.a,sur=!en.some(t=>owned(t).length);
+ const av=sur?100:Math.max(0,wsc(w,me))+(en.some(t=>reg[CAP[t]]&&my.includes(reg[CAP[t]].tag))?25:0),tg=w.goals.some(g=>my.includes(g.by)&&g.type==='tribute'),tc=tg?12:25;
+ const cost=[...TR.picks].reduce((a,i)=>a+dcost(w,s,i),0)+(TR.trib?tc:0);TR.av=av;TR.cost=cost;
+ const rows=ids.filter(i=>en.includes(reg[i].own)).map(i=>{const r=reg[i],occ=my.includes(r.tag),on=TR.picks.has(i);return `<button class="evo ${on?'pick':''}" onmousedown="togDemand('${i}')"><b>${on?'✓ ':''}${r.name} (${T[r.own].n})</b><span>${dcost(w,s,i)} points${isGoal(w,s,i)?' · war goal, half price':''}${occ?' · occupied by you':' · not occupied, costs double'}</span></button>`}).join('');
+ const sc2=Math.round(wsc(w,me));
+ $('evt').innerHTML=`<div class="evc"><div class="evb">🕊️</div><h1>Peace treaty</h1><p>${sur?'The enemy has surrendered.':'War score '+(sc2>=0?'+':'')+sc2+'.'} Your demands cost ${cost} of ${Math.round(av)} points. War goals are half price, and regions you have not occupied cost double. Whatever you do not demand is handed back to its owner.${TR.msg?' <b>'+TR.msg+'</b>':''}</p>${rows||'<p>They have nothing left to take.</p>'}<button class="evo ${TR.trib?'pick':''}" onmousedown="togTrib()"><b>${TR.trib?'✓ ':''}Tribute</b><span>Take 40% of their men and research. ${tc} points${tg?' · war goal, half price':''}</span></button><button class="evo" onmousedown="sendTreaty()"><b>Propose this treaty</b><span>${cost<=av?'They will accept.':'You need more war score. They will refuse.'}</span></button><button class="evo" onmousedown="whitePeace()"><b>White peace</b><span>End the war with no changes (only after 30 days).</span></button><button class="evo" onmousedown="closeTreaty()"><b>Keep fighting</b><span>Close this screen.</span></button></div>`;$('evt').style.display='flex'}
+function togDemand(i){if(!TR)return;TR.picks.has(i)?TR.picks.delete(i):TR.picks.add(i);TR.msg='';showTreaty()}
+function togTrib(){if(!TR)return;TR.trib=!TR.trib;TR.msg='';showTreaty()}
+function sendTreaty(){if(!TR)return;if(!TR.picks.size&&!TR.trib){TR.msg='Pick at least one demand, or choose white peace.';showTreaty();return}
+ if(TR.cost>TR.av){TR.msg='They refused your terms.';wl('Your peace terms were refused.');showTreaty();return}
+ const w=TR.w,s=TR.s,d=[...TR.picks],t=TR.trib;closeTreaty();peace(w,s,d,t,me)}
+function whitePeace(){if(!TR)return;if(day-TR.w.day<30){TR.msg='Too early: the war must last 30 days first.';showTreaty();return}const w=TR.w;closeTreaty();peace(w,null,[],false,me)}
+function closeTreaty(){TR=null;evOpen=null;$('evt').style.display='none';setSpeed(evPrev);render();showEv()}
+function warTick(){
+ if(day===548&&owned('CHN').length&&!hostile('JAP','CHN'))declareWar('JAP','CHN');
+ for(const w of [...WARS]){if(!WARS.includes(w))continue;
+  const side=w.a.includes(me)?'a':w.b.includes(me)?'b':null,A=w.a.some(t=>owned(t).length),B=w.b.some(t=>owned(t).length);
+  if(!A||!B){const ws=!B?'a':'b';
+   if(side&&ws===side){if(!w.capit){w.capit=1;const nm=(ws==='a'?w.b:w.a).map(t=>T[t].n).join(', ');evQ.push({icon:'🏳️',title:nm+' surrenders',text:()=>`${nm} can no longer fight. You decide the peace terms.`,opts:[{l:'Dictate the peace terms',d:'Open the treaty screen.',f:()=>openTreaty(w.id)}]});showEv()}}
+   else peace(w,ws,autoDemand(w,ws,100),false,mainOf(w,ws));continue}
+  if(!side){if(day-w.day>150&&Math.random()<(Math.abs(w.score)>=25?.01:.003)){const ws=Math.abs(w.score)>=25?(w.score>0?'a':'b'):null;peace(w,ws,ws?autoDemand(w,ws,Math.abs(w.score)):[],false,ws?mainOf(w,ws):w.mx)}continue}
+  const mine=wsc(w,me);
+  if(mine<=-40&&day-w.offer>45&&day-w.day>40){w.offer=day;const es=side==='a'?'b':'a',et=mainOf(w,es),dm=autoDemand(w,es,-mine);
+   evQ.push({icon:'🏳️',title:`${T[et].n} offers terms`,text:()=>`${T[et].n} is winning the war and proposes peace. ${dm.length?'They demand '+dm.map(i=>reg[i].name).join(', ')+'.':'They ask for nothing but an end to the fighting.'}`,opts:[{l:'Accept the treaty',d:dm.length?'You lose those regions and the war ends.':'The war ends with no changes.',f:()=>peace(w,dm.length?es:null,dm,false,et)},{l:'Fight on',d:'The war continues.',f:()=>{}}]});showEv()}}}
+function tick(){if(over)return;day++;calcSupply();evTick();warTick();if(day%90===0)saveSlot('auto');
  Object.keys(T).forEach(t=>{if(T[t].f==='nu')return;
   men[t]+=sum(t,'ba')*BARR*(1+bn(t,'man'));prog[t]+=sum(t,'fa')*FACT*(1+bn(t,'fac'));rp[t]+=(sum(t,'fa')+sum(t,'ba'))*.05*(1+bn(t,'rs'));
   const c=line[t]==='k'?1:.6;
@@ -315,73 +378,81 @@ function setFrac(f){frac=f;render()}
 function setLine(v){line[me]=v;render()}
 function buy(id){const x=tById(id);if(can(me,x)&&rp[me]>=x[3]){rp[me]-=x[3];tech[me].add(id);render()}}
 
-const rid=new Int16Array(MW*MH),bd=new Uint8Array(MW*MH),cen=[],BF=[1,.88,.5,.55],rgbs={};
-let img,ctx,cv,cc,cctx,lay,lctx,base,lk='';
+const rid=new Int16Array(MW*MH),bd=new Uint8Array(MW*MH),cen=[],BF=[1,.9,.5,.55],rgbs={};
+let img,ctx,cv,lay,lctx,base,lk='',dp=1,VW=300,VH=200,vx=0,vy=0,vs=0,vmin=.1,drag=null,moved=false;
 const addL=(a,b)=>{if(!nb[a].includes(b)){nb[a].push(b);nb[b].push(a)}};
 function buildMap(){
  const m=document.createElement('canvas');m.width=MW;m.height=MH;const g=m.getContext('2d');
  const poly=a=>{g.beginPath();for(let i=0;i<a.length;i+=2)g[i?'lineTo':'moveTo'](X(a[i]),Y(a[i+1]));g.closePath();g.fillStyle='#fff';g.fill()};
- MASK.forEach(poly);g.globalCompositeOperation='destination-out';poly(HOLE);
- const a=g.getImageData(0,0,MW,MH).data,sx=R0.map(r=>X(r[6])),sy=R0.map(r=>Y(r[7])),US=ids.indexOf('USA'),n=R0.length,sums=R0.map(()=>[0,0,0]);
- for(let y=0,p=0;y<MH;y++)for(let x=0;x<MW;x++,p++){
-  if(a[p*4+3]<128){rid[p]=-1;continue}
-  let b=0,m2=1e9;
-  if(x<X(-14.5))b=US;else for(let i=0;i<n;i++){const d=(x-sx[i])**2+(y-sy[i])**2;if(d<m2){m2=d;b=i}}
-  rid[p]=b;const s=sums[b];s[0]+=x;s[1]+=y;s[2]++}
+ MASK.forEach(poly);g.globalCompositeOperation='destination-out';HOLE.forEach(poly);
+ const a=g.getImageData(0,0,MW,MH).data,sx=R0.map(r=>X(r[6])),sy=R0.map(r=>Y(r[7])),n=R0.length,sums=R0.map(()=>[0,0,0]);
+ const near=(x,y)=>{let b=0,m2=1e18;for(let i=0;i<n;i++){const d=(x-sx[i])*(x-sx[i])+(y-sy[i])*(y-sy[i]);if(d<m2){m2=d;b=i}}return b};
+ // Voronoi cells are convex, so a block whose four corners agree belongs entirely to one region
+ const BS=8,gw=Math.ceil(MW/BS)+1,gh=Math.ceil(MH/BS)+1,gr=new Int16Array(gw*gh);
+ for(let j=0;j<gh;j++)for(let i=0;i<gw;i++)gr[j*gw+i]=near(Math.min(i*BS,MW-1),Math.min(j*BS,MH-1));
+ for(let by=0;by<gh-1;by++)for(let bx=0;bx<gw-1;bx++){
+  const c0=gr[by*gw+bx],uni=c0===gr[by*gw+bx+1]&&c0===gr[(by+1)*gw+bx]&&c0===gr[(by+1)*gw+bx+1];
+  for(let y=by*BS;y<Math.min(MH,by*BS+BS);y++)for(let x=bx*BS;x<Math.min(MW,bx*BS+BS);x++){const p=y*MW+x;
+   if(a[p*4+3]<128){rid[p]=-1;continue}
+   const b=uni?c0:near(x,y);rid[p]=b;const s=sums[b];s[0]+=x;s[1]+=y;s[2]++}}
  sums.forEach((s,i)=>{const cx=s[0]/s[2],cy=s[1]/s[2];cen[i]=rid[Math.round(cy)*MW+Math.round(cx)]===i?[cx,cy,s[2]]:[sx[i],sy[i],s[2]]});
  const link=new Set();
- for(let y=0,p=0;y<MH;y++)for(let x=0;x<MW;x++,p++){const r=rid[p];
-  [[x<MW-1,p+1],[y<MH-1,p+MW]].forEach(([ok,q])=>{if(!ok)return;const s=rid[q];if(s===r)return;
-   if(r<0||s<0){bd[r<0?q:p]=3;return}
-   const u=R0[r][2]!==R0[s][2]?2:1;bd[p]=Math.max(bd[p],u);bd[q]=Math.max(bd[q],u);link.add(Math.min(r,s)+'-'+Math.max(r,s))})}
+ const chk=(p,q,r)=>{const s=rid[q];if(s===r)return;if(r<0||s<0){bd[r<0?q:p]=3;return}
+  const u=R0[r][2]!==R0[s][2]?2:1;if(bd[p]<u)bd[p]=u;if(bd[q]<u)bd[q]=u;link.add(Math.min(r,s)+'-'+Math.max(r,s))};
+ for(let y=0,p=0;y<MH;y++)for(let x=0;x<MW;x++,p++){const r=rid[p];if(x<MW-1)chk(p,p+1,r);if(y<MH-1)chk(p,p+MW,r)}
  const b2=bd.slice();for(let p=0;p<MW*MH-MW-1;p++)if(b2[p]===2){if(rid[p+1]>=0&&bd[p+1]<2)bd[p+1]=2;if(rid[p+MW]>=0&&bd[p+MW]<2)bd[p+MW]=2}
  link.forEach(k=>{const[u,v]=k.split('-').map(Number);addL(ids[u],ids[v])});
  SEA.forEach(s=>{const[u,v]=s.split('-');addL(u,v)});
  cv=$('cv');ctx=cv.getContext('2d');ctx.lineJoin='round';
  const mk=()=>{const c=document.createElement('canvas');c.width=MW;c.height=MH;return c};
- cc=mk();cctx=cc.getContext('2d');lay=mk();lctx=lay.getContext('2d');img=lctx.createImageData(MW,MH);
- base=mk();const bx=base.getContext('2d'),gr=bx.createLinearGradient(0,0,0,MH);gr.addColorStop(0,'#2d4248');gr.addColorStop(1,'#1f2f36');bx.fillStyle=gr;bx.fillRect(0,0,MW,MH);bx.shadowColor='rgba(150,195,195,.5)';bx.shadowBlur=28*S;bx.drawImage(m,0,0);
- const at=e=>{const r=cv.getBoundingClientRect(),x=Math.floor((e.clientX-r.left)*MW/r.width),y=Math.floor((e.clientY-r.top)*MH/r.height);return x<0||y<0||x>=MW||y>=MH?-1:rid[y*MW+x]};
- cv.onclick=e=>{if(moved)return;const i=at(e);if(i>=0)click(ids[i],e);else if(running()){sel=null;render()}};
+ lay=mk();lctx=lay.getContext('2d');img=lctx.createImageData(MW,MH);
+ base=mk();const bx=base.getContext('2d'),gg=bx.createLinearGradient(0,0,0,MH);gg.addColorStop(0,'#2d4248');gg.addColorStop(1,'#1c2c33');bx.fillStyle=gg;bx.fillRect(0,0,MW,MH);
+ bx.strokeStyle='rgba(180,215,215,.08)';bx.lineWidth=1;
+ for(let lo=-150;lo<=180;lo+=30){bx.beginPath();bx.moveTo(X(lo),0);bx.lineTo(X(lo),MH);bx.stroke()}
+ for(let la=-60;la<=75;la+=15){bx.beginPath();bx.moveTo(0,Y(la));bx.lineTo(MW,Y(la));bx.stroke()}
+ bx.shadowColor='rgba(150,195,195,.55)';bx.shadowBlur=14;bx.drawImage(m,0,0);
+ const at=e=>{const r=cv.getBoundingClientRect(),x=Math.floor(vx+(e.clientX-r.left)*dp/vs),y=Math.floor(vy+(e.clientY-r.top)*dp/vs);return x<0||y<0||x>=MW||y>=MH?-1:rid[y*MW+x]};
+ cv.onclick=e=>{if(moved)return;const i=at(e);if(i>=0)click(ids[i],e);else if(running()){sel=null;sendMode=false;render()}};
  cv.onmousemove=e=>{const i=at(e);cv.title=i>=0&&reg?`${R0[i][1]} (${T[reg[ids[i]].tag].n}) · power ${pp(reg[ids[i]])}`:''};
  const wp=$('mapwrap');
- wp.addEventListener('wheel',e=>{e.preventDefault();zoomAt(e.deltaY<0?1.15:1/1.15,e.clientX,e.clientY)},{passive:false});
- wp.onpointerdown=e=>{if(e.target.closest('#zoom'))return;drag={x:e.clientX,y:e.clientY,ox:zv.x,oy:zv.y,id:e.pointerId};moved=false};
- wp.onpointermove=e=>{if(!drag)return;const dx=e.clientX-drag.x,dy=e.clientY-drag.y;if(!moved&&Math.hypot(dx,dy)>5){moved=true;wp.setPointerCapture(drag.id)}if(moved){zv.x=drag.ox+dx;zv.y=drag.oy+dy;applyView()}};
+ wp.addEventListener('wheel',e=>{e.preventDefault();zoomAt(e.deltaY<0?1.2:1/1.2,e.clientX,e.clientY)},{passive:false});
+ wp.onpointerdown=e=>{if(e.target.closest('#zoom'))return;drag={x:e.clientX,y:e.clientY,ox:vx,oy:vy,id:e.pointerId};moved=false};
+ wp.onpointermove=e=>{if(!drag)return;const dx=e.clientX-drag.x,dy=e.clientY-drag.y;if(!moved&&Math.hypot(dx,dy)>5){moved=true;wp.setPointerCapture(drag.id)}if(moved){vx=drag.ox-dx*dp/vs;vy=drag.oy-dy*dp/vs;clampView();drawMap()}};
  wp.onpointerup=wp.onpointercancel=()=>{drag=null;setTimeout(()=>moved=false,0)};
- addEventListener('resize',applyView);
+ addEventListener('resize',sizeCv);sizeCv();
 }
-let zv={z:1,x:0,y:0},drag=null,moved=false;
-function applyView(){const w=$('mapwrap'),cw=cv.offsetWidth*zv.z,ch=cv.offsetHeight*zv.z;
- zv.x=Math.min(w.clientWidth-80-cv.offsetLeft,Math.max(80-cw-cv.offsetLeft,zv.x));
- zv.y=Math.min(w.clientHeight-80-cv.offsetTop,Math.max(80-ch-cv.offsetTop,zv.y));
- cv.style.transform=`translate(${zv.x}px,${zv.y}px) scale(${zv.z})`}
-function zoomAt(f,px,py){const r=$('mapwrap').getBoundingClientRect(),ox=px-r.left-cv.offsetLeft,oy=py-r.top-cv.offsetTop,z2=Math.min(5,Math.max(1,zv.z*f)),k=z2/zv.z;
- zv.x=ox-(ox-zv.x)*k;zv.y=oy-(oy-zv.y)*k;zv.z=z2;applyView()}
-function zoomBy(f){const r=$('mapwrap').getBoundingClientRect();zoomAt(f,r.left+r.width/2,r.top+r.height/2)}
-function zoomReset(){zv={z:1,x:0,y:0};applyView()}
+function sizeCv(){dp=window.devicePixelRatio||1;const w=cv.parentElement;VW=cv.width=Math.max(300,Math.floor(w.clientWidth*dp));VH=cv.height=Math.max(200,Math.floor(w.clientHeight*dp));vmin=Math.min(VW/MW,VH/MH);if(!vs||vs<vmin)vs=vmin;clampView();ctx.lineJoin='round';drawMap()}
+function clampView(){vs=Math.max(vmin,Math.min(vmin*14,vs));const ww=VW/vs,hh=VH/vs;vx=MW<=ww?(MW-ww)/2:Math.max(0,Math.min(MW-ww,vx));vy=MH<=hh?(MH-hh)/2:Math.max(0,Math.min(MH-hh,vy))}
+function zoomAt(f,px,py){const r=cv.getBoundingClientRect(),mx=(px-r.left)*dp,my=(py-r.top)*dp,wx=vx+mx/vs,wy=vy+my/vs;vs*=f;clampView();vx=wx-mx/vs;vy=wy-my/vs;clampView();drawMap()}
+function zoomBy(f){const r=cv.getBoundingClientRect();zoomAt(f,r.left+r.width/2,r.top+r.height/2)}
+function zoomReset(){vs=vmin;clampView();drawMap()}
+function focusOn(id,z){const c=cpos(id);vs=vmin*z;clampView();vx=c[0]-VW/vs/2;vy=c[1]-VH/vs/2;clampView();drawMap()}
 function rgbOf(tag){if(rgbs[tag])return rgbs[tag];ctx.fillStyle=T[tag].c;const h=ctx.fillStyle;return rgbs[tag]=[1,3,5].map(k=>parseInt(h.substr(k,2),16))}
-function drawMap(){
- const key=ids.map(i=>reg[i].tag).join()+'|'+sel+'|'+(sel&&reg[sel].tag===me)+'|'+wars.size;
- if(key!==lk){lk=key;const d=img.data,pr=[],pg=[],pb=[],tg=sel&&reg[sel].tag===me?nb[sel].filter(j=>same(me,reg[j].tag)||hostile(me,reg[j].tag)):[];
-  ids.forEach((id,i)=>{let c=rgbOf(reg[id].tag);if(id===sel)c=c.map(v=>Math.min(255,v+55));else if(tg.includes(id))c=c.map((v,k)=>Math.round(v*.6+[217,164,65][k]*.4));pr[i]=c[0];pg[i]=c[1];pb[i]=c[2]});
-  for(let p=0,o=0;p<MW*MH;p++,o+=4){const r=rid[p];
-   if(r<0){d[o+3]=0;continue}
-   const f=BF[bd[p]];d[o]=pr[r]*f;d[o+1]=pg[r]*f;d[o+2]=pb[r]*f;d[o+3]=255}
-  lctx.putImageData(img,0,0);cctx.drawImage(base,0,0);cctx.drawImage(lay,0,0)}
- ctx.drawImage(cc,0,0);ctx.textAlign='center';ctx.textBaseline='middle';
- battles.forEach(bt=>{if(!(inv(bt)||bt.st==='fight'))return;const[x1,y1]=cpos(bt.from),[x2,y2]=cpos(bt.to),mv=bt.kind==='mv',fg=bt.st==='fight';
-  if(bt.st!=='mob'){ctx.strokeStyle=fg?'rgba(235,95,75,.95)':mv?'rgba(120,200,130,.9)':'rgba(235,170,70,.95)';ctx.lineWidth=3*S;ctx.setLineDash([9*S,6*S]);ctx.beginPath();ctx.moveTo(x1,y1);ctx.lineTo(x2,y2);ctx.stroke();ctx.setLineDash([])}
-  const f=bt.st==='mob'?0:fg?.7:.5,bx=x1+(x2-x1)*f,by=(bt.st==='mob'?y1-24*S:y1+(y2-y1)*f),tx=fg?'⚔ '+Math.round(bt.E*100)+'%':(bt.st==='mob'?'⚙ ':'➜ ')+bt.wait+'d';
-  ctx.font=11*S+'px system-ui,sans-serif';const w=ctx.measureText(tx).width+10*S;ctx.fillStyle=fg?'rgba(150,40,30,.95)':mv?'rgba(40,110,60,.95)':'rgba(150,100,20,.95)';
-  ctx.beginPath();if(ctx.roundRect)ctx.roundRect(bx-w/2,by-9*S,w,18*S,9*S);else ctx.rect(bx-w/2,by-9*S,w,18*S);ctx.fill();ctx.fillStyle='#fff';ctx.fillText(tx,bx,by+S/2)});
+function blit(im){const sx=Math.max(0,vx),sy=Math.max(0,vy),sw=Math.min(MW,vx+VW/vs)-sx,sh=Math.min(MH,vy+VH/vs)-sy;if(sw<=0||sh<=0)return;ctx.drawImage(im,sx,sy,sw,sh,(sx-vx)*vs,(sy-vy)*vs,sw*vs,sh*vs)}
+function drawMap(){if(!ctx)return;ctx.fillStyle='#1c2c33';ctx.fillRect(0,0,VW,VH);
+ if(!reg){blit(base);return}
+ const key=ids.map(i=>reg[i].tag+reg[i].own).join()+'|'+sel+'|'+(sel&&reg[sel].tag===me)+'|'+wars.size;
+ if(key!==lk){lk=key;const d=img.data,pr=[],pg=[],pb=[],qr=[],qg=[],qb=[],oc=[],tg=sel&&reg[sel].tag===me?nb[sel].filter(j=>same(me,reg[j].tag)||hostile(me,reg[j].tag)):[];
+  ids.forEach((id,i)=>{let c=rgbOf(reg[id].tag);const o=rgbOf(reg[id].own);if(id===sel)c=c.map(v=>Math.min(255,v+55));else if(tg.includes(id))c=c.map((v,k)=>Math.round(v*.6+[217,164,65][k]*.4));
+   pr[i]=c[0];pg[i]=c[1];pb[i]=c[2];qr[i]=o[0];qg[i]=o[1];qb[i]=o[2];oc[i]=reg[id].tag!==reg[id].own});
+  for(let y=0,p=0,o=0;y<MH;y++)for(let x=0;x<MW;x++,p++,o+=4){const r=rid[p];if(r<0){d[o+3]=0;continue}
+   const f=BF[bd[p]],st=oc[r]&&((x+y)%24<9);d[o]=(st?qr[r]:pr[r])*f;d[o+1]=(st?qg[r]:pg[r])*f;d[o+2]=(st?qb[r]:pb[r])*f;d[o+3]=255}
+  lctx.putImageData(img,0,0)}
+ blit(base);blit(lay);ctx.textAlign='center';ctx.textBaseline='middle';
+ const P=id=>{const c=cpos(id);return[(c[0]-vx)*vs,(c[1]-vy)*vs]};
+ battles.forEach(bt=>{if(!(inv(bt)||bt.st==='fight'))return;const[x1,y1]=P(bt.from),[x2,y2]=P(bt.to),mv=bt.kind==='mv',fg=bt.st==='fight';
+  if(bt.st!=='mob'){ctx.strokeStyle=fg?'rgba(235,95,75,.95)':mv?'rgba(120,200,130,.9)':'rgba(235,170,70,.95)';ctx.lineWidth=3*dp;ctx.setLineDash([9*dp,6*dp]);ctx.beginPath();ctx.moveTo(x1,y1);ctx.lineTo(x2,y2);ctx.stroke();ctx.setLineDash([])}
+  const f=bt.st==='mob'?0:fg?.7:.5,bx=x1+(x2-x1)*f,by=bt.st==='mob'?y1-24*dp:y1+(y2-y1)*f,tx=fg?'⚔ '+Math.round(bt.E*100)+'%':(bt.st==='mob'?'⚙ ':'➜ ')+bt.wait+'d';
+  ctx.font=11*dp+'px system-ui,sans-serif';const w=ctx.measureText(tx).width+10*dp;ctx.fillStyle=fg?'rgba(150,40,30,.95)':mv?'rgba(40,110,60,.95)':'rgba(150,100,20,.95)';
+  ctx.beginPath();if(ctx.roundRect)ctx.roundRect(bx-w/2,by-9*dp,w,18*dp,9*dp);else ctx.rect(bx-w/2,by-9*dp,w,18*dp);ctx.fill();ctx.fillStyle='#fff';ctx.fillText(tx,bx,by+dp/2)});
  const mono='"Special Elite","Courier New",monospace';
- ids.forEach((id,i)=>{const g=reg[id],[x,y,ar]=cen[i],bad=oos(id),parts=[pp(g)+''];
-  ctx.font=12*S+'px '+mono;const txt=parts.join('  '),w=ctx.measureText(txt).width+12*S,h=20*S;
-  ctx.fillStyle='rgba(18,24,22,.88)';ctx.strokeStyle='rgba(255,255,255,.2)';ctx.lineWidth=S;
+ ids.forEach((id,i)=>{const[cx,cy,ar]=cen[i],x=(cx-vx)*vs,y=(cy-vy)*vs;if(x<-80||y<-40||x>VW+80||y>VH+40)return;
+  const sz=ar*vs*vs;if(sz<900*dp*dp&&id!==sel)return;
+  const g=reg[id],bad=oos(id),txt=pp(g)+'';ctx.font=12*dp+'px '+mono;const w=ctx.measureText(txt).width+12*dp,h=20*dp;
+  ctx.fillStyle='rgba(18,24,22,.88)';ctx.strokeStyle=id===sel?'#fff':'rgba(255,255,255,.2)';ctx.lineWidth=dp;
   ctx.beginPath();if(ctx.roundRect)ctx.roundRect(x-w/2,y-h/2,w,h,h/2);else ctx.rect(x-w/2,y-h/2,w,h);ctx.fill();ctx.stroke();
-  ctx.fillStyle=bad?'#e8806e':'#ece6d3';ctx.fillText(txt,x,y+S/2);
-  if(ar>2600*S*S){const nm=(CAP[g.tag]===id?'★ ':'')+g.name;ctx.font=11*S+'px system-ui,sans-serif';ctx.lineWidth=3*S;ctx.strokeStyle='rgba(15,22,20,.8)';ctx.strokeText(nm,x,y+h/2+9*S);ctx.fillStyle='#fff';ctx.fillText(nm,x,y+h/2+9*S)}});
+  ctx.fillStyle=bad?'#e8806e':'#ece6d3';ctx.fillText(txt,x,y+dp/2);
+  if(sz>=6000*dp*dp||id===sel){const nm=(CAP[g.tag]===id?'★ ':'')+g.name;ctx.font=11*dp+'px system-ui,sans-serif';ctx.lineWidth=3*dp;ctx.strokeStyle='rgba(15,22,20,.8)';ctx.strokeText(nm,x,y+h/2+9*dp);ctx.fillStyle='#fff';ctx.fillText(nm,x,y+h/2+9*dp)}});
 }
 
 let openP=null;const openG=new Set();
@@ -399,29 +470,29 @@ function panelHtml(){const mine=owned(me),F=sum(me,'fa'),B=sum(me,'ba'),r=rate()
  if(openP==='sys'){const sl=n=>{const m=meta(n);return `<div class="rw" style="cursor:default"><span style="flex:1">${n==='auto'?'Autosave':'Slot '+n}<br><span class="dim">${m||'empty'}</span></span>${n==='auto'?'':`<button onmousedown="saveSlot('${n}')">Save</button>`}<button onmousedown="loadSlot('${n}')" ${m?'':'disabled'}>Load</button></div>`};
   return `<h2>Save, load and sound</h2>${['1','2','3','auto'].map(sl).join('')}<div class="row" style="margin:10px 0"><button onmousedown="exportSave()">Export to file</button><label class="dim">Import: <input type="file" accept=".json" onchange="importSave(this)"></label></div><h2 style="font-size:15px;margin-top:14px">Sound</h2><div class="row"><button class="${AU.mOn?'on':''}" onmousedown="togAud('mOn')">Music</button><input type="range" min="0" max="100" value="50" oninput="setAud('mus',this.value/100)"></div><div class="row" style="margin-top:8px"><button class="${AU.sOn?'on':''}" onmousedown="togAud('sOn')">War sounds</button><input type="range" min="0" max="100" value="50" oninput="setAud('sfx',this.value/100)"></div><p class="dim">Sound starts after your first click. Saves live in this browser, so use Export to move one to another device. The game also autosaves every 90 days.</p><div class="row"><button onmousedown="menu()">Quit to main menu</button></div>`}
  if(openP==='dip'){const st=t=>same(me,t)?'Ally':hostile(me,t)?'At war':pacts.has([T[me].f,T[t].f].sort().join())?'Pact':'Peace',o={'At war':0,Peace:1,Pact:2,Ally:3};
-  return `<h2>Diplomacy</h2><p class="dim">You can only attack countries you are at war with. Declaring war also brings in the country’s allies, and their armies can attack you along every shared border.</p>`+C.filter(c=>c[0]!==me&&owned(c[0]).length).sort((a,b)=>o[st(a[0])]-o[st(b[0])]).map(c=>{const t=c[0],x=st(t),n=owned(t).length;return `<div class="rw" style="cursor:default"><i style="background:${T[t].c}"></i><span style="flex:1"><b onmousedown="pickR('${CAP[t]}')" style="cursor:pointer;font-weight:400">${c[1]}</b><br><span class="dim">${x} · ${n} region${n>1?'s':''} · power ${owned(t).reduce((a,i)=>a+pp(reg[i]),0)}</span></span>${x==='Peace'?`<button onmousedown="askWar('${t}')">Declare war</button>`:''}</div>`}).join('')}
+  return `<h2>Diplomacy</h2><p class="dim">You can only attack countries you are at war with. Declaring war also brings in the country’s allies, and their armies can attack you along every shared border.</p>`+warsHtml()+C.filter(c=>c[0]!==me&&owned(c[0]).length).sort((a,b)=>o[st(a[0])]-o[st(b[0])]).map(c=>{const t=c[0],x=st(t),n=owned(t).length;return `<div class="rw" style="cursor:default"><i style="background:${T[t].c}"></i><span style="flex:1"><b onmousedown="pickR('${CAP[t]}')" style="cursor:pointer;font-weight:400">${c[1]}</b><br><span class="dim">${x} · ${n} region${n>1?'s':''} · power ${owned(t).reduce((a,i)=>a+pp(reg[i]),0)}</span></span>${x==='Peace'?`<button onmousedown="askWar('${t}')">Declare war</button>`:''}</div>`}).join('')}
  if(openP==='war'){const en=C.filter(c=>c[0]!==me&&hostile(me,c[0])&&owned(c[0]).length).map(c=>c[1]).join(', ')||'nobody';
   return `<h2>War log</h2><p class="dim">At war with: ${en}<br>Regions captured: ${wstat.won} · lost: ${wstat.lost}</p>${wlogs.length?wlogs.map(l=>`<p class="dim">${l}</p>`).join(''):'<p class="dim">No war activity yet.</p>'}`}
  if(openP==='log')return `<h2>Log</h2>${logs.map(l=>`<p class="dim">${l}</p>`).join('')}`;
  const n=ids.filter(i=>same(me,reg[i].tag)).length,foes=C.filter(c=>c[0]!==me&&hostile(me,c[0])&&owned(c[0]).length).map(c=>c[1]).join(', ')||'nobody';
- return `<h2>World</h2><p class="dim">Goal: hold ${GOAL} of ${ids.length} regions with your side (${n} now). Losing your capital (★) loses the game.</p><p class="dim">At war with: ${foes}</p>`+[...new Set(C.map(c=>c[4]))].map(g=>`<details ${openG.has(g)?'open':''} ontoggle="this.open?openG.add('${g}'):openG.delete('${g}')"><summary>${g}</summary>${C.filter(c=>c[4]===g).map(c=>`<div class="dim" style="margin-top:6px"><b>${c[1]}</b></div>${R0.filter(r=>r[2]===c[0]).map(r=>rowR(r[0],`${r[1]}${reg[r[0]].tag!==c[0]?' · '+T[reg[r[0]].tag].n:''}`)).join('')}`).join('')}</details>`).join('');
+ return `<h2>World</h2><p class="dim">Goal: hold ${GOAL} of ${ids.length} regions with your side (${n} now). Losing your capital (★) loses the game.</p><p class="dim">At war with: ${foes}</p>`+[...new Set(C.map(c=>c[4]))].map(g=>`<details ${openG.has(g)?'open':''} ontoggle="this.open?openG.add('${g}'):openG.delete('${g}')"><summary>${g}</summary>${C.filter(c=>c[4]===g).map(c=>`<div class="dim" style="margin-top:6px"><b>${c[1]}</b></div>${ids.filter(i=>reg[i].own===c[0]).map(i=>rowR(i,`${reg[i].name}${reg[i].tag!==c[0]?' · '+T[reg[i].tag].n:''}`)).join('')}`).join('')}</details>`).join('');
 }
 function topHtml(){return `<div>Power <b>${owned(me).reduce((a,i)=>a+pp(reg[i]),0)}</b> · Men <b>${Math.floor(men[me])}</b> · Tanks <b>${Math.floor(tk[me])}</b> · Guns <b>${Math.floor(ar[me])}</b> · Research <b>${Math.floor(rp[me])}</b></div><div class="dim tick">${logs[0]||''}</div><div class="tr"><div style="text-align:right"><h2>${dateStr()}</h2><div class="dim">${T[me].n}</div></div><div class="row">${[['Pause',0],['1',1],['2',2],['3',3],['4',4],['5',5]].map(([l,s])=>`<button class="${spd===s?'on':''}" onmousedown="setSpeed(${s})">${l}</button>`).join('')}</div></div>`}
-function cardHtml(){const r=sel&&reg[sel];if(!r)return'';const o=R0[ids.indexOf(sel)][2],mm=Math.floor(men[me]),kk=Math.floor(tk[me]),gg=Math.floor(ar[me]);
- return `<div class="row" style="justify-content:space-between"><h2>${r.name}</h2><button onmousedown="sel=null;render()" aria-label="Close">×</button></div><div class="dim">${T[o].n}${o!==r.tag?', held by '+T[r.tag].n:''} · ${T[o].g}<br>${r.fa} factories · ${r.ba} barracks · ${TN[TER[sel]]}${oos(sel)?' · out of supply':''}<br>Power projection <b>${pp(r)}</b><br>${r.t} men · ${r.k} tanks · ${r.a} guns</div>${battles.filter(b=>b.to===sel&&b.kind!=='mv').map(b=>`<div style="color:#e8806e;font-size:13px;margin-top:4px">${b.st==='fight'?`${T[b.tag].n} attacking, day ${b.day}, attacker edge ${Math.round(b.E*100)}%`:`${T[b.tag].n} army ${b.st==='mob'?'mobilising':'marching'} against this region, ${b.wait} days`}</div>`).join('')}`+
+function cardHtml(){const r=sel&&reg[sel];if(!r)return'';const o=r.own,mm=Math.floor(men[me]),kk=Math.floor(tk[me]),gg=Math.floor(ar[me]);
+ return `<div class="row" style="justify-content:space-between"><h2>${r.name}</h2><button onmousedown="sel=null;render()" aria-label="Close">×</button></div><div class="dim">${T[o].n}${o!==r.tag?', occupied by '+T[r.tag].n:''} · ${T[o].g}<br>${r.fa} factories · ${r.ba} barracks · ${TN[TER[sel]]}${oos(sel)?' · out of supply':''}<br>Power projection <b>${pp(r)}</b><br>${r.t} men · ${r.k} tanks · ${r.a} guns</div>${battles.filter(b=>b.to===sel&&b.kind!=='mv').map(b=>`<div style="color:#e8806e;font-size:13px;margin-top:4px">${b.st==='fight'?`${T[b.tag].n} attacking, day ${b.day}, attacker edge ${Math.round(b.E*100)}%`:`${T[b.tag].n} army ${b.st==='mob'?'mobilising':'marching'} against this region, ${b.wait} days`}</div>`).join('')}`+
  (r.tag===me?`<div class="row" style="margin-top:8px"><button onmousedown="act('m')" ${mm<1?'disabled':''}>Deploy ${mm} men</button><button onmousedown="act('k')" ${kk<1?'disabled':''}>Deploy ${kk} tanks</button><button onmousedown="act('a')" ${gg<1?'disabled':''}>Deploy ${gg} guns</button><button onmousedown="act('fa')" ${men[me]<CF||r.fa>=MAXB?'disabled':''}>Factory (${CF} men)</button><button onmousedown="act('ba')" ${men[me]<CB||r.ba>=MAXB?'disabled':''}>Barracks (${CB} men)</button></div><div class="dim" style="margin-top:8px">Send how many? Then shift-click a neighbouring region, or press Send troops and click one.</div><div class="row" style="margin-top:4px">${[['All',1],['Half',.5],['Quarter',.25]].map(([l,f])=>`<button class="${frac===f?'on':''}" onmousedown="setFrac(${f})">${l}</button>`).join('')}<button class="${sendMode?'on':''}" onmousedown="sendMode=!sendMode;render()">Send troops</button></div><div class="dim" style="margin-top:4px">At least one man always stays behind.</div>${oddsHtml()}`:'')}
 function oddsHtml(){const foes=nb[sel].filter(j=>hostile(me,reg[j].tag)),peace=[...new Set(nb[sel].filter(j=>!same(me,reg[j].tag)&&!hostile(me,reg[j].tag)).map(j=>T[reg[j].tag].n))];
  return (foes.length?`<div class="dim" style="margin-top:8px">Your edge if you attack (after mobilising and marching):</div>`+foes.map(j=>{const E=edgeOf(sel,j,frac);return `<div class="dim">${reg[j].name}: ${Math.round(E*100)}% edge · ${E>=.65?'favoured':E>=.45?'even':'risky'}</div>`}).join(''):'')+(peace.length?`<div class="dim" style="margin-top:8px">At peace with ${peace.join(', ')}. Declare war in the Diplomacy panel to attack.</div>`:'')}
 const armyTxt=bt=>bt.st==='fight'?`Battle for ${reg[bt.to].name}: day ${bt.day}, edge ${Math.round(bt.E*100)}% (${T[bt.tag].n})`:`${bt.st==='mob'?'Mobilising':'Marching'} ${reg[bt.from].name} → ${reg[bt.to].name}: ${bt.wait} days · ${bt.t} men ${bt.k}T ${bt.a}A (${T[bt.tag].n})`;
 function armyRows(){const L=battles.filter(inv).sort((x,y)=>(y.st==='fight')-(x.st==='fight'));return L.length?`<h2 style="margin:12px 0 4px;font-size:15px">Armies and battles</h2>`+L.slice(0,14).map(bt=>`<div class="rw" onmousedown="pickR('${bt.to}')"><span>${armyTxt(bt)}</span></div>`).join(''):'<p class="dim">No armies on the move.</p>'}
 function askWar(y){const B=T[y].f==='nu'?[y]:members(T[y].f),mine=owned(me),borders=mine.filter(i=>nb[i].some(j=>B.includes(reg[j].tag))).length,allies=B.filter(q=>q!==y&&owned(q).length).map(q=>T[q].n);
- evQ.push({icon:'⚔️',title:'Declare war on '+T[y].n+'?',text:()=>`${T[y].n} borders ${borders} of your regions${borders?'':' (none directly)'}. Once war is declared, their armies can strike across every one of those borders at once, so each front needs a garrison.${allies.length?' Their allies '+allies.join(', ')+' will join them.':''} Your own armies need days to mobilise and march before any fighting starts.`,opts:[{l:'Declare war',d:'The war begins today.',f:()=>declareWar(me,y)},{l:'Not yet',d:'Stay at peace.',f:()=>{}}]});showEv()}
+ evQ.push({icon:'⚔️',title:'Declare war on '+T[y].n+'?',text:()=>`${T[y].n} borders ${borders} of your regions${borders?'':' (none directly)'}. Once war is declared, their armies can strike across every one of those borders at once, so each front needs a garrison.${allies.length?' Their allies '+allies.join(', ')+' will join them.':''} Your own armies need days to mobilise and march before any fighting starts. Choose a war goal: it decides what you can take at the peace table.`,opts:goalOpts(y)});showEv()}
 function render(){if(!reg)return;calcSupply();drawMap();
  put($('rail'),PANELS.map(([k,g,n])=>`<button class="${openP===k?'on':''}" title="${n}" aria-label="${n}" onmousedown="togP('${k}')">${g}</button>`).join(''));
  const d=$('drawer');d.style.display=openP?'block':'none';d.className=openP==='res'?'wide':'';if(openP){const h=panelHtml(),ch=d._h!==h;put(d,h);if(ch)syncSliders()}
  const c=$('card'),h=cardHtml();c.style.display=h?'block':'none';put(c,h);put($('top'),topHtml())}
 
 function menu(){const o=$('ov');o.style.display='flex';setSpeed(0);
- o.innerHTML=`<div><h1>Fronts</h1><p>A small grand strategy game on a map of Europe. Factories build tanks and artillery, barracks train the men who crew them, and terrain, supply and research change how battles go. Men, tanks and artillery are separate weapons, and having more of each gives you an edge. Battles take several days, with losses on both sides until one gives way. Space pauses, keys 1 to 5 set the speed. Click a region to select it, then shift-click a neighbouring region to send troops there. The game starts paused. Use the buttons on the left for production, military, diplomacy, research, the world and your war log. You can only attack countries you have declared war on, and armies take time to mobilise and march. Each region shows one power projection number: a man counts 1, a tank 3 and a gun 2, improved by your research. Events will interrupt the game and ask you to decide.</p><div class="row">${['GER','UK','SOV','ITA','FRA','POL'].map(t=>`<button onmousedown="start('${t}')">${T[t].n}</button>`).join('')}</div>${['1','2','3','auto'].filter(n=>meta(n)).length?`<div class="row" style="margin-top:10px">${['1','2','3','auto'].filter(n=>meta(n)).map(n=>`<button onmousedown="loadSlot('${n}')">Load ${n==='auto'?'autosave':'slot '+n}: ${meta(n)}</button>`).join('')}</div>`:''}<p class="dim">January 1936. Everyone is at peace, and nations start with very different industry. Tensions rise toward 1939.</p></div>`}
+ o.innerHTML=`<div><h1>Fronts</h1><p>A small grand strategy game on a map of the whole world, with Europe as its centre. Factories build tanks and artillery, barracks train the men who crew them, and terrain, supply and research change how battles go. Men, tanks and artillery are separate weapons, and having more of each gives you an edge. Battles take several days, with losses on both sides until one gives way. Space pauses, keys 1 to 5 set the speed. Click a region to select it, then shift-click a neighbouring region to send troops there. The game starts paused. Use the buttons on the left for production, military, diplomacy, research, the world and your war log. You can only attack countries you have declared war on, and armies take time to mobilise and march. Each region shows one power projection number: a man counts 1, a tank 3 and a gun 2, improved by your research. Events will interrupt the game and ask you to decide.</p><div class="row">${['GER','UK','SOV','ITA','FRA','POL'].map(t=>`<button onmousedown="start('${t}')">${T[t].n}</button>`).join('')}</div>${['1','2','3','auto'].filter(n=>meta(n)).length?`<div class="row" style="margin-top:10px">${['1','2','3','auto'].filter(n=>meta(n)).map(n=>`<button onmousedown="loadSlot('${n}')">Load ${n==='auto'?'autosave':'slot '+n}: ${meta(n)}</button>`).join('')}</div>`:''}<p class="dim">January 1936. Everyone is at peace, and nations start with very different industry. Tensions rise toward 1939.</p></div>`}
 buildMap();menu();
 </script></body></html>
