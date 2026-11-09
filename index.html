@@ -63,7 +63,7 @@ const R0=[["USE","Eastern US","USA",5,3,5,-76,40.5,"p"],["USS","Southern US","US
 const SEA=["ENG-PAR","ENG-BEL","ENG-NED","ENG-IRL","SCO-IRL","SCO-NOR","DEN-SWE","DEN-NOR","SIT-LBY","SIT-GRE","SPS-FNA","FIN-EST","GRE-WTU","UKR-WTU","EGY-LEV","USE-ENG","USE-IRL","USE-POR","USE-SPN","USE-FNA","USW-JPN","USW-PHI","USE-BRN","ALA-FAR","JPN-KOR","JPN-MCH","JPN-FAR","PHI-BRO","PHI-SCH","PHI-JPN","MAL-SUM","SUM-JAV","JAV-BRO","BRO-NGU","NGU-EAU","NZL-EAU","JAV-WAU","MAD-ETH","MAD-PAF","EGY-ARA","SUD-ARA","BRO-MAL","CAM-COL","FWA-BRN"];
 const MASK=[[-9,37,-9.5,39,-8.8,42,-9.3,43.2,-8,43.7,-2,43.5,-1.3,46,-2.3,47.3,-4.5,48.4,-2,48.7,-1.5,49.7,0.2,49.4,1.6,50.9,3.5,51.4,4.5,52.5,5,53.4,7,53.6,8.6,54,8.3,55.5,8.3,57,10.5,57.7,10.6,56.5,9.8,55,10.2,54.4,12,54.1,14,54,16,54.5,18.5,54.8,21,55.2,21,56.5,21.5,57.5,23,57.2,24,57.1,24.4,58.3,23.5,59.2,25,59.6,28,59.5,30,59.9,30,66,45,66,45,30,35,30,34.8,31.3,35,33,35.8,36,33,36.2,30.5,36.6,28,36.8,26.5,38.3,26.2,40,24,40.5,23.5,38,22.5,36.5,21.5,37,21,39,19.5,40.5,19,42,16,43.5,13.7,45.2,12.3,45.3,13.5,43.6,14.5,42,16,41.9,18.5,40.2,17,39.5,16.5,38.2,15.7,38,15.8,40,14,40.8,12,41.8,10.5,43,9,44.3,7.5,43.8,6,43.1,3.5,43.3,3,42,0.5,40.5,-0.5,38.7,-2,36.8,-5.5,36.1,-6.3,36.7],[5,58.5,5,61,6,62.5,9,63.5,12,65.5,13,66,30,66,30,60.2,27,60.4,23,59.9,21.5,60.2,21.5,61.5,21.5,63,23,64.5,25,65.3,22,65.5,21,64.5,19,63.5,17.5,62,17.5,60.5,19,59.7,16.8,58,16.5,56.8,14.3,56,12.8,56,11.8,58,10.5,59,8,58],[-5.5,50,-3,50.6,1.3,51.1,1.7,52.7,0,53.5,-1.5,55,-2,56,-1.8,57.6,-3.5,58.6,-5,58.5,-6,57,-5.5,55.5,-3,54.8,-3,53.4,-4.5,53.3,-5.2,52,-3.3,51.5],[-10,51.7,-6,52,-6,54.3,-8,55.2,-10,54],[-168,65,-166,68.5,-156,71,-141,69.5,-128,70.5,-115,68.5,-105,68.5,-95,68,-90,69,-83,69,-80,64,-77,63,-72,62,-68,60,-64,60,-62,57,-58,54,-56,52,-60,50,-65,49,-67,47.5,-61,46,-60,45.5,-64,44.5,-70,43,-70,41.8,-74,40.5,-75.5,38.5,-76,36.5,-78,34,-80.5,32,-81,30.5,-80,27,-80,25.2,-81.5,26,-82.8,28,-83.5,30,-86,30.3,-89,30.2,-90,29,-93,29.7,-97,27.8,-97.3,25.8,-97.8,22,-96,19,-94.5,18.2,-91,19,-90.5,21,-87,21.5,-87.5,18,-88,16,-84,15.8,-83.5,14,-83.5,10,-81,8.5,-79,9.5,-77.5,8.5,-80,7.5,-83,8.5,-85.5,10,-87.5,13,-91,14,-94.5,16,-97,15.8,-101,17.5,-105.5,20,-105.5,22.5,-109,25.5,-112,27,-114.5,30,-117,32.5,-118.5,34,-121,35,-122.5,37.5,-124,40.5,-124,46,-124.7,48.4,-127,50.5,-130,54,-133,57,-136,58.5,-140,60,-145,60,-148,60.3,-152,59,-154,57.5,-158,56,-162,55,-165,54.5,-159,58,-162,58.8,-165,61,-165,63.5,-168,65],[-77,8.5,-73,12,-71,12,-68,10.5,-64,10.5,-61,10.6,-60,8.5,-57,6,-53,5.5,-51,4,-50,1,-48,-1,-44,-2.5,-40,-3,-35,-5.5,-34.8,-8,-37,-11.5,-39,-14,-39.5,-18,-41,-22,-44,-23,-48,-25.5,-48.7,-28,-51,-31,-53.5,-34,-57,-35,-58,-38.5,-62,-39,-62.5,-41,-65,-42,-65,-45,-67.5,-46.5,-66,-48,-69,-51,-68,-55.5,-72,-54,-75,-50,-74,-46,-73.5,-41,-72.5,-37,-71.5,-32,-71.3,-27,-70.2,-20,-71,-17.5,-75,-15,-77,-12,-79.5,-7.5,-81,-5,-80,-2.5,-80.5,0,-79,2,-77.5,4,-77.3,7],[-9.5,32,-9.2,34,-6,35.8,-2,35.2,3,36.8,10,37.3,11,35,10,33.3,15,32.5,20,32,25,31.8,30,31,32,31.3,33,30.8,32.5,29.9,34,27.5,35.5,24,37,21,38.5,18,40,15.5,42.5,12.5,44,10.5,48,11.5,51,11.8,51,10.5,49.5,8,47.5,4.5,44,1.5,41,-1.5,39.5,-5,39,-8,40.5,-11,40.5,-15,37,-18,35,-20.5,35,-24,32.5,-26,32.8,-28.5,31,-30,28,-33,25,-34,20,-34.8,18.5,-34,18,-31,15,-27,14,-22,12,-17,13.5,-12,12,-6,9,-1,9.5,3.8,7,4.2,4,6.3,-1,5,-4,5.2,-8,4.5,-12,7.5,-14.5,10.5,-17.3,14.7,-16.5,19,-16,22,-14.5,26,-12.5,28,-10,30],[49,-12,50.5,-15,49.5,-19,47,-25,44,-24.5,43.5,-21,44.5,-16,47,-14],[44,66,44,31,48,30,49,30,50,28,51.5,27,54,26.7,56.3,27,57.5,25.5,61.5,25.2,68,24,72,24.5,80,24.5,88,25,92,25,97,24,101,22,106,21,108,21.5,111,21.5,114,22.3,117,23.5,119.5,25.5,121.8,29,122,31.2,121,32.5,119.5,34.5,120.8,36.5,122.5,37,121,38.5,121.5,40,124.5,40,129.5,43,133,45,138,52,141.5,53,137,55,143,59,150,59.2,156,61,156.5,57.5,158,52.5,160,54,163,57.5,163,60,170,60,179.9,63,179.9,66],[28,64,28,70,31,70,41,67,44,68.5,48,69.5,53,68.5,60,69.5,66,69,69,73,73,73.5,78,72,81,73.5,87,75.5,97,76,105,77.5,113,74,120,73,128,72.5,140,72.5,150,71,160,69.5,170,70,179.9,68.5,179.9,64,44,64],[12,64,13.5,66,15.5,68.5,18.5,70,22,70.5,26,71,29.5,70.5,31,69.8,30,66,12,64],[34.5,29.5,35,27.5,37,24.5,39,21.5,41,18.5,43,15.5,43.5,13,45,12.8,48.5,14.2,52,16,55,17.5,57.5,19.5,59.8,22.4,58.5,23.8,56.5,26.2,54,24.2,51.5,24.2,51,26,50,26.8,48.5,29.8,47.5,30.2,45,32,35,32],[66.5,25.4,68.5,23.5,70,20.8,72.8,19.5,73.5,16,75,12.5,76.5,9,77.5,8.1,79,9.3,80,13,80.3,15.5,82,17,84.5,19,87,21.5,89,22,92,22,92,27,80,30,68,30],[92,22,94,18,94.5,16,97.5,16.5,98,13,98.5,9,100,6.5,100.5,4,103.5,1.5,104.2,1.3,104,3,103,5,102.5,6.5,100.5,8.5,100,12.5,102.5,12,104.5,10,106,8.7,107.5,10.8,109,12.5,109.2,15,108,16.5,106.5,19,105.8,20.5,106.5,21.4,101,22,97,24,92,24.5],[124.5,40,126,38,126,36,126.8,34.5,129.3,35.2,129.5,37,128,38.6,129.7,41,128,42,126,41],[130,33,131,31.2,132.5,33.8,135,33.5,136.8,34.5,139.8,34.8,140.9,36,141,38.5,141.5,40.5,140,40.8,139.8,39,137.5,37.2,136,36,133.2,35.5,131,34.3],[140,42,141.5,43.2,145.5,43.4,143,45,141.5,45.3,141.5,43.7],[120.5,18.5,122.2,18.3,122,15.5,124,13,125.5,10,126.5,7.5,125.5,6,122,7,122.5,10.5,121,13.5,120,16],[109,1,110.5,2.5,113.5,4,116.8,7,118.5,5.5,117.8,2.5,119,0.5,117.5,-1.5,116,-3.8,114,-4,110.5,-3,109,-1.5],[95.3,5.6,98,4,100.5,2,103.5,-1,106,-3,106,-5.8,104.5,-5.5,102,-4,100,-1.5,98,1.5,96,3.5],[105.3,-6.5,108,-6.4,110.5,-6.7,114.4,-7.8,114.5,-8.7,110,-8.3,106,-7.5],[131,-1,134,-0.8,138,-1.7,141,-2.7,145,-4.5,147.5,-6.2,150.5,-10.5,147,-10,144.5,-7.8,141,-9.2,138.5,-8,137.5,-5.5,135,-4,132.5,-3.5],[113,-22,114.5,-26,115,-33.5,118,-35,123,-34,129,-31.5,134,-32.8,138,-35,140,-37.7,143,-38.8,146.5,-39,150,-37.5,152.5,-32,153.5,-28,153,-25,150,-22.5,146,-19,145.5,-15,143.5,-13,142.5,-10.8,141.5,-13,140.5,-17.5,137,-15.8,135.5,-12,132,-11.5,130,-12.5,126.5,-14,124,-17,122,-18,118,-20.5,114,-21.8],[172.8,-34.5,175,-36.5,178,-37.7,177,-39.5,175,-41.5,174.5,-39,173.5,-37],[172.5,-40.5,174.3,-41.7,172,-44,170.5,-46.5,167,-46,168,-44,171.5,-42]];
 const HOLE=[[28,41.9,28.7,43.5,29,45,30.7,46.5,33,46.1,33.5,44.5,36,45.2,38,47,37.5,44.5,40,43.5,41.5,41.5,39,41,36,41.3,33,42,31,41.1,29.2,41.2],[47.2,45,49.5,46.8,53,46.8,53.5,44,51,43,52,41,53.9,40,53.8,37,50.5,36.8,49,38.5,49.5,40.5,48.3,42,47,44],[-93,60,-88,56.5,-82,54.5,-79,52,-78,56,-77,60,-73,62.5,-82,64,-88,64,-93,62]];
-const T={};C.forEach(([t,n,f,c,g],i)=>T[t]={n,f,c:c||`hsl(${i*47%360},28%,64%)`,g});
+const T={};C.forEach(([t,n,f,c,g],i)=>T[t]={n,f,c:c||`hsl(${i*47%360},42%,57%)`,g});
 const CAP={};R0.forEach(r=>{if(!CAP[r[2]])CAP[r[2]]=r[0]});Object.assign(CAP,{SOV:'MOS',GER:'BER',ITA:'CIT',JAP:'JPN',USA:'USE'});
 const TER=Object.fromEntries(R0.map(r=>[r[0],r[8]]));
 const ids=R0.map(r=>r[0]),GOAL=Math.ceil(ids.length*.4),BARR=.2,FACT=.05,CF=25,CB=15,MAXB=12,nb={};
@@ -378,39 +378,100 @@ function setFrac(f){frac=f;render()}
 function setLine(v){line[me]=v;render()}
 function buy(id){const x=tById(id);if(can(me,x)&&rp[me]>=x[3]){rp[me]-=x[3];tech[me].add(id);render()}}
 
-const rid=new Int16Array(MW*MH),bd=new Uint8Array(MW*MH),cen=[],BF=[1,.9,.5,.55],rgbs={};
-let img,ctx,cv,lay,lctx,base,lk='',dp=1,VW=300,VH=200,vx=0,vy=0,vs=0,vmin=.1,drag=null,moved=false;
+const N=MW*MH,rid=new Int16Array(N),cen=[],rgbs={};
+let img,ctx,cv,lay,lctx,base,ovl,tc,lk='',dp=1,VW=300,VH=200,vx=0,vy=0,vs=0,vmin=.1,drag=null,moved=false,labs=[];
 const addL=(a,b)=>{if(!nb[a].includes(b)){nb[a].push(b);nb[b].push(a)}};
+// ---- procedural helpers (fixed seed so the terrain looks the same every time)
+const HN=(()=>{let s=1234567;const a=new Float32Array(512*512);for(let i=0;i<a.length;i++){s=(s+0x6D2B79F5)|0;let t=Math.imul(s^s>>>15,1|s);t=t+Math.imul(t^t>>>7,61|t)^t;a[i]=((t^t>>>14)>>>0)/4294967296}return a})();
+function vn(x,y){const xi=Math.floor(x),yi=Math.floor(y),fx=x-xi,fy=y-yi,u=fx*fx*(3-2*fx),v=fy*fy*(3-2*fy),x0=xi&511,x1=(xi+1)&511,y0=(yi&511)<<9,y1=((yi+1)&511)<<9,a=HN[y0|x0],b=HN[y0|x1],c=HN[y1|x0],d=HN[y1|x1];return a+(b-a)*u+(c-a)*v+(a-b-c+d)*u*v}
+const sm=t=>t<=0?0:t>=1?1:t*t*(3-2*t);
+function blur(a,r){const w=MW,h=MH,t=new Uint8Array(N),o=new Uint8Array(N),k=2*r+1;
+ for(let y=0;y<h;y++){let s=0;const b=y*w;for(let x=-r;x<=r;x++)s+=a[b+Math.min(w-1,Math.max(0,x))];for(let x=0;x<w;x++){t[b+x]=s/k;s+=a[b+Math.min(w-1,x+r+1)]-a[b+Math.max(0,x-r)]}}
+ for(let x=0;x<w;x++){let s=0;for(let y=-r;y<=r;y++)s+=t[Math.min(h-1,Math.max(0,y))*w+x];for(let y=0;y<h;y++){o[y*w+x]=s/k;s+=t[Math.min(h-1,y+r+1)*w+x]-t[Math.max(0,y-r)*w+x]}}return o}
+// mountain ranges as lon/lat lines: [height, radius in pixels, points...]
+const RIDGES=[[.85,26,6,44.5,7.5,46,10,46.5,13,46.5,15,47],[.7,16,-2,43,.5,42.7,3,42.5],[.6,18,18.5,49.2,22,49.5,24,48,25.5,46,24,45.5],[.5,14,9,44.3,12,43,14,42,16,40,16.3,38.5],[.5,16,14,45.5,17,43.5,19.5,42,21,40.5],
+[.8,18,37,44,40,43.2,44,42,47,41.5],[.6,18,59,68,60,62,59.5,56,58.5,52],[.65,22,7,59.5,8,61.5,11,63.5,14,66,18,68.5],[.65,22,-9,31,-5,33,-1,34,3,35.5,8,36],[.6,16,30,37,34,37.3,38,38],[.65,20,46,35,49,32.5,52,29,56,27.5],
+[1,30,70,36,75,35,80,31,85,28,90,27.5,95,28.5],[.8,28,72,41,80,42,88,44,92,48.5,98,50],[.9,28,78,36,88,36,97,35],[.8,28,-120,60,-117,53,-113,48,-110,42,-107,37,-106,32],[.6,22,-122,48,-121,43,-120,38,-117,34],
+[.5,20,-84,35,-80,38,-77,40.5,-73,44],[.65,22,-104,29,-102,24,-99,20,-96,17],[.95,26,-72,10,-75,5,-78,0,-77,-8,-71,-16,-69,-23,-70,-33,-72,-42,-73,-50],[.5,20,145,-14,148,-23,150,-30,147,-37],
+[.6,18,36,10,35,3,34,-3,35,-10],[.65,16,38,13,40,9],[.6,16,29,-26,28,-31],[.6,14,137,37,139,35.5],[.7,14,169,-44,171.5,-42.5],[.55,18,100,25,102,30,104,34],[.45,16,125,48,128,44]];
+const DESERT=[[10,24,24,7,1],[26,26,9,5,.9],[47,23,11,7,1],[55,31,6,4,.7],[105,42,15,5,.9],[84,40,7,3,.8],[71,27,5,3,.8],[132,-25,20,9,1],[22,-23,8,5,.8],[-70,-22,2.5,6,.9],[-109,30,7,5,.7],[43,10,6,3,.6],[12,-17,3,6,.6],[65,40,8,4,.6]];
+const RAIN=[[-62,-4,15,8,1],[22,0,10,6,1],[108,3,17,6,1],[140,-5,8,3,.9],[-76,5,5,5,.7],[-88,15,5,4,.6],[100,18,6,4,.5],[80,10,4,3,.4],[48,-18,2,4,.6]];
 function buildMap(){
  const m=document.createElement('canvas');m.width=MW;m.height=MH;const g=m.getContext('2d');
  const poly=a=>{g.beginPath();for(let i=0;i<a.length;i+=2)g[i?'lineTo':'moveTo'](X(a[i]),Y(a[i+1]));g.closePath();g.fillStyle='#fff';g.fill()};
  MASK.forEach(poly);g.globalCompositeOperation='destination-out';HOLE.forEach(poly);
- const a=g.getImageData(0,0,MW,MH).data,sx=R0.map(r=>X(r[6])),sy=R0.map(r=>Y(r[7])),n=R0.length,sums=R0.map(()=>[0,0,0]);
+ const a=g.getImageData(0,0,MW,MH).data;let ma=new Uint8Array(N);for(let p=0;p<N;p++)ma[p]=a[p*4+3];
+ // smooth, slightly ragged coastline
+ let mb=blur(blur(ma,3),3);ma=null;const land=new Uint8Array(N);
+ for(let y=0,p=0;y<MH;y++)for(let x=0;x<MW;x++,p++){if(mb[p]<12){continue}if(mb[p]>243&&true){land[p]=1;continue}land[p]=mb[p]+(vn(x/70,y/70)-.5)*80+(vn(x/22,y/22)-.5)*46+(vn(x/7,y/7)-.5)*20>127?1:0}
+ mb=null;
+ // regions: Voronoi from the seeds, with wobbly borders
+ const sx=R0.map(r=>X(r[6])),sy=R0.map(r=>Y(r[7])),n=R0.length,sums=R0.map(()=>[0,0,0]),rid0=new Int16Array(N);
  const near=(x,y)=>{let b=0,m2=1e18;for(let i=0;i<n;i++){const d=(x-sx[i])*(x-sx[i])+(y-sy[i])*(y-sy[i]);if(d<m2){m2=d;b=i}}return b};
- // Voronoi cells are convex, so a block whose four corners agree belongs entirely to one region
  const BS=8,gw=Math.ceil(MW/BS)+1,gh=Math.ceil(MH/BS)+1,gr=new Int16Array(gw*gh);
  for(let j=0;j<gh;j++)for(let i=0;i<gw;i++)gr[j*gw+i]=near(Math.min(i*BS,MW-1),Math.min(j*BS,MH-1));
  for(let by=0;by<gh-1;by++)for(let bx=0;bx<gw-1;bx++){
   const c0=gr[by*gw+bx],uni=c0===gr[by*gw+bx+1]&&c0===gr[(by+1)*gw+bx]&&c0===gr[(by+1)*gw+bx+1];
-  for(let y=by*BS;y<Math.min(MH,by*BS+BS);y++)for(let x=bx*BS;x<Math.min(MW,bx*BS+BS);x++){const p=y*MW+x;
-   if(a[p*4+3]<128){rid[p]=-1;continue}
-   const b=uni?c0:near(x,y);rid[p]=b;const s=sums[b];s[0]+=x;s[1]+=y;s[2]++}}
- sums.forEach((s,i)=>{const cx=s[0]/s[2],cy=s[1]/s[2];cen[i]=rid[Math.round(cy)*MW+Math.round(cx)]===i?[cx,cy,s[2]]:[sx[i],sy[i],s[2]]});
- const link=new Set();
- const chk=(p,q,r)=>{const s=rid[q];if(s===r)return;if(r<0||s<0){bd[r<0?q:p]=3;return}
-  const u=R0[r][2]!==R0[s][2]?2:1;if(bd[p]<u)bd[p]=u;if(bd[q]<u)bd[q]=u;link.add(Math.min(r,s)+'-'+Math.max(r,s))};
+  for(let y=by*BS;y<Math.min(MH,by*BS+BS);y++)for(let x=bx*BS;x<Math.min(MW,bx*BS+BS);x++)rid0[y*MW+x]=uni?c0:near(x,y)}
+ const G=12,gw2=Math.ceil(MW/G)+2,gh2=Math.ceil(MH/G)+2,DX=new Float32Array(gw2*gh2),DY=new Float32Array(gw2*gh2);
+ for(let j=0;j<gh2;j++)for(let i=0;i<gw2;i++){const x=i*G,y=j*G;DX[j*gw2+i]=(vn(x/90,y/90)-.5)*11+(vn(x/34+40,y/34)-.5)*5;DY[j*gw2+i]=(vn(x/90+70,y/90+30)-.5)*11+(vn(x/34,y/34+90)-.5)*5}
+ for(let y=0,p=0;y<MH;y++){const j=Math.floor(y/G),fy=y/G-j;for(let x=0;x<MW;x++,p++){if(!land[p]){rid[p]=-1;continue}
+  const i=Math.floor(x/G),fx=x/G-i,q=j*gw2+i;
+  const dx=DX[q]+(DX[q+1]-DX[q])*fx+(DX[q+gw2]-DX[q])*fy+(DX[q]-DX[q+1]-DX[q+gw2]+DX[q+gw2+1])*fx*fy,dy=DY[q]+(DY[q+1]-DY[q])*fx+(DY[q+gw2]-DY[q])*fy+(DY[q]-DY[q+1]-DY[q+gw2]+DY[q+gw2+1])*fx*fy;
+  let xx=Math.round(x+dx),yy=Math.round(y+dy);xx=xx<0?0:xx>=MW?MW-1:xx;yy=yy<0?0:yy>=MH?MH-1:yy;
+  const b=rid0[yy*MW+xx];rid[p]=b;const s=sums[b];s[0]+=x;s[1]+=y;s[2]++}}
+ sums.forEach((s,i)=>{if(!s[2]){cen[i]=[sx[i],sy[i],1];return}const cx=s[0]/s[2],cy=s[1]/s[2];cen[i]=rid[Math.round(cy)*MW+Math.round(cx)]===i?[cx,cy,s[2]]:[sx[i],sy[i],s[2]]});
+ // borders and neighbours
+ const link=new Set(),bm=new Uint8Array(N);
+ const chk=(p,q,r)=>{const s=rid[q];if(s===r)return;if(r<0||s<0){bm[r<0?q:p]=3;return}
+  const u=R0[r][2]!==R0[s][2]?2:1;if(bm[p]<u)bm[p]=u;if(bm[q]<u)bm[q]=u;link.add(Math.min(r,s)+'-'+Math.max(r,s))};
  for(let y=0,p=0;y<MH;y++)for(let x=0;x<MW;x++,p++){const r=rid[p];if(x<MW-1)chk(p,p+1,r);if(y<MH-1)chk(p,p+MW,r)}
- const b2=bd.slice();for(let p=0;p<MW*MH-MW-1;p++)if(b2[p]===2){if(rid[p+1]>=0&&bd[p+1]<2)bd[p+1]=2;if(rid[p+MW]>=0&&bd[p+MW]<2)bd[p+MW]=2}
  link.forEach(k=>{const[u,v]=k.split('-').map(Number);addL(ids[u],ids[v])});
  SEA.forEach(s=>{const[u,v]=s.split('-');addL(u,v)});
- cv=$('cv');ctx=cv.getContext('2d');ctx.lineJoin='round';
  const mk=()=>{const c=document.createElement('canvas');c.width=MW;c.height=MH;return c};
+ cv=$('cv');ctx=cv.getContext('2d');
+ // border overlay: soft dark lines, stronger between countries
+ const ov=new Uint8Array(N);for(let p=0;p<N;p++){const v=bm[p];if(v)ov[p]=v===2?255:v===1?90:150}
+ const ob=blur(ov,1);ovl=mk();const octx=ovl.getContext('2d'),oi=octx.createImageData(MW,MH),od=oi.data;
+ for(let p=0,o=0;p<N;p++,o+=4){const v=ob[p]*2.3;if(v>0){od[o]=26;od[o+1]=20;od[o+2]=14;od[o+3]=v>230?230:v}}
+ octx.putImageData(oi,0,0);
+ // terrain: ridges, noise, climate, hillshade
+ const hg=new Float32Array(N);
+ RIDGES.forEach(([amp,R,...pt])=>{const sg=R/1.25;for(let k=0;k+3<pt.length;k+=2){const x1=X(pt[k]),y1=Y(pt[k+1]),x2=X(pt[k+2]),y2=Y(pt[k+3]),dx=x2-x1,dy=y2-y1,L=dx*dx+dy*dy||1;
+  const xa=Math.max(0,Math.floor(Math.min(x1,x2)-R*1.6)),xb=Math.min(MW-1,Math.ceil(Math.max(x1,x2)+R*1.6)),ya=Math.max(0,Math.floor(Math.min(y1,y2)-R*1.6)),yb=Math.min(MH-1,Math.ceil(Math.max(y1,y2)+R*1.6));
+  for(let y=ya;y<=yb;y++)for(let x=xa;x<=xb;x++){const p=y*MW+x;if(!land[p])continue;let t=((x-x1)*dx+(y-y1)*dy)/L;t=t<0?0:t>1?1:t;const ex=x-(x1+t*dx),ey=y-(y1+t*dy),h=amp*(.6+.8*vn(x/30,y/30))*Math.exp(-(ex*ex+ey*ey)/(2*sg*sg));if(h>hg[p])hg[p]=h}}});
+ const C2=10,cw=Math.ceil(MW/C2)+2,ch=Math.ceil(MH/C2)+2,DES=new Float32Array(cw*ch),RAI=new Float32Array(cw*ch);
+ const blob=(L,lo,la)=>{let s=0;for(const[cx,cy,wx,wy,am]of L){const u=(lo-cx)/wx,v=(la-cy)/wy;s+=am*Math.exp(-u*u-v*v)}return s>1?1:s};
+ for(let j=0;j<ch;j++)for(let i=0;i<cw;i++){const lo=i*C2/9.1-170,la=76-j*C2/13;DES[j*cw+i]=blob(DESERT,lo,la);RAI[j*cw+i]=blob(RAIN,lo,la)}
+ tc=new Uint8Array(N*3);
+ for(let y=0,p=0;y<MH;y++){const la=76-y/13,j=Math.floor(y/C2),fy=y/C2-j,fb=sm((Math.abs(la)-44)/9)*(1-sm((Math.abs(la)-62)/6)),tun=la>0?sm((la-63)/5):sm((-la-58)/4);
+  for(let x=0;x<MW;x++,p++){if(!land[p])continue;
+   const h=Math.min(1,hg[p]+.2*vn(x/55,y/55)+.07*vn(x/22,y/22)+.015*vn(x/8,y/8));hg[p]=h}}
+ for(let y=0,p=0;y<MH;y++){const la=76-y/13,j=Math.floor(y/C2),fy=y/C2-j,fb=sm((Math.abs(la)-44)/9)*(1-sm((Math.abs(la)-62)/6)),tun=la>0?sm((la-63)/5):sm((-la-58)/4);
+  for(let x=0;x<MW;x++,p++){if(!land[p])continue;
+   const i=Math.floor(x/C2),fx=x/C2-i,q=j*cw+i,h=hg[p];
+   const de=DES[q]+(DES[q+1]-DES[q])*fx+(DES[q+cw]-DES[q])*fy+(DES[q]-DES[q+1]-DES[q+cw]+DES[q+cw+1])*fx*fy,ra=RAI[q]+(RAI[q+1]-RAI[q])*fx+(RAI[q+cw]-RAI[q])*fy+(RAI[q]-RAI[q+1]-RAI[q+cw]+RAI[q+cw+1])*fx*fy;
+   const nz=vn(x/90,y/90),fo=Math.min(1,Math.max(0,fb*.9+(nz-.5)*.7+.08)),dsn=Math.min(1,Math.max(0,de+(vn(x/40,y/40)-.5)*.3));
+   let r=163,gg=184,b=120;
+   r+=(111-r)*fo;gg+=(148-gg)*fo;b+=(87-b)*fo;
+   r+=(66-r)*ra;gg+=(118-gg)*ra;b+=(62-b)*ra;
+   r+=(214-r)*dsn;gg+=(194-gg)*dsn;b+=(142-b)*dsn;
+   r+=(198-r)*tun;gg+=(201-gg)*tun;b+=(180-b)*tun;
+   const rk=sm((h-.38)/.3)*.65;r+=(150-r)*rk;gg+=(140-gg)*rk;b+=(125-b)*rk;
+   const sn=sm((h-.82)/.15)*.6;r+=(240-r)*sn;gg+=(240-gg)*sn;b+=(238-b)*sn;
+   let sh=1;if(x>0&&y>0&&x<MW-1&&y<MH-1){sh=1+((hg[p-1]-hg[p+1])+(hg[p-MW]-hg[p+MW]))*5;sh=sh<.78?.78:sh>1.22?1.22:sh}
+   const vv=(.96+.08*vn(x/9,y/9))*sh;
+   tc[p*3]=Math.min(255,r*vv);tc[p*3+1]=Math.min(255,gg*vv);tc[p*3+2]=Math.min(255,b*vv)}}
  lay=mk();lctx=lay.getContext('2d');img=lctx.createImageData(MW,MH);
- base=mk();const bx=base.getContext('2d'),gg=bx.createLinearGradient(0,0,0,MH);gg.addColorStop(0,'#2d4248');gg.addColorStop(1,'#1c2c33');bx.fillStyle=gg;bx.fillRect(0,0,MW,MH);
- bx.strokeStyle='rgba(180,215,215,.08)';bx.lineWidth=1;
+ // ocean: deep gradient, faint graticule, soft shallow water around the coasts
+ base=mk();const bx=base.getContext('2d'),gg2=bx.createLinearGradient(0,0,0,MH);gg2.addColorStop(0,'#2a4a5e');gg2.addColorStop(.5,'#1f3b4f');gg2.addColorStop(1,'#1a3246');bx.fillStyle=gg2;bx.fillRect(0,0,MW,MH);
+ bx.strokeStyle='rgba(190,220,225,.07)';bx.lineWidth=1;
  for(let lo=-150;lo<=180;lo+=30){bx.beginPath();bx.moveTo(X(lo),0);bx.lineTo(X(lo),MH);bx.stroke()}
  for(let la=-60;la<=75;la+=15){bx.beginPath();bx.moveTo(0,Y(la));bx.lineTo(MW,Y(la));bx.stroke()}
- bx.shadowColor='rgba(150,195,195,.55)';bx.shadowBlur=14;bx.drawImage(m,0,0);
+ const sil=mk(),sc=sil.getContext('2d'),si=sc.createImageData(MW,MH),sd=si.data;for(let p=0,o=0;p<N;p++,o+=4)if(land[p]){sd[o]=sd[o+1]=sd[o+2]=255;sd[o+3]=255}
+ sc.putImageData(si,0,0);
+ bx.shadowColor='rgba(105,165,178,.30)';bx.shadowBlur=34;bx.drawImage(sil,0,0);
+ bx.shadowColor='rgba(150,205,210,.40)';bx.shadowBlur=11;bx.drawImage(sil,0,0);
  const at=e=>{const r=cv.getBoundingClientRect(),x=Math.floor(vx+(e.clientX-r.left)*dp/vs),y=Math.floor(vy+(e.clientY-r.top)*dp/vs);return x<0||y<0||x>=MW||y>=MH?-1:rid[y*MW+x]};
  cv.onclick=e=>{if(moved)return;const i=at(e);if(i>=0)click(ids[i],e);else if(running()){sel=null;sendMode=false;render()}};
  cv.onmousemove=e=>{const i=at(e);cv.title=i>=0&&reg?`${R0[i][1]} (${T[reg[ids[i]].tag].n}) · power ${pp(reg[ids[i]])}`:''};
@@ -419,9 +480,9 @@ function buildMap(){
  wp.onpointerdown=e=>{if(e.target.closest('#zoom'))return;drag={x:e.clientX,y:e.clientY,ox:vx,oy:vy,id:e.pointerId};moved=false};
  wp.onpointermove=e=>{if(!drag)return;const dx=e.clientX-drag.x,dy=e.clientY-drag.y;if(!moved&&Math.hypot(dx,dy)>5){moved=true;wp.setPointerCapture(drag.id)}if(moved){vx=drag.ox-dx*dp/vs;vy=drag.oy-dy*dp/vs;clampView();drawMap()}};
  wp.onpointerup=wp.onpointercancel=()=>{drag=null;setTimeout(()=>moved=false,0)};
- addEventListener('resize',sizeCv);sizeCv();
+ addEventListener('resize',sizeCv);sizeCv();const l=$('ld');if(l)l.textContent='';
 }
-function sizeCv(){dp=window.devicePixelRatio||1;const w=cv.parentElement;VW=cv.width=Math.max(300,Math.floor(w.clientWidth*dp));VH=cv.height=Math.max(200,Math.floor(w.clientHeight*dp));vmin=Math.min(VW/MW,VH/MH);if(!vs||vs<vmin)vs=vmin;clampView();ctx.lineJoin='round';drawMap()}
+function sizeCv(){dp=window.devicePixelRatio||1;const w=cv.parentElement;VW=cv.width=Math.max(300,Math.floor(w.clientWidth*dp));VH=cv.height=Math.max(200,Math.floor(w.clientHeight*dp));vmin=Math.min(VW/MW,VH/MH);if(!vs||vs<vmin)vs=vmin;clampView();drawMap()}
 function clampView(){vs=Math.max(vmin,Math.min(vmin*14,vs));const ww=VW/vs,hh=VH/vs;vx=MW<=ww?(MW-ww)/2:Math.max(0,Math.min(MW-ww,vx));vy=MH<=hh?(MH-hh)/2:Math.max(0,Math.min(MH-hh,vy))}
 function zoomAt(f,px,py){const r=cv.getBoundingClientRect(),mx=(px-r.left)*dp,my=(py-r.top)*dp,wx=vx+mx/vs,wy=vy+my/vs;vs*=f;clampView();vx=wx-mx/vs;vy=wy-my/vs;clampView();drawMap()}
 function zoomBy(f){const r=cv.getBoundingClientRect();zoomAt(f,r.left+r.width/2,r.top+r.height/2)}
@@ -429,30 +490,38 @@ function zoomReset(){vs=vmin;clampView();drawMap()}
 function focusOn(id,z){const c=cpos(id);vs=vmin*z;clampView();vx=c[0]-VW/vs/2;vy=c[1]-VH/vs/2;clampView();drawMap()}
 function rgbOf(tag){if(rgbs[tag])return rgbs[tag];ctx.fillStyle=T[tag].c;const h=ctx.fillStyle;return rgbs[tag]=[1,3,5].map(k=>parseInt(h.substr(k,2),16))}
 function blit(im){const sx=Math.max(0,vx),sy=Math.max(0,vy),sw=Math.min(MW,vx+VW/vs)-sx,sh=Math.min(MH,vy+VH/vs)-sy;if(sw<=0||sh<=0)return;ctx.drawImage(im,sx,sy,sw,sh,(sx-vx)*vs,(sy-vy)*vs,sw*vs,sh*vs)}
-function drawMap(){if(!ctx)return;ctx.fillStyle='#1c2c33';ctx.fillRect(0,0,VW,VH);
+function spaced(t,x,y,sp){const ch=[...t.toUpperCase()],w=ch.map(c=>ctx.measureText(c).width),tot=w.reduce((a,b)=>a+b,0)+sp*(ch.length-1);let cx=x-tot/2;ch.forEach((c,i)=>{ctx.strokeText(c,cx+w[i]/2,y);ctx.fillText(c,cx+w[i]/2,y);cx+=w[i]+sp})}
+function drawMap(){if(!ctx||!base)return;ctx.imageSmoothingEnabled=true;ctx.imageSmoothingQuality='high';ctx.fillStyle='#1a3246';ctx.fillRect(0,0,VW,VH);
  if(!reg){blit(base);return}
  const key=ids.map(i=>reg[i].tag+reg[i].own).join()+'|'+sel+'|'+(sel&&reg[sel].tag===me)+'|'+wars.size;
  if(key!==lk){lk=key;const d=img.data,pr=[],pg=[],pb=[],qr=[],qg=[],qb=[],oc=[],tg=sel&&reg[sel].tag===me?nb[sel].filter(j=>same(me,reg[j].tag)||hostile(me,reg[j].tag)):[];
-  ids.forEach((id,i)=>{let c=rgbOf(reg[id].tag);const o=rgbOf(reg[id].own);if(id===sel)c=c.map(v=>Math.min(255,v+55));else if(tg.includes(id))c=c.map((v,k)=>Math.round(v*.6+[217,164,65][k]*.4));
+  ids.forEach((id,i)=>{let c=rgbOf(reg[id].tag);const o=rgbOf(reg[id].own);if(id===sel)c=c.map(v=>Math.min(255,v+60));else if(tg.includes(id))c=c.map((v,k)=>Math.round(v*.6+[217,164,65][k]*.4));
    pr[i]=c[0];pg[i]=c[1];pb[i]=c[2];qr[i]=o[0];qg[i]=o[1];qb[i]=o[2];oc[i]=reg[id].tag!==reg[id].own});
+  const A=.56,B=1-A;
   for(let y=0,p=0,o=0;y<MH;y++)for(let x=0;x<MW;x++,p++,o+=4){const r=rid[p];if(r<0){d[o+3]=0;continue}
-   const f=BF[bd[p]],st=oc[r]&&((x+y)%24<9);d[o]=(st?qr[r]:pr[r])*f;d[o+1]=(st?qg[r]:pg[r])*f;d[o+2]=(st?qb[r]:pb[r])*f;d[o+3]=255}
-  lctx.putImageData(img,0,0)}
- blit(base);blit(lay);ctx.textAlign='center';ctx.textBaseline='middle';
- const P=id=>{const c=cpos(id);return[(c[0]-vx)*vs,(c[1]-vy)*vs]};
+   const st=oc[r]&&((x+y)%24<9),p3=p*3;d[o]=tc[p3]*B+(st?qr[r]:pr[r])*A;d[o+1]=tc[p3+1]*B+(st?qg[r]:pg[r])*A;d[o+2]=tc[p3+2]*B+(st?qb[r]:pb[r])*A;d[o+3]=255}
+  lctx.putImageData(img,0,0);
+  // country labels: centre of the regions each country owns
+  labs=[];const by={};ids.forEach((id,i)=>{const t=reg[id].own;(by[t]=by[t]||[]).push(i)});
+  Object.keys(by).forEach(t=>{let sx2=0,sy2=0,ar=0;by[t].forEach(i=>{const c=cen[i];sx2+=c[0]*c[2];sy2+=c[1]*c[2];ar+=c[2]});labs.push([T[t].n,sx2/ar,sy2/ar,ar])})}
+ blit(base);blit(lay);blit(ovl);ctx.textAlign='center';ctx.textBaseline='middle';
+ const P=id=>{const c=cpos(id);return[(c[0]-vx)*vs,(c[1]-vy)*vs]},zr=vs/vmin;
+ const la=zr<=5?1:Math.max(0,1-(zr-5)/3);
+ if(la>0){ctx.globalAlpha=la*.92;labs.forEach(([nm,cx,cy,ar])=>{const x=(cx-vx)*vs,y=(cy-vy)*vs,fs=Math.min(46*dp,Math.sqrt(ar)*vs*.16);if(fs<10*dp||x<-200||y<-80||x>VW+200||y>VH+80)return;
+  ctx.font='bold '+fs+'px Georgia,"Times New Roman",serif';ctx.lineWidth=fs*.2;ctx.lineJoin='round';ctx.strokeStyle='rgba(18,28,26,.8)';ctx.fillStyle='#f6f0dc';spaced(nm,x,y,fs*.32)});ctx.globalAlpha=1}
  battles.forEach(bt=>{if(!(inv(bt)||bt.st==='fight'))return;const[x1,y1]=P(bt.from),[x2,y2]=P(bt.to),mv=bt.kind==='mv',fg=bt.st==='fight';
   if(bt.st!=='mob'){ctx.strokeStyle=fg?'rgba(235,95,75,.95)':mv?'rgba(120,200,130,.9)':'rgba(235,170,70,.95)';ctx.lineWidth=3*dp;ctx.setLineDash([9*dp,6*dp]);ctx.beginPath();ctx.moveTo(x1,y1);ctx.lineTo(x2,y2);ctx.stroke();ctx.setLineDash([])}
-  const f=bt.st==='mob'?0:fg?.7:.5,bx=x1+(x2-x1)*f,by=bt.st==='mob'?y1-24*dp:y1+(y2-y1)*f,tx=fg?'⚔ '+Math.round(bt.E*100)+'%':(bt.st==='mob'?'⚙ ':'➜ ')+bt.wait+'d';
+  const f=bt.st==='mob'?0:fg?.7:.5,bx=x1+(x2-x1)*f,by2=bt.st==='mob'?y1-24*dp:y1+(y2-y1)*f,tx=fg?'⚔ '+Math.round(bt.E*100)+'%':(bt.st==='mob'?'⚙ ':'➜ ')+bt.wait+'d';
   ctx.font=11*dp+'px system-ui,sans-serif';const w=ctx.measureText(tx).width+10*dp;ctx.fillStyle=fg?'rgba(150,40,30,.95)':mv?'rgba(40,110,60,.95)':'rgba(150,100,20,.95)';
-  ctx.beginPath();if(ctx.roundRect)ctx.roundRect(bx-w/2,by-9*dp,w,18*dp,9*dp);else ctx.rect(bx-w/2,by-9*dp,w,18*dp);ctx.fill();ctx.fillStyle='#fff';ctx.fillText(tx,bx,by+dp/2)});
- const mono='"Special Elite","Courier New",monospace';
+  ctx.beginPath();if(ctx.roundRect)ctx.roundRect(bx-w/2,by2-9*dp,w,18*dp,9*dp);else ctx.rect(bx-w/2,by2-9*dp,w,18*dp);ctx.fill();ctx.fillStyle='#fff';ctx.fillText(tx,bx,by2+dp/2)});
+ const mono='"Special Elite","Courier New",monospace',busy=new Set();battles.forEach(b=>{busy.add(b.to);busy.add(b.from)});
  ids.forEach((id,i)=>{const[cx,cy,ar]=cen[i],x=(cx-vx)*vs,y=(cy-vy)*vs;if(x<-80||y<-40||x>VW+80||y>VH+40)return;
-  const sz=ar*vs*vs;if(sz<900*dp*dp&&id!==sel)return;
+  const sz=ar*vs*vs;if(id!==sel&&!busy.has(id)&&(zr<1.9||sz<900*dp*dp))return;
   const g=reg[id],bad=oos(id),txt=pp(g)+'';ctx.font=12*dp+'px '+mono;const w=ctx.measureText(txt).width+12*dp,h=20*dp;
   ctx.fillStyle='rgba(18,24,22,.88)';ctx.strokeStyle=id===sel?'#fff':'rgba(255,255,255,.2)';ctx.lineWidth=dp;
   ctx.beginPath();if(ctx.roundRect)ctx.roundRect(x-w/2,y-h/2,w,h,h/2);else ctx.rect(x-w/2,y-h/2,w,h);ctx.fill();ctx.stroke();
   ctx.fillStyle=bad?'#e8806e':'#ece6d3';ctx.fillText(txt,x,y+dp/2);
-  if(sz>=6000*dp*dp||id===sel){const nm=(CAP[g.tag]===id?'★ ':'')+g.name;ctx.font=11*dp+'px system-ui,sans-serif';ctx.lineWidth=3*dp;ctx.strokeStyle='rgba(15,22,20,.8)';ctx.strokeText(nm,x,y+h/2+9*dp);ctx.fillStyle='#fff';ctx.fillText(nm,x,y+h/2+9*dp)}});
+  if((sz>=6000*dp*dp&&zr>4)||id===sel){const nm=(CAP[g.tag]===id?'★ ':'')+g.name;ctx.font=11*dp+'px system-ui,sans-serif';ctx.lineWidth=3*dp;ctx.strokeStyle='rgba(15,22,20,.8)';ctx.strokeText(nm,x,y+h/2+9*dp);ctx.fillStyle='#fff';ctx.fillText(nm,x,y+h/2+9*dp)}});
 }
 
 let openP=null;const openG=new Set();
@@ -493,6 +562,6 @@ function render(){if(!reg)return;calcSupply();drawMap();
  const c=$('card'),h=cardHtml();c.style.display=h?'block':'none';put(c,h);put($('top'),topHtml())}
 
 function menu(){const o=$('ov');o.style.display='flex';setSpeed(0);
- o.innerHTML=`<div><h1>Fronts</h1><p>A small grand strategy game on a map of the whole world, with Europe as its centre. Factories build tanks and artillery, barracks train the men who crew them, and terrain, supply and research change how battles go. Men, tanks and artillery are separate weapons, and having more of each gives you an edge. Battles take several days, with losses on both sides until one gives way. Space pauses, keys 1 to 5 set the speed. Click a region to select it, then shift-click a neighbouring region to send troops there. The game starts paused. Use the buttons on the left for production, military, diplomacy, research, the world and your war log. You can only attack countries you have declared war on, and armies take time to mobilise and march. Each region shows one power projection number: a man counts 1, a tank 3 and a gun 2, improved by your research. Events will interrupt the game and ask you to decide.</p><div class="row">${['GER','UK','SOV','ITA','FRA','POL'].map(t=>`<button onmousedown="start('${t}')">${T[t].n}</button>`).join('')}</div>${['1','2','3','auto'].filter(n=>meta(n)).length?`<div class="row" style="margin-top:10px">${['1','2','3','auto'].filter(n=>meta(n)).map(n=>`<button onmousedown="loadSlot('${n}')">Load ${n==='auto'?'autosave':'slot '+n}: ${meta(n)}</button>`).join('')}</div>`:''}<p class="dim">January 1936. Everyone is at peace, and nations start with very different industry. Tensions rise toward 1939.</p></div>`}
-buildMap();menu();
+ o.innerHTML=`<div><h1>Fronts</h1><p>A small grand strategy game on a map of the whole world, with Europe as its centre. Factories build tanks and artillery, barracks train the men who crew them, and terrain, supply and research change how battles go. Men, tanks and artillery are separate weapons, and having more of each gives you an edge. Battles take several days, with losses on both sides until one gives way. Space pauses, keys 1 to 5 set the speed. Click a region to select it, then shift-click a neighbouring region to send troops there. The game starts paused. Use the buttons on the left for production, military, diplomacy, research, the world and your war log. You can only attack countries you have declared war on, and armies take time to mobilise and march. Each region shows one power projection number: a man counts 1, a tank 3 and a gun 2, improved by your research. Events will interrupt the game and ask you to decide.</p><div class="row">${['GER','UK','SOV','ITA','FRA','POL'].map(t=>`<button onmousedown="start('${t}')">${T[t].n}</button>`).join('')}</div>${['1','2','3','auto'].filter(n=>meta(n)).length?`<div class="row" style="margin-top:10px">${['1','2','3','auto'].filter(n=>meta(n)).map(n=>`<button onmousedown="loadSlot('${n}')">Load ${n==='auto'?'autosave':'slot '+n}: ${meta(n)}</button>`).join('')}</div>`:''}<p class="dim" id="ld">${lay?'':'Generating the world map…'}</p><p class="dim">January 1936. Everyone is at peace, and nations start with very different industry. Tensions rise toward 1939.</p></div>`}
+menu();setTimeout(buildMap,40);
 </script></body></html>
