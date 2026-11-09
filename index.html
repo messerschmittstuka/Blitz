@@ -154,7 +154,7 @@ function start(t){me=t;day=0;sel=null;over=false;logs=[];wars=new Set();reg={};w
  R0.forEach(([id,name,tag,fa,ba,tr])=>reg[id]={id,name,tag,own:tag,fa,ba,t:tr,k:Math.floor(fa/3),a:Math.floor(fa/4)});
  Object.keys(T).forEach(k=>{men[k]=sum(k,'ba')*3;tk[k]=0;prog[k]=0;ar[k]=0;tech[k]=new Set();rp[k]=0;line[k]=Math.random()<.7?'k':'a'});line[me]='k';
  log('January 1, 1936. The game is paused: press Space or a speed button to begin.');
- $('ov').style.display='none';last=1;setSpeed(0);audioInit();focusOn(CAP[me],3.5);render();if(!pickMode&&!tutDone())showTut(0);else hideTut()}
+ $('ov').style.display='none';last=1;setSpeed(0);audioInit();if(pickMode)stopTheme();else startTheme();focusOn(CAP[me],3.5);render();if(!pickMode&&!tutDone())showTut(0);else hideTut()}
 
 let wlogs=[],wstat={won:0,lost:0},aid=0;
 const wl=m=>{wlogs.unshift(dateStr()+': '+m);wlogs.length=Math.min(wlogs.length,200)};
@@ -253,6 +253,14 @@ function evTick(){EV.forEach(e=>{if(fireAt[e.id]===day)fire(e)});
 // ---------- audio: everything is generated in the browser, no files needed
 const AU={ctx:null,mus:.45,sfx:.6,mOn:true,sOn:true,beat:0,next:0,B:60/66};
 try{const q=JSON.parse(localStorage.getItem('fronts_audio'));if(q)Object.assign(AU,q)}catch(e){}
+const THEMES={UK:['uk',69.23],SOV:['soviet',76.36],CHN:['china',73.04]};
+const AEXT=(()=>{try{return new Audio().canPlayType('audio/ogg; codecs="vorbis"')?'ogg':'mp3'}catch(e){return'mp3'}})();
+AU.cache={};AU.th=null;AU.tok=0;
+function stopTheme(){AU.tok++;if(AU.th){try{AU.th.src.stop()}catch(e){}AU.th=null}}
+function startTheme(){stopTheme();const th=THEMES[me];if(!th||!AU.ctx||typeof fetch!=='function')return;const tok=AU.tok,key=th[0];
+ const play=buf=>{if(tok!==AU.tok||!AU.ctx)return;const s=AU.ctx.createBufferSource(),g=AU.ctx.createGain();s.buffer=buf;s.loop=true;s.loopStart=0;s.loopEnd=Math.min(th[1],buf.duration);g.gain.value=.9;s.connect(g);g.connect(AU.mg);s.start();AU.th={src:s,on:true}};
+ if(AU.cache[key])return play(AU.cache[key]);
+ fetch('music/'+key+'.'+AEXT).then(r=>{if(!r.ok)throw 0;return r.arrayBuffer()}).then(b=>AU.ctx.decodeAudioData(b)).then(buf=>{AU.cache[key]=buf;play(buf)}).catch(()=>{})}
 const hz=n=>440*Math.pow(2,(n-69)/12);
 const heatI=()=>Math.min(1,battles.filter(b=>b.st==='fight').length/3);
 function setVol(){if(!AU.ctx)return;AU.mg.gain.value=AU.mOn?AU.mus:0;AU.sg.gain.value=AU.sOn?AU.sfx:0;try{localStorage.setItem('fronts_audio',JSON.stringify({mus:AU.mus,sfx:AU.sfx,mOn:AU.mOn,sOn:AU.sOn}))}catch(e){}}
@@ -278,7 +286,7 @@ function playBeat(b,bar,t){const h=heatI();
  if(b===0||b===2)tone(hz(BS[bar]),t,AU.B*1.6,b?.1:.16,'triangle',AU.mg);
  if(Math.random()<.28)tone(hz(SC[Math.floor(Math.random()*SC.length)]+(Math.random()<.3?12:0)),t+Math.random()*.2,2.2,.05,'sine',AU.mg,true);
  if(h>0){if(b===1||b===3)hit(t,.12,.05*h,'bandpass',1800,AU.mg);if(b===0||b===2)drum(t,.22*h)}}
-function sched(){const c=AU.ctx;if(!c)return;if(!AU.mOn){AU.next=c.currentTime+.1;return}
+function sched(){const c=AU.ctx;if(!c)return;if(!AU.mOn||AU.th){AU.next=c.currentTime+.1;return}
  while(AU.next<c.currentTime+1.2){playBeat(AU.beat%4,Math.floor(AU.beat/4)%4,AU.next);AU.next+=AU.B;AU.beat++}}
 function boom(){const c=AU.ctx;if(!c||!AU.sOn)return;const t=c.currentTime+Math.random()*.3;
  hit(t,1.8,.3,'lowpass',160+Math.random()*140,AU.sg);tone(40+Math.random()*20,t,1.3,.25,'sine',AU.sg);if(Math.random()<.5)hit(t+.25+Math.random()*.3,1.2,.15,'lowpass',200,AU.sg)}
@@ -297,7 +305,7 @@ function snap(){return JSON.stringify({v:2,day,me,reg,men,tk,prog,ar,rp,line,tec
 function unsnap(j){const d=JSON.parse(j);if(d.v!==2||!d.reg||!d.me)throw 0;
  day=d.day;me=d.me;reg=d.reg;men=d.men;tk=d.tk;prog=d.prog;ar=d.ar;rp=d.rp;line=d.line;tech={};Object.entries(d.tech).forEach(([k,v])=>tech[k]=new Set(v));
  wars=new Set(d.wars);pacts=new Set(d.pacts);battles=d.battles;flags=d.flags;logs=d.logs;wlogs=d.wlogs;wstat=d.wstat;fireAt=d.fireAt;lastRand=d.lastRand;aid=d.aid;frac=d.frac||1;WARS=d.WARS||[];wid=d.wid||0;npacts=new Set(d.npacts||[]);guar=new Set(d.guar||[]);
- Object.keys(d.f).forEach(k=>T[k].f=d.f[k]);sel=null;sendMode=false;over=false;evQ=[];evOpen=null;$('ov').style.display='none';$('evt').style.display='none';lk='';last=1;setSpeed(0);focusOn(CAP[me],3.5);render();hideTut()}
+ Object.keys(d.f).forEach(k=>T[k].f=d.f[k]);sel=null;sendMode=false;over=false;evQ=[];evOpen=null;$('ov').style.display='none';$('evt').style.display='none';lk='';last=1;setSpeed(0);startTheme();focusOn(CAP[me],3.5);render();hideTut()}
 function saveSlot(n){try{localStorage.setItem(SK+n,snap());localStorage.setItem(SK+'meta'+n,`${T[me].n}, ${dateStr()}`);log(n==='auto'?'Autosaved.':`Game saved to slot ${n}.`);render()}catch(e){log('Could not save: browser storage is unavailable or full.')}}
 function loadSlot(n){try{const j=localStorage.getItem(SK+n);if(j){audioInit();unsnap(j);log('Game loaded. The game is paused.')}}catch(e){if(logs)log('Could not load that save.')}}
 function exportSave(){const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([snap()],{type:'application/json'}));a.download='fronts-save-'+day+'.json';a.click()}
@@ -608,7 +616,7 @@ function panelHtml(){const mine=owned(me),F=sum(me,'fa'),B=sum(me,'ba'),r=rate()
  if(openP==='mil')return `<h2>Military</h2><p class="dim">Pool: ${Math.floor(men[me])} men, ${Math.floor(tk[me])} tanks, ${Math.floor(ar[me])} guns. Deploy them from a region card.</p>${armyRows()}${mine.map(i=>rowR(i,`${reg[i].name} · power ${pp(reg[i])} (${reg[i].t} men, ${reg[i].k}T, ${reg[i].a}A)${oos(i)?' · no supply':''}`)).join('')}`;
  if(openP==='res')return `<h2>Research</h2><p class="dim">${Math.floor(rp[me])} points. Factories and barracks generate more. Technologies unlock in order. Open a branch to see its techs.</p>`+Object.keys(BR).map(b=>{const L=TECH.filter(x=>x[2]===b&&(!x[7]||x[7]===me));if(!L.length)return'';const k='r_'+b,dn=L.filter(x=>has(me,x[0])).length;return `<details ${openG.has(k)?'open':''} ontoggle="this.open?openG.add('${k}'):openG.delete('${k}')"><summary>${b==='nat'?T[me].n+': national technologies':BR[b]} (${dn}/${L.length})</summary>`+L.map(x=>{const st=has(me,x[0])?'done':can(me,x)?'ok':'lock';return `<div class="tn ${st}" style="margin-left:${dep(x)*14}px"><button onmousedown="buy('${x[0]}')" ${st!=='ok'||rp[me]<x[3]?'disabled':''}>${st==='done'?'✓ ':st==='lock'?'🔒 ':''}${x[1]} (${x[3]})</button><div class="dim">${x[6]?x[6]+' ':''}${fx(x[5])}.${st==='lock'?' Needs '+x[4].map(q=>tById(q)[1]).join(', ')+'.':''}</div></div>`}).join('')+'</details>'}).join('');
  if(openP==='sys'){const sl=n=>{const m=meta(n);return `<div class="rw" style="cursor:default"><span style="flex:1">${n==='auto'?'Autosave':'Slot '+n}<br><span class="dim">${m||'empty'}</span></span>${n==='auto'?'':`<button onmousedown="saveSlot('${n}')">Save</button>`}<button onmousedown="loadSlot('${n}')" ${m?'':'disabled'}>Load</button></div>`};
-  return `<h2>Save, load and sound</h2>${['1','2','3','auto'].map(sl).join('')}<div class="row" style="margin:10px 0"><button onmousedown="exportSave()">Export to file</button><label class="dim">Import: <input type="file" accept=".json" onchange="importSave(this)"></label></div><h2 style="font-size:15px;margin-top:14px">Sound</h2><div class="row"><button class="${AU.mOn?'on':''}" onmousedown="togAud('mOn')">Music</button><input type="range" min="0" max="100" value="50" oninput="setAud('mus',this.value/100)"></div><div class="row" style="margin-top:8px"><button class="${AU.sOn?'on':''}" onmousedown="togAud('sOn')">War sounds</button><input type="range" min="0" max="100" value="50" oninput="setAud('sfx',this.value/100)"></div><p class="dim">Sound starts after your first click. Saves live in this browser, so use Export to move one to another device. The game also autosaves every 90 days.</p><div class="row"><button onmousedown="showTut(0)">Replay tutorial</button><button onmousedown="menu()">Quit to main menu</button></div>`}
+  return `<h2>Save, load and sound</h2>${['1','2','3','auto'].map(sl).join('')}<div class="row" style="margin:10px 0"><button onmousedown="exportSave()">Export to file</button><label class="dim">Import: <input type="file" accept=".json" onchange="importSave(this)"></label></div><h2 style="font-size:15px;margin-top:14px">Sound</h2><div class="row"><button class="${AU.mOn?'on':''}" onmousedown="togAud('mOn')">Music</button><input type="range" min="0" max="100" value="50" oninput="setAud('mus',this.value/100)"></div><div class="row" style="margin-top:8px"><button class="${AU.sOn?'on':''}" onmousedown="togAud('sOn')">War sounds</button><input type="range" min="0" max="100" value="50" oninput="setAud('sfx',this.value/100)"></div><p class="dim">Sound starts after your first click. The UK, Soviet and Chinese themes play from the music folder, and other countries use the game's own generated music. Saves live in this browser, so use Export to move one to another device. The game also autosaves every 90 days.</p><div class="row"><button onmousedown="showTut(0)">Replay tutorial</button><button onmousedown="menu()">Quit to main menu</button></div>`}
  if(openP==='dip'){const mf=T[me].f,ds=dipSel&&dipSel!==me&&owned(dipSel).length?dipSel:null;
   const st=t=>same(me,t)?'Ally':hostile(me,t)?'At war':(npacts.has(wk(me,t))||pacts.has([T[me].f,T[t].f].sort().join()))?'Pact':'Peace',ord={'At war':0,Peace:1,Pact:2,Ally:3};
   let card='';
@@ -636,7 +644,7 @@ function render(){if(!reg)return;calcSupply();drawMap();if(pickMode){$('card').s
  const d=$('drawer');d.style.display=openP?'block':'none';d.className=openP==='res'?'wide':'';if(openP){const h=panelHtml(),ch=d._h!==h;put(d,h);if(ch)syncSliders()}
  const c=$('card'),h=cardHtml();c.style.display=h?'block':'none';put(c,h);put($('top'),topHtml())}
 
-function menu(){const o=$('ov');o.style.display='flex';setSpeed(0);
+function menu(){stopTheme();const o=$('ov');o.style.display='flex';setSpeed(0);
  o.innerHTML=`<div><h1>Fronts</h1><p>A small grand strategy game on a map of the whole world, with Europe as its centre. Factories build tanks and artillery, barracks train the men who crew them, and terrain, supply and research change how battles go. Men, tanks and artillery are separate weapons, and having more of each gives you an edge. Battles take several days, with losses on both sides until one gives way. Space pauses, keys 1 to 5 set the speed. A short tutorial starts with your first game. Click a region to select it, then shift-click a neighbouring region to send troops there. The game starts paused. Use the buttons on the left for production, military, diplomacy, research, the world and your war log. You can only attack countries you have declared war on, and armies take time to mobilise and march. Each region shows one power projection number: a man counts 1, a tank 3 and a gun 2, improved by your research. Events will interrupt the game and ask you to decide.</p><div class="row">${['GER','UK','SOV','USA','JAP','FRA','ITA','POL','CHN'].map(t=>`<button onmousedown="start('${t}')">${T[t].n}</button>`).join('')}</div><div class="row" style="margin-top:10px"><button onmousedown="startPick()">Choose any country on the map</button></div>${['1','2','3','auto'].filter(n=>meta(n)).length?`<div class="row" style="margin-top:10px">${['1','2','3','auto'].filter(n=>meta(n)).map(n=>`<button onmousedown="loadSlot('${n}')">Load ${n==='auto'?'autosave':'slot '+n}: ${meta(n)}</button>`).join('')}</div>`:''}<p class="dim" id="ld">${lay?'':'Generating the world map…'}</p><p class="dim">January 1936. Everyone is at peace, and nations start with very different industry. Tensions rise toward 1939.</p></div>`}
 menu();setTimeout(buildMap,40);
 </script></body></html>
