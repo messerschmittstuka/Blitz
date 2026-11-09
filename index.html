@@ -38,7 +38,9 @@ canvas{position:absolute;inset:0;width:100%;height:100%;cursor:pointer;display:b
 #drawer.wide{width:min(480px,calc(100vw - 56px))}
 #card{position:absolute;right:10px;bottom:10px;width:min(310px,calc(100% - 20px));background:var(--panel);border:1px solid #55635a;border-radius:4px;padding:12px;display:none}
 #evt{position:fixed;inset:0;background:rgba(10,14,12,.72);display:none;align-items:center;justify-content:center;padding:16px;z-index:8;overflow:auto}
-.evc{max-height:92vh;overflow:auto;width:min(560px,100%);background:var(--panel);border:1px solid #6a7a70;border-radius:6px;overflow:hidden;box-shadow:0 12px 40px #000a;padding-bottom:12px}
+.evc{max-height:92vh;overflow-y:auto;overscroll-behavior:contain;width:min(560px,100%);background:var(--panel);border:1px solid #6a7a70;border-radius:6px;box-shadow:0 12px 40px #000a;padding-bottom:0}
+.evc>.evo:last-child{margin-bottom:12px}
+.evf{position:sticky;bottom:0;background:var(--panel);border-top:1px solid #55635a;padding:4px 0 12px;margin-top:8px}
 .evb{height:110px;display:flex;align-items:center;justify-content:center;font-size:54px;background:linear-gradient(135deg,#3f5046,#1b2420)}
 .evc h1{font-size:24px;padding:14px 18px 0}
 .evc p{padding:0 18px;margin:8px 0 12px;color:#cfc9b5}
@@ -162,9 +164,14 @@ const cpos=id=>{const i=ids.indexOf(id);return cen[i]||[X(R0[i][6]),Y(R0[i][7])]
 const march=(f,t,g)=>{const a=cpos(f),b=cpos(t);return Math.max(2,Math.round(Math.hypot(a[0]-b[0],a[1]-b[1])/30*(1-Math.min(.5,g?bn(g,'mvs'):0))))+(SEA.includes(f+'-'+t)||SEA.includes(t+'-'+f)?3:0)};
 const inv=bt=>bt.tag===me||reg[bt.to].tag===me;
 const note=(bt,m)=>{log(m);if(inv(bt))wl(m)};
-function back(bt){const h=reg[bt.from];if(same(h.tag,bt.tag)){h.t+=bt.t;h.k+=bt.k;h.a+=bt.a}}
+const nearestOwn=(id,tag)=>{const c=cpos(id);let best=null,bd=1e18;ids.forEach(i=>{if(i!==id&&reg[i].tag===tag){const q=cpos(i),d=(q[0]-c[0])**2+(q[1]-c[1])**2;if(d<bd){bd=d;best=i}}});return best};
+// troops are never destroyed: if their origin is gone they fall back to the nearest region their country still holds
+function back(bt){let h=reg[bt.from];if(h.tag!==bt.tag){const n=nearestOwn(bt.from,bt.tag);h=n?reg[n]:null}if(h){h.t+=bt.t;h.k+=bt.k;h.a+=bt.a}}
+function withdraw(r){const tag=r.tag;if(!(r.t||r.k||r.a))return;const best=nearestOwn(r.id,tag);
+ if(best){battles.push({id:++aid,kind:'mv',st:'move',wait:march(r.id,best,tag)+1,from:r.id,to:best,tag,t:r.t,k:r.k,a:r.a,t0:r.t,d0:0,day:0,E:.5});if(tag===me)wl(`Your forces in ${r.name} withdraw toward ${reg[best].name} because the region changed hands.`)}
+ r.t=0;r.k=0;r.a=0}
 function attack(f,t,fr=1){const a=reg[f],b=reg[t],n=Math.floor((a.t-1)*fr),k=Math.floor(a.k*fr),g=Math.floor(a.a*fr);
- if(same(a.tag,b.tag)){if(n+k+g<1)return;a.t-=n;a.k-=k;a.a-=g;battles.push({id:++aid,kind:'mv',st:'move',wait:march(f,t,a.tag),from:f,to:t,tag:a.tag,t:n,k,a:g,t0:n,d0:0,day:0,E:.5});return}
+ if(same(a.tag,b.tag)){if(a.tag!==b.tag){if(a.tag===me)log(`${T[b.tag].n} is your ally, so you cannot station troops in its regions.`);return}if(n+k+g<1)return;a.t-=n;a.k-=k;a.a-=g;battles.push({id:++aid,kind:'mv',st:'move',wait:march(f,t,a.tag),from:f,to:t,tag:a.tag,t:n,k,a:g,t0:n,d0:0,day:0,E:.5});return}
  if(!hostile(a.tag,b.tag)){if(a.tag===me)log(`You are not at war with ${T[b.tag].n}. Declare war in the Diplomacy panel first.`);return}
  if(n<1)return;
  a.t-=n;a.k-=k;a.a-=g;const mob=Math.max(1,2+Math.min(6,Math.floor((n+3*k+2*g)/20))-bn(a.tag,'mob'));
@@ -177,12 +184,12 @@ function stepBattles(){const keep=[];
   if(bt.st!=='fight'){
    if(--bt.wait>0){keep.push(bt);continue}
    if(bt.st==='mob'){bt.st='move';bt.wait=march(bt.from,bt.to,bt.tag);if(bt.tag===me)wl(`The army from ${reg[bt.from].name} marches on ${b.name}. Arrival in ${bt.wait} days.`);keep.push(bt);continue}
-   if(same(bt.tag,b.tag)){b.t+=bt.t;b.k+=bt.k;b.a+=bt.a;continue}
+   if(bt.tag===b.tag){b.t+=bt.t;b.k+=bt.k;b.a+=bt.a;continue}
    if(bt.kind==='mv'||!hostile(bt.tag,b.tag)){back(bt);continue}
-   const ex=[...keep,...battles].find(x=>x!==bt&&x.st==='fight'&&x.to===bt.to&&same(x.tag,bt.tag));
+   const ex=[...keep,...battles].find(x=>x!==bt&&x.st==='fight'&&x.to===bt.to&&x.tag===bt.tag);
    if(ex){ex.t+=bt.t;ex.k+=bt.k;ex.a+=bt.a;ex.t0+=bt.t;if(inv(bt))wl(`Reinforcements from ${reg[bt.from].name} reach the battle for ${b.name}.`);continue}
    bt.st='fight';bt.d0=b.t;bt.day=0;if(inv(bt))wl(`Battle for ${b.name} begins: ${T[bt.tag].n} attacks from ${reg[bt.from].name} with ${bt.t} men, ${bt.k} tanks and ${bt.a} guns.`);keep.push(bt);continue}
-  if(!hostile(bt.tag,b.tag)){const d=same(bt.tag,b.tag)?b:reg[bt.from];if(same(d.tag,bt.tag)){d.t+=bt.t;d.k+=bt.k;d.a+=bt.a}continue}
+  if(!hostile(bt.tag,b.tag)){if(bt.tag===b.tag){b.t+=bt.t;b.k+=bt.k;b.a+=bt.a}else back(bt);continue}
   const A=eff(bt,bt.tag,ter,1,oos(bt.from)),D=eff(b,b.tag,ter,0,oos(bt.to)),E=edge(A,D),Ed=Math.min(.97,Math.max(.03,E+(Math.random()-.5)*.12)),ra=.16*(1-Ed)*(1-Math.min(.5,bn(bt.tag,'cas'))),rd=.16*Ed*(1-Math.min(.5,bn(b.tag,'cas')));
   bt.t-=lose(bt.t,ra);bt.k-=lose(bt.k,ra);bt.a-=lose(bt.a,ra*.6);
   b.t-=lose(b.t,rd);b.k-=lose(b.k,rd);b.a-=lose(b.a,rd*.6);bt.day++;bt.E=E;
@@ -212,7 +219,7 @@ function ai(t){const mine=owned(t);if(!mine.length)return;
  for(const i of [...mine].sort(()=>Math.random()-.5)){const a=reg[i];if(a.tag!==t||a.t<4||Math.random()>.15)continue;
   const hs=nb[i].filter(j=>hostile(t,reg[j].tag)).sort((x,y)=>tot(reg[x])-tot(reg[y]));
   if(hs.length){const w=hs.find(j=>edgeOf(i,j,1)>=.62);if(w)attack(i,w)}
-  else{const fs=nb[i].filter(j=>same(t,reg[j].tag));const f2=fs.filter(j=>front(j)>0);const c=f2.length?f2[0]:pick(fs);if(c)attack(i,c)}
+  else{const fs=nb[i].filter(j=>reg[j].tag===t);const f2=fs.filter(j=>front(j)>0);const c=f2.length?f2[0]:pick(fs);if(c)attack(i,c)}
   if(over)return}}
 
 let flags={},pacts=new Set(),evQ=[],evOpen=null,evPrev=1,fireAt={},lastRand=0;
@@ -225,15 +232,15 @@ const EV=[
 {id:'rhine',icon:'🪖',title:'The Rhineland Question',who:['GER'],day:[56,76],text:()=>'German troops wait at the edge of the demilitarised Rhineland. The generals are nervous, but nobody has ever enforced Versailles against Berlin.',opts:[{l:'March into the Rhineland',d:'+30 men. Britain and France will take notice.',f:t=>{addM(t,30);flags.rhine=1;log('German troops reoccupy the Rhineland.')}},{l:'Keep to the treaty',d:'+15 research.',f:t=>addRP(t,15)}]},
 {id:'rhine_r',icon:'⚠️',title:'German Troops in the Rhineland',who:['UK','FRA'],after:'rhine',when:()=>flags.rhine,ai:1,text:()=>'Germany has torn up the treaty and put soldiers in the Rhineland. Parliament demands to know what you will do.',opts:[{l:'Protest to the League of Nations',d:'+10 research.',f:t=>addRP(t,10)},{l:'Mobilise the reserves',d:'+25 men.',f:t=>addM(t,25)},{l:'Send troops to the border',d:'War with Germany begins now. +20 men.',f:t=>{addM(t,20);declareWar(t,'GER')}}]},
 {id:'spain',icon:'🔥',title:'Civil War in Spain',who:['GER','ITA','SOV'],day:[190,215],text:()=>'A military coup has split Spain in two. Both sides are asking foreign powers for weapons and volunteers.',opts:[{l:'Send volunteers and advisers',d:'-20 men, +25 research from battlefield experience.',f:t=>{addM(t,-20);addRP(t,25)}},{l:'Stay out of it',d:'No effect.',f:()=>{}}]},
-{id:'anschluss',icon:'🏔️',title:'The Austrian Question',who:['GER'],day:[790,815],text:()=>'The Austrian chancellor is wavering and your supporters in Vienna are ready. German troops could cross the border in a day.',opts:[{l:'Annex Austria',d:'Austria joins Germany without a fight and its region becomes yours.',f:t=>annex('AUT',t)},{l:'Wait',d:'No effect.',f:()=>{}}]},
-{id:'munich',icon:'📜',title:'The Sudeten Crisis',who:['GER'],day:[985,1015],text:()=>'Berlin claims the German-speaking border lands of Czechoslovakia. London and Paris are desperate to avoid another war.',opts:[{l:'Demand the Sudetenland',d:'Czechoslovakia is annexed peacefully. +10 men.',f:t=>{annex('CZE',t);addM(t,10);flags.munich=1}},{l:'Stand down',d:'No effect.',f:()=>{}}]},
+{id:'anschluss',icon:'🏔️',title:'The Austrian Question',who:['GER'],day:[790,815],when:()=>reg.AUT.own==='AUT'&&reg.AUT.tag==='AUT',text:()=>'The Austrian chancellor is wavering and your supporters in Vienna are ready. German troops could cross the border in a day.',opts:[{l:'Annex Austria',d:'Austria joins Germany without a fight and its region becomes yours.',f:t=>annex('AUT',t)},{l:'Wait',d:'No effect.',f:()=>{}}]},
+{id:'munich',icon:'📜',title:'The Sudeten Crisis',who:['GER'],day:[985,1015],when:()=>reg.CZE.own==='CZE'&&reg.CZE.tag==='CZE'&&!hostile('GER','CZE'),text:()=>'Berlin claims the German-speaking border lands of Czechoslovakia. London and Paris are desperate to avoid another war.',opts:[{l:'Demand the Sudetenland',d:'Czechoslovakia is annexed peacefully. +10 men.',f:t=>{annex('CZE',t);addM(t,10);flags.munich=1}},{l:'Stand down',d:'No effect.',f:()=>{}}]},
 {id:'munich_r',icon:'🕊️',title:'Germany Demands the Sudetenland',who:['UK','FRA'],after:'munich',when:()=>flags.munich,text:()=>'Germany has taken Czechoslovakia by threat alone. Public opinion is split between relief and shame.',opts:[{l:'Accept it',d:'Peace is kept. +20 research from rearmament planning.',f:t=>addRP(t,20)},{l:'Stand firm',d:'War with Germany begins now. +30 men.',f:t=>{addM(t,30);declareWar(t,'GER')}}]},
-{id:'pact',icon:'🤝',title:'The Molotov–Ribbentrop Pact',who:['GER','SOV'],day:[1326,1334],text:t=>t==='GER'?'Ribbentrop is ready to fly to Moscow. A pact with Stalin would secure your eastern flank before you march on Poland.':'Berlin has offered a non-aggression pact. Meanwhile London and Paris have been slow to talk about a real alliance.',opts:[{l:'Sign the pact',d:'Germany and the Soviet Union cannot attack each other until the pact is broken. Germany +30 men, USSR +30 research and +20 men.',f:t=>{flags['pact_'+t]=1;if(t==='GER')addM(t,30);else{addRP(t,30);addM(t,20)}pactMsg()}},{l:'Refuse',d:'No pact. Both sides stay free to fight each other.',f:()=>{}},{l:'Seek an alliance with Britain and France',for:['SOV'],d:'The Soviet Union joins the Allies and fights Germany whenever the Allies do. +15 men.',f:t=>{T.SOV.f='al';addM(t,15);log('The Soviet Union joins the Allies.')}}]},
+{id:'pact',icon:'🤝',title:'The Molotov–Ribbentrop Pact',who:['GER','SOV'],day:[1326,1334],when:()=>owned('GER').length>0&&owned('SOV').length>0&&T.SOV.f==='su'&&T.GER.f==='ax'&&!hostile('GER','SOV')&&!pacts.has('ax,su'),text:t=>t==='GER'?'Ribbentrop is ready to fly to Moscow. A pact with Stalin would secure your eastern flank before you march on Poland.':'Berlin has offered a non-aggression pact. Meanwhile London and Paris have been slow to talk about a real alliance.',opts:[{l:'Sign the pact',d:'Germany and the Soviet Union cannot attack each other until the pact is broken. Germany +30 men, USSR +30 research and +20 men.',f:t=>{flags['pact_'+t]=1;if(t==='GER')addM(t,30);else{addRP(t,30);addM(t,20)}pactMsg()}},{l:'Refuse',d:'No pact. Both sides stay free to fight each other.',f:()=>{}},{l:'Seek an alliance with Britain and France',for:['SOV'],d:'The Soviet Union joins the Allies and fights Germany whenever the Allies do. +15 men.',f:t=>{T.SOV.f='al';addM(t,15);log('The Soviet Union joins the Allies.')}}]},
 {id:'pact_r',icon:'😟',title:'Hitler and Stalin Agree',who:['UK','FRA','POL'],after:'pact',when:()=>flags.pact,text:()=>'Germany and the Soviet Union have signed a pact. Your intelligence service warns that it hides secret clauses about dividing Poland.',opts:[{l:'Mobilise the reserves',d:'+35 men.',f:t=>addM(t,35)},{l:'Dig in and fortify',d:'+25 research and +20 men.',f:t=>{addRP(t,25);addM(t,20)}}]},
-{id:'warn',icon:'📡',title:'Warnings from the West',who:['SOV'],day:[1940,1980],when:()=>pacts.has('ax,su'),text:()=>'Spies and diplomats report German divisions massing on the border. Stalin insists it is provocation.',opts:[{l:'Mobilise the border armies',d:'+40 men.',f:t=>addM(t,40)},{l:'Trust the pact',d:'+20 research from continued trade.',f:t=>addRP(t,20)}]},
-{id:'barb',icon:'⚔️',title:'Operation Barbarossa',who:['GER'],day:[1995,2040],when:()=>atWarF('al','ax'),text:()=>'The generals present plans to strike the Soviet Union before the year is out. Victory in the east would make Germany unbeatable. Failure would be a catastrophe.',opts:[{l:'Launch the invasion',d:'The pact is broken and war with the Soviet Union begins. +40 men.',f:t=>{pacts.delete('ax,su');declareWar('GER','SOV');addM(t,40)}},{l:'Hold off',d:'+25 research.',f:t=>addRP(t,25)}]},
-{id:'marco',icon:'🌉',title:'Incident at the Marco Polo Bridge',who:['JAP'],day:[540,560],text:()=>'Shots at the Marco Polo Bridge near Peking give the Kwantung Army the excuse it wanted. Tokyo must decide whether to let the incident fade or turn it into a war.',opts:[{l:'Launch a full invasion of China',d:'War with China begins. +30 men.',f:t=>{addM(t,30);flags.marco=1;declareWar(t,'CHN')}},{l:'Settle the incident',d:'+20 research.',f:t=>addRP(t,20)}]},
-{id:'marco_r',icon:'🏮',title:'Japan Attacks China',who:['CHN'],after:'marco',when:()=>flags.marco,text:()=>'Japanese armies are advancing from Manchuria and the coast. The government must decide how to meet them.',opts:[{l:'Fight for every city',d:'+40 men.',f:t=>addM(t,40)},{l:'Trade space for time',d:'+20 men and +20 research.',f:t=>{addM(t,20);addRP(t,20)}}]},
+{id:'warn',icon:'📡',title:'Warnings from the West',who:['SOV'],day:[1940,1980],when:()=>pacts.has('ax,su')&&!hostile('GER','SOV'),text:()=>'Spies and diplomats report German divisions massing on the border. Stalin insists it is provocation.',opts:[{l:'Mobilise the border armies',d:'+40 men.',f:t=>addM(t,40)},{l:'Trust the pact',d:'+20 research from continued trade.',f:t=>addRP(t,20)}]},
+{id:'barb',icon:'⚔️',title:'Operation Barbarossa',who:['GER'],day:[1995,2040],when:()=>atWarF('al','ax')&&owned('GER').length>0&&owned('SOV').length>0&&!hostile('GER','SOV'),text:()=>'The generals present plans to strike the Soviet Union before the year is out. Victory in the east would make Germany unbeatable. Failure would be a catastrophe.',opts:[{l:'Launch the invasion',d:'The pact is broken and war with the Soviet Union begins. +40 men.',f:t=>{pacts.delete('ax,su');declareWar('GER','SOV');addM(t,40)}},{l:'Hold off',d:'+25 research.',f:t=>addRP(t,25)}]},
+{id:'marco',icon:'🌉',title:'Incident at the Marco Polo Bridge',who:['JAP'],day:[540,560],when:()=>owned('JAP').length>0&&!hostile('JAP','CHN')&&ids.some(i=>reg[i].own==='CHN'&&reg[i].tag!=='JAP'),text:()=>'Shots at the Marco Polo Bridge near Peking give the Kwantung Army the excuse it wanted. Tokyo must decide whether to let the incident fade or turn it into a war.',opts:[{l:'Launch a full invasion of China',d:'War with China begins. +30 men.',f:t=>{addM(t,30);flags.marco=1;declareWar(t,'CHN')}},{l:'Settle the incident',d:'+20 research.',f:t=>addRP(t,20)}]},
+{id:'marco_r',icon:'🏮',title:'Japan Attacks China',who:['CHN'],after:'marco',when:()=>flags.marco&&owned('CHN').length>0,text:()=>'Japanese armies are advancing from Manchuria and the coast. The government must decide how to meet them.',opts:[{l:'Fight for every city',d:'+40 men.',f:t=>addM(t,40)},{l:'Trade space for time',d:'+20 men and +20 research.',f:t=>{addM(t,20);addRP(t,20)}}]},
 {id:'strike',rand:1,icon:'🏭',title:'Strike at the Arms Factories',who:'me',when:()=>sum(me,'fa')>=5,text:()=>'Workers at the biggest armaments plants have walked out, demanding better pay.',opts:[{l:'Negotiate',d:'-10 men to cover the cost. Production carries on.',f:t=>addM(t,-10)},{l:'Break the strike',d:'Production progress is lost and -15 research.',f:t=>{prog[t]=0;addRP(t,-15)}}]},
 {id:'science',rand:1,icon:'🔬',title:'A Scientific Breakthrough',who:'me',text:()=>'A team of engineers has solved a problem that stumped the field for years.',opts:[{l:'Fund the academy',d:'+45 research.',f:t=>addRP(t,45)},{l:'Put it to military use',d:'+15 men and +1 tank.',f:t=>{addM(t,15);tk[t]++}}]},
 {id:'defector',rand:1,icon:'📁',title:'A Defector with Blueprints',who:'me',when:()=>day>300,text:()=>'A foreign engineer has crossed the border carrying plans for a new weapon.',opts:[{l:'Welcome him',d:'+60 research.',f:t=>addRP(t,60)},{l:'Turn him away',d:'+10 men from a goodwill gesture abroad.',f:t=>addM(t,10)}]},
@@ -372,10 +379,13 @@ function autoDemand(w,ws,avail){const WT=ws==='a'?w.a:w.b,LT=ws==='a'?w.b:w.a,ou
 function peace(w,ws,dem,trib,dt){if(!WARS.includes(w))return;
  const A=w.a,B=w.b,inA=t=>A.includes(t),inB=t=>B.includes(t),opp=(p,q)=>(inA(p)&&inB(q))||(inB(p)&&inA(q));
  battles=battles.filter(bt=>{if(bt.kind==='atk'&&opp(bt.tag,reg[bt.to].tag)){back(bt);return false}return true});
- const evac=r=>{const home=ids.find(i=>i!==r.id&&reg[i].tag===r.tag&&CAP[r.tag]===i)||ids.find(i=>i!==r.id&&reg[i].tag===r.tag);if(home){const h=reg[home];h.t+=r.t;h.k+=r.k;h.a+=r.a}r.t=2;r.k=0;r.a=0};
+ const LS=inA(dt)?B:A;
  ids.forEach(i=>{const r=reg[i];
-  if(dem.includes(i)){const prev=r.tag;r.own=dt;if(prev!==dt){evac(r);r.tag=dt;r.t=3}return}
-  if(r.tag!==r.own&&opp(r.tag,r.own)){evac(r);r.tag=r.own;r.t=Math.max(2,r.t)}});
+  if(dem.includes(i)){const prev=r.tag;r.own=dt;
+   // a third country's troops stay if they are allied or at war with the new owner; otherwise they walk home
+   const keep=prev!==dt&&!LS.includes(prev)&&(same(prev,dt)||hostile(prev,dt));
+   if(prev!==dt&&!keep){withdraw(r);r.tag=dt;r.t=3}return}
+  if(r.tag!==r.own&&opp(r.tag,r.own)){withdraw(r);r.tag=r.own;r.t=Math.max(2,r.t)}});
  if(trib&&ws){const lt=ws==='a'?w.my:w.mx,x=Math.floor(men[lt]*.4),y=Math.floor(rp[lt]*.4);addM(lt,-x);addM(dt,x);addRP(lt,-y);addRP(dt,y)}
  A.forEach(p=>B.forEach(q=>wars.delete(wk(p,q))));WARS=WARS.filter(x=>x!==w);lk='';
  const nA=A.map(t=>T[t].n).join(', '),nB=B.map(t=>T[t].n).join(', ');
@@ -399,7 +409,7 @@ function showTreaty(){const {w,s}=TR,my=s==='a'?w.a:w.b,en=s==='a'?w.b:w.a,sur=!
  const cost=[...TR.picks].reduce((a,i)=>a+dcost(w,s,i),0)+(TR.trib?tc:0);TR.av=av;TR.cost=cost;
  const rows=ids.filter(i=>en.includes(reg[i].own)).map(i=>{const r=reg[i],occ=my.includes(r.tag),on=TR.picks.has(i);return `<button class="evo ${on?'pick':''}" onmousedown="togDemand('${i}')"><b>${on?'✓ ':''}${r.name} (${T[r.own].n})</b><span>${dcost(w,s,i)} points${isGoal(w,s,i)?' · war goal, half price':''}${occ?' · occupied by you':' · not occupied, costs double'}</span></button>`}).join('');
  const sc2=Math.round(wsc(w,me));
- $('evt').innerHTML=`<div class="evc"><div class="evb">🕊️</div><h1>Peace treaty</h1><p>${sur?'The enemy has surrendered.':'War score '+(sc2>=0?'+':'')+sc2+'.'} Your demands cost ${cost} of ${Math.round(av)} points. War goals are half price, and regions you have not occupied cost double. Whatever you do not demand is handed back to its owner.${TR.msg?' <b>'+TR.msg+'</b>':''}</p>${rows||'<p>They have nothing left to take.</p>'}<button class="evo ${TR.trib?'pick':''}" onmousedown="togTrib()"><b>${TR.trib?'✓ ':''}Tribute</b><span>Take 40% of their men and research. ${tc} points${tg?' · war goal, half price':''}</span></button><button class="evo" onmousedown="sendTreaty()"><b>Propose this treaty</b><span>${cost<=av?'They will accept.':'You need more war score. They will refuse.'}</span></button><button class="evo" onmousedown="whitePeace()"><b>White peace</b><span>End the war with no changes (only after 30 days).</span></button><button class="evo" onmousedown="closeTreaty()"><b>Keep fighting</b><span>Close this screen.</span></button></div>`;$('evt').style.display='flex'}
+ $('evt').innerHTML=`<div class="evc"><div class="evb">🕊️</div><h1>Peace treaty</h1><p>${sur?'The enemy has surrendered.':'War score '+(sc2>=0?'+':'')+sc2+'.'} Your demands cost ${cost} of ${Math.round(av)} points. War goals are half price, and regions you have not occupied cost double. Whatever you do not demand is handed back to its owner.${TR.msg?' <b>'+TR.msg+'</b>':''}</p>${rows||'<p>They have nothing left to take.</p>'}<button class="evo ${TR.trib?'pick':''}" onmousedown="togTrib()"><b>${TR.trib?'✓ ':''}Tribute</b><span>Take 40% of their men and research. ${tc} points${tg?' · war goal, half price':''}</span></button><div class="evf"><button class="evo" onmousedown="sendTreaty()"><b>Propose this treaty</b><span>${cost<=av?'They will accept.':'You need more war score. They will refuse.'}</span></button><button class="evo" onmousedown="whitePeace()"><b>White peace</b><span>End the war with no changes (only after 30 days).</span></button><button class="evo" onmousedown="closeTreaty()"><b>Keep fighting</b><span>Close this screen.</span></button></div></div>`;$('evt').style.display='flex'}
 function togDemand(i){if(!TR)return;TR.picks.has(i)?TR.picks.delete(i):TR.picks.add(i);TR.msg='';showTreaty()}
 function togTrib(){if(!TR)return;TR.trib=!TR.trib;TR.msg='';showTreaty()}
 function sendTreaty(){if(!TR)return;if(!TR.picks.size&&!TR.trib){TR.msg='Pick at least one demand, or choose white peace.';showTreaty();return}
@@ -425,7 +435,7 @@ function tick(){if(over)return;day++;calcSupply();evTick();warTick();if(day%90==
   while(prog[t]>=c&&men[t]>=1){prog[t]-=c;men[t]--;line[t]==='k'?tk[t]++:ar[t]++}
   prog[t]=Math.min(prog[t],1.5);
   if(t!==me){const nx=TECH.filter(x=>can(t,x)&&rp[t]>=x[3]).sort((p,q)=>p[3]-q[3])[0];if(nx){rp[t]-=nx[3];tech[t].add(nx[0])}}});
- if(day===D_POLAND&&me!=='GER'&&!atWarF('al','ax'))declareWar('GER','POL');
+ if(day===D_POLAND&&me!=='GER'&&!atWarF('al','ax')&&owned('GER').length&&owned('POL').length)declareWar('GER','POL');
  if(day===D_POLAND+17&&pacts.has('ax,su')&&reg.GAL.tag==='POL'){reg.GAL.tag='SOV';reg.GAL.t=Math.max(reg.GAL.t,4);log('The Soviet Union occupies eastern Poland.');check()}
  if(day===D_USA)log('The United States enters the war.');
  stepBattles();
@@ -435,7 +445,7 @@ function setSpeed(s){spd=s;if(s)last=s;clearInterval(timer);if(s)timer=setInterv
 function renderSpeed(){if(reg)render()}
 const dateStr=()=>new Date(Date.UTC(1936,0,1+day)).toLocaleDateString('en-GB',{day:'numeric',month:'long',year:'numeric',timeZone:'UTC'});
 const running=()=>reg&&!over&&!evOpen&&!pickMode&&$('ov').style.display==='none';
-addEventListener('keydown',e=>{if(!running())return;
+addEventListener('keydown',e=>{if(e.key==='Escape'&&TR){closeTreaty();return}if(!running())return;
  if(e.key==='Escape'){sel=null;render()}
  else if(e.code==='Space'){e.preventDefault();setSpeed(spd?0:last)}
  else if(/^[1-5]$/.test(e.key))setSpeed(+e.key)});
