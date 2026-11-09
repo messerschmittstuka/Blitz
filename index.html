@@ -44,6 +44,7 @@ canvas{max-width:100%;max-height:100%;cursor:pointer;transform-origin:0 0}
 .evo{display:block;width:calc(100% - 36px);margin:8px 18px 0;text-align:left;padding:10px 12px}
 .evo b{display:block;font-family:'Special Elite','Courier New',monospace;font-weight:400;font-size:15px}
 .evo span{display:block;font-size:13px;color:var(--dim);margin-top:2px}
+input[type=range]{flex:1;min-width:90px;accent-color:#d9a441}
 #ov{position:fixed;inset:0;background:rgba(17,22,19,.93);display:flex;align-items:center;justify-content:center;padding:20px;z-index:9}
 #ov>div{max-width:520px}
 #ov h1{font-size:30px;margin-bottom:8px}
@@ -92,7 +93,7 @@ const TECH=[
 const tById=q=>TECH.find(z=>z[0]===q);
 const dep=x=>x[4].length?1+Math.max(...x[4].map(q=>dep(tById(q)))):0;
 ids.forEach(i=>nb[i]=[]);
-let battles=[],sup={},ar,tech,rp,line,reg,men,tk,prog,wars,day,me,sel,spd=0,last=1,timer,over,logs,frac=1;
+let sendMode=false,battles=[],sup={},ar,tech,rp,line,reg,men,tk,prog,wars,day,me,sel,spd=0,last=1,timer,over,logs,frac=1;
 const $=id=>document.getElementById(id);
 const pick=a=>a[Math.floor(Math.random()*a.length)];
 const has=(t,x)=>tech[t].has(x);
@@ -121,7 +122,7 @@ function declareWar(x,y){if(x===y||same(x,y)||hostile(x,y)||pacts.has([T[x].f,T[
  A.forEach(p=>B.forEach(q=>{if(!pacts.has([T[p].f,T[q].f].sort().join()))wars.add(wk(p,q))}));
  B.forEach(q=>{if(q!==me&&owned(q).length){if(T[q].f==='nu')owned(q).forEach(i=>reg[i].t+=2);else addM(q,15)}});
  const m=`${T[x].n} declares war on ${T[y].n}.`+(B.length>1?` ${B.filter(q=>q!==y).map(q=>T[q].n).join(', ')} join${B.length>2?'':'s'} them.`:'');
- log(m);if(A.includes(me)||B.includes(me))wl(m)}
+ log(m);if(A.includes(me)||B.includes(me)){wl(m);sfx('war')}}
 const front=i=>nb[i].filter(j=>hostile(reg[i].tag,reg[j].tag)).length;
 const log=m=>{logs.unshift(m);logs.length=Math.min(logs.length,40)};
 const owned=t=>ids.filter(i=>reg[i].tag===t);
@@ -131,8 +132,8 @@ const aggr=()=>day>=D_POLAND||wars.size>0;
 function start(t){me=t;day=0;sel=null;over=false;logs=[];wars=new Set();reg={};wlogs=[];wstat={won:0,lost:0};aid=0;men={};tk={};prog={};ar={};tech={};rp={};line={};battles=[];flags={};pacts=new Set();evQ=[];evOpen=null;lastRand=0;fireAt={};T.SOV.f='su';EV.forEach(e=>{if(e.day)fireAt[e.id]=e.day[0]+Math.floor(Math.random()*(e.day[1]-e.day[0]+1))});EV.forEach(e=>{if(e.after)fireAt[e.id]=fireAt[e.after]+2});
  R0.forEach(([id,name,tag,fa,ba,tr])=>reg[id]={id,name,tag,fa,ba,t:tr,k:Math.floor(fa/3),a:Math.floor(fa/4)});
  Object.keys(T).forEach(k=>{men[k]=sum(k,'ba')*3;tk[k]=0;prog[k]=0;ar[k]=0;tech[k]=new Set();rp[k]=0;line[k]=Math.random()<.7?'k':'a'});line[me]='k';
- log('January 1, 1936. Europe is at peace. Build up your forces.');
- $('ov').style.display='none';setSpeed(1);render()}
+ log('January 1, 1936. The game is paused: press Space or a speed button to begin.');
+ $('ov').style.display='none';last=1;setSpeed(0);audioInit();render()}
 
 let wlogs=[],wstat={won:0,lost:0},aid=0;
 const wl=m=>{wlogs.unshift(dateStr()+': '+m);wlogs.length=Math.min(wlogs.length,200)};
@@ -168,7 +169,7 @@ function stepBattles(){const keep=[];
   const aB=bt.t<=0||bt.t<.3*bt.t0,dB=b.t<=0||b.t<.25*bt.d0;
   if((b.t<=0&&bt.t>0)||(!aB&&dB)){const old=b.tag;b.tag=bt.tag;b.t=Math.max(1,bt.t);b.k=bt.k;b.a=bt.a;
    if(bt.tag===me)wstat.won++;if(old===me)wstat.lost++;
-   note(bt,CAP[old]===bt.to?`${b.name}, capital of ${T[old].n}, has fallen to ${T[bt.tag].n} after ${bt.day} days!`:`${T[bt.tag].n} took ${b.name} after ${bt.day} days.`);check();continue}
+   note(bt,CAP[old]===bt.to?`${b.name}, capital of ${T[old].n}, has fallen to ${T[bt.tag].n} after ${bt.day} days!`:`${T[bt.tag].n} took ${b.name} after ${bt.day} days.`);if(bt.tag===me)sfx('win');else if(old===me)sfx('loss');check();continue}
   if(aB){back(bt);note(bt,`${T[bt.tag].n} failed to take ${b.name} after ${bt.day} days.`);continue}
   keep.push(bt)}
  battles=keep}
@@ -221,12 +222,65 @@ function fire(ev){if(ev.when&&!ev.when())return;flags['done_'+ev.id]=day;const w
  who.forEach(t=>{if(t===me||!owned(t).length)return;const o=ev.opts.filter(x=>!x.for||x.for.includes(t));(o[ev.ai||0]||o[0]).f(t)});
  if(who.includes(me)){evQ.push(ev);showEv()}}
 function showEv(){if(evOpen||!evQ.length)return;const ev=evQ.shift();evOpen=ev;evPrev=spd||last;setSpeed(0);
- const o=ev.opts.filter(x=>!x.for||x.for.includes(me)),e=$('evt');e.style.display='flex';
+ const o=ev.opts.filter(x=>!x.for||x.for.includes(me)),e=$('evt');e.style.display='flex';sfx('event');
  e.innerHTML=`<div class="evc"><div class="evb">${ev.icon}</div><h1>${ev.title}</h1><p>${ev.text(me)}</p>${o.map((x,i)=>`<button class="evo" onmousedown="pickEv(${i})"><b>${x.l}</b><span>${x.d}</span></button>`).join('')}</div>`}
 function pickEv(i){const ev=evOpen,o=ev.opts.filter(x=>!x.for||x.for.includes(me));o[i].f(me);evOpen=null;$('evt').style.display='none';if(over)return;setSpeed(evPrev);render();showEv()}
 function evTick(){EV.forEach(e=>{if(fireAt[e.id]===day)fire(e)});
  if(!evOpen&&day-lastRand>=120&&Math.random()<.02){const c=EV.filter(e=>e.rand&&(flags['done_'+e.id]===undefined||day-flags['done_'+e.id]>700)&&(!e.when||e.when()));if(c.length){lastRand=day;fire(pick(c))}}}
-function tick(){if(over)return;day++;calcSupply();evTick();
+// ---------- audio: everything is generated in the browser, no files needed
+const AU={ctx:null,mus:.45,sfx:.6,mOn:true,sOn:true,beat:0,next:0,B:60/66};
+try{const q=JSON.parse(localStorage.getItem('fronts_audio'));if(q)Object.assign(AU,q)}catch(e){}
+const hz=n=>440*Math.pow(2,(n-69)/12);
+const heatI=()=>Math.min(1,battles.filter(b=>b.st==='fight').length/3);
+function setVol(){if(!AU.ctx)return;AU.mg.gain.value=AU.mOn?AU.mus:0;AU.sg.gain.value=AU.sOn?AU.sfx:0;try{localStorage.setItem('fronts_audio',JSON.stringify({mus:AU.mus,sfx:AU.sfx,mOn:AU.mOn,sOn:AU.sOn}))}catch(e){}}
+function audioInit(){if(AU.ctx){if(AU.ctx.state==='suspended')AU.ctx.resume();return}
+ const AC=typeof window!=='undefined'&&(window.AudioContext||window.webkitAudioContext);if(!AC)return;
+ const c=AU.ctx=new AC();AU.mg=c.createGain();AU.sg=c.createGain();AU.mg.connect(c.destination);AU.sg.connect(c.destination);
+ const len=Math.floor(c.sampleRate*2.4),ir=c.createBuffer(2,len,c.sampleRate);
+ for(let k=0;k<2;k++){const d=ir.getChannelData(k);for(let i=0;i<len;i++)d[i]=(Math.random()*2-1)*Math.pow(1-i/len,2.5)}
+ AU.rv=c.createConvolver();AU.rv.buffer=ir;const rg=c.createGain();rg.gain.value=.45;AU.rv.connect(rg);rg.connect(AU.mg);
+ const nb2=c.createBuffer(1,c.sampleRate*2,c.sampleRate),nd=nb2.getChannelData(0);for(let i=0;i<nd.length;i++)nd[i]=Math.random()*2-1;AU.nb=nb2;
+ const w=c.createBufferSource();w.buffer=nb2;w.loop=true;const bp=c.createBiquadFilter();bp.type='bandpass';bp.frequency.value=420;bp.Q.value=.6;
+ const wg=c.createGain();wg.gain.value=.05;const lf=c.createOscillator(),lg=c.createGain();lf.frequency.value=.07;lg.gain.value=.03;lf.connect(lg);lg.connect(wg.gain);
+ w.connect(bp);bp.connect(wg);wg.connect(AU.sg);w.start();lf.start();
+ AU.next=c.currentTime+.3;setVol();setInterval(sched,250);setInterval(artTick,1200)}
+function tone(f,t,d,g,type,dest,send){const c=AU.ctx,o=c.createOscillator(),v=c.createGain();o.type=type;o.frequency.value=f;v.gain.setValueAtTime(0,t);v.gain.linearRampToValueAtTime(g,t+.02);v.gain.exponentialRampToValueAtTime(.0001,t+d);o.connect(v);v.connect(dest);if(send)v.connect(AU.rv);o.start(t);o.stop(t+d+.05)}
+function hit(t,d,g,type,f,dest){const c=AU.ctx,s=c.createBufferSource();s.buffer=AU.nb;const fl=c.createBiquadFilter();fl.type=type;fl.frequency.value=f;const v=c.createGain();v.gain.setValueAtTime(g,t);v.gain.exponentialRampToValueAtTime(.0001,t+d);s.connect(fl);fl.connect(v);v.connect(dest);s.start(t,Math.random());s.stop(t+d+.05)}
+function drum(t,v,dest){const c=AU.ctx,o=c.createOscillator(),g=c.createGain();o.frequency.setValueAtTime(110,t);o.frequency.exponentialRampToValueAtTime(48,t+.3);g.gain.setValueAtTime(v,t);g.gain.exponentialRampToValueAtTime(.0001,t+.5);o.connect(g);g.connect(dest||AU.mg);o.start(t);o.stop(t+.55)}
+function pad(notes,t,len){const c=AU.ctx,f=c.createBiquadFilter();f.type='lowpass';f.frequency.value=480+320*heatI();const v=c.createGain();v.gain.setValueAtTime(0,t);v.gain.linearRampToValueAtTime(.05,t+1.6);v.gain.setValueAtTime(.05,t+len-.4);v.gain.linearRampToValueAtTime(0,t+len+1.8);f.connect(v);v.connect(AU.mg);v.connect(AU.rv);
+ notes.forEach(n=>[-6,6].forEach(dt=>{const o=c.createOscillator();o.type='sawtooth';o.frequency.value=hz(n);o.detune.value=dt;o.connect(f);o.start(t);o.stop(t+len+1.9)}))}
+const CH=[[50,53,57],[46,50,53],[43,46,50],[45,49,52]],BS=[38,34,31,33],SC=[62,64,65,67,69,70,73,74];
+function playBeat(b,bar,t){const h=heatI();
+ if(b===0)pad(CH[bar],t,AU.B*4);
+ if(b===0||b===2)tone(hz(BS[bar]),t,AU.B*1.6,b?.1:.16,'triangle',AU.mg);
+ if(Math.random()<.28)tone(hz(SC[Math.floor(Math.random()*SC.length)]+(Math.random()<.3?12:0)),t+Math.random()*.2,2.2,.05,'sine',AU.mg,true);
+ if(h>0){if(b===1||b===3)hit(t,.12,.05*h,'bandpass',1800,AU.mg);if(b===0||b===2)drum(t,.22*h)}}
+function sched(){const c=AU.ctx;if(!c)return;if(!AU.mOn){AU.next=c.currentTime+.1;return}
+ while(AU.next<c.currentTime+1.2){playBeat(AU.beat%4,Math.floor(AU.beat/4)%4,AU.next);AU.next+=AU.B;AU.beat++}}
+function boom(){const c=AU.ctx;if(!c||!AU.sOn)return;const t=c.currentTime+Math.random()*.3;
+ hit(t,1.8,.3,'lowpass',160+Math.random()*140,AU.sg);tone(40+Math.random()*20,t,1.3,.25,'sine',AU.sg);if(Math.random()<.5)hit(t+.25+Math.random()*.3,1.2,.15,'lowpass',200,AU.sg)}
+function artTick(){if(!AU.ctx||!reg||!spd||!running())return;const h=battles.filter(b=>b.st==='fight').length;if(Math.random()<Math.min(.7,.04+.1*h))boom()}
+function sfx(n){const c=AU.ctx;if(!c||!AU.sOn)return;const t=c.currentTime,d=AU.sg;
+ if(n==='event'){tone(523,t,.5,.12,'sine',d,1);tone(784,t+.18,.8,.1,'sine',d,1)}
+ else if(n==='war'){drum(t,.5,d);tone(82,t,2,.12,'sawtooth',d,1);tone(87,t+.1,2,.08,'sawtooth',d,1)}
+ else if(n==='win'){drum(t,.3,d);tone(392,t+.1,.8,.1,'triangle',d,1);tone(523,t+.3,1,.1,'triangle',d,1)}
+ else if(n==='loss'){drum(t,.35,d);tone(165,t+.05,1.2,.1,'triangle',d,1);tone(110,t+.35,1.4,.1,'triangle',d,1)}}
+function setAud(k,v){AU[k]=v;setVol()}
+function togAud(k){AU[k]=!AU[k];audioInit();setVol();render()}
+if(typeof addEventListener!=='undefined')addEventListener('mousedown',()=>{if(AU.ctx&&AU.ctx.state==='suspended')AU.ctx.resume()});
+// ---------- saving and loading (browser storage, plus export/import of a file)
+const SK='fronts_save_',meta=n=>{try{return localStorage.getItem(SK+'meta'+n)}catch(e){return null}};
+function snap(){return JSON.stringify({v:1,day,me,reg,men,tk,prog,ar,rp,line,tech:Object.fromEntries(Object.entries(tech).map(([k,v])=>[k,[...v]])),wars:[...wars],pacts:[...pacts],battles,flags,logs,wlogs,wstat,fireAt,lastRand,aid,frac,f:Object.fromEntries(Object.keys(T).map(k=>[k,T[k].f]))})}
+function unsnap(j){const d=JSON.parse(j);if(!d.reg||!d.me)throw 0;
+ day=d.day;me=d.me;reg=d.reg;men=d.men;tk=d.tk;prog=d.prog;ar=d.ar;rp=d.rp;line=d.line;tech={};Object.entries(d.tech).forEach(([k,v])=>tech[k]=new Set(v));
+ wars=new Set(d.wars);pacts=new Set(d.pacts);battles=d.battles;flags=d.flags;logs=d.logs;wlogs=d.wlogs;wstat=d.wstat;fireAt=d.fireAt;lastRand=d.lastRand;aid=d.aid;frac=d.frac||1;
+ Object.keys(d.f).forEach(k=>T[k].f=d.f[k]);sel=null;sendMode=false;over=false;evQ=[];evOpen=null;$('ov').style.display='none';$('evt').style.display='none';lk='';last=1;setSpeed(0);render()}
+function saveSlot(n){try{localStorage.setItem(SK+n,snap());localStorage.setItem(SK+'meta'+n,`${T[me].n}, ${dateStr()}`);log(n==='auto'?'Autosaved.':`Game saved to slot ${n}.`);render()}catch(e){log('Could not save: browser storage is unavailable or full.')}}
+function loadSlot(n){try{const j=localStorage.getItem(SK+n);if(j){audioInit();unsnap(j);log('Game loaded. The game is paused.')}}catch(e){if(logs)log('Could not load that save.')}}
+function exportSave(){const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([snap()],{type:'application/json'}));a.download='fronts-save-'+day+'.json';a.click()}
+function importSave(el){const f=el.files[0];if(!f)return;const r=new FileReader();r.onload=()=>{try{audioInit();unsnap(r.result);log('Save imported. The game is paused.')}catch(e){if(logs)log('That file is not a valid save.')}};r.readAsText(f)}
+function syncSliders(){if(typeof document.querySelectorAll!=='function')return;const r=document.querySelectorAll('#drawer input[type=range]');if(r[0])r[0].value=AU.mus*100;if(r[1])r[1].value=AU.sfx*100}
+function tick(){if(over)return;day++;calcSupply();evTick();if(day%90===0)saveSlot('auto');
  Object.keys(T).forEach(t=>{if(T[t].f==='nu')return;
   men[t]+=sum(t,'ba')*BARR*(1+bn(t,'man'));prog[t]+=sum(t,'fa')*FACT*(1+bn(t,'fac'));rp[t]+=(sum(t,'fa')+sum(t,'ba'))*.05*(1+bn(t,'rs'));
   const c=line[t]==='k'?1:.6;
@@ -250,8 +304,8 @@ addEventListener('keydown',e=>{if(!running())return;
 addEventListener('keyup',e=>{if(e.code==='Space'&&running())e.preventDefault()});
 
 function click(id,e){if(over)return;
- if(sel&&sel!==id&&!(e&&e.shiftKey)&&reg[sel].tag===me&&nb[sel].includes(id)){attack(sel,id,frac);if(reg[sel].tag!==me||reg[sel].t<2)sel=reg[id].tag===me?id:sel}
- else sel=id;render()}
+ if(sel&&sel!==id&&((e&&e.shiftKey)||sendMode)&&reg[sel].tag===me&&nb[sel].includes(id)){attack(sel,id,frac);sendMode=false;if(reg[sel].tag!==me||reg[sel].t<2)sel=reg[id].tag===me?id:sel}
+ else{sel=id;sendMode=false}render()}
 function act(kind){const r=reg[sel];if(!r||r.tag!==me)return;
  if(kind==='m')deploy(me,r,Math.floor(men[me]),0);
  else if(kind==='k')deploy(me,r,0,Math.floor(tk[me]));
@@ -333,7 +387,7 @@ function drawMap(){
 let openP=null;const openG=new Set();
 const put=(el,h)=>{if(el._h!==h){el._h=h;el.innerHTML=h}};
 const WN={al:'Allies',ax:'Axis',su:'Soviet Union'};
-const PANELS=[['prod','⚒','Production'],['mil','⚔','Military'],['dip','🏛','Diplomacy'],['war','📖','War log'],['res','⚗','Research'],['world','🌍','World'],['log','📜','Log']];
+const PANELS=[['sys','💾','Save, load and sound'],['prod','⚒','Production'],['mil','⚔','Military'],['dip','🏛','Diplomacy'],['war','📖','War log'],['res','⚗','Research'],['world','🌍','World'],['log','📜','Log']];
 const rowR=(id,txt)=>`<div class="rw" onmousedown="pickR('${id}')"><i style="background:${T[reg[id].tag].c}"></i><span>${txt}</span></div>`;
 function pickR(id){sel=id;render()}
 function togP(p){openP=openP===p?null:p;render()}
@@ -342,6 +396,8 @@ function panelHtml(){const mine=owned(me),F=sum(me,'fa'),B=sum(me,'ba'),r=rate()
  if(openP==='prod')return `<h2>Production</h2><p class="dim">${F} factories and ${B} barracks in ${mine.length} regions.<br>Barracks train ${r.m.toFixed(1)} men a day. Factories build ${r.f.toFixed(2)} ${u} a day, and each one takes a man as crew.${prog[me]>=(line[me]==='k'?1:.6)&&men[me]<1?'<br><b>Production is waiting for crews.</b>':''}</p><div class="dim">Factories build</div><div class="row" style="margin-top:4px">${[['k','Tanks'],['a','Artillery']].map(([v,l])=>`<button class="${line[me]===v?'on':''}" onmousedown="setLine('${v}')">${l}</button>`).join('')}</div><p class="dim">Select a region and use its card to build a factory (${CF} men) or barracks (${CB} men).</p>${mine.map(i=>rowR(i,`${reg[i].name} · ${reg[i].fa} fac · ${reg[i].ba} bar`)).join('')}`;
  if(openP==='mil')return `<h2>Military</h2><p class="dim">Pool: ${Math.floor(men[me])} men, ${Math.floor(tk[me])} tanks, ${Math.floor(ar[me])} guns. Deploy them from a region card.</p>${armyRows()}${mine.map(i=>rowR(i,`${reg[i].name} · power ${pp(reg[i])} (${reg[i].t} men, ${reg[i].k}T, ${reg[i].a}A)${oos(i)?' · no supply':''}`)).join('')}`;
  if(openP==='res')return `<h2>Research</h2><p class="dim">${Math.floor(rp[me])} points. Factories and barracks generate more. Technologies unlock in order, and each nation also has its own unique line.</p>`+Object.keys(BR).map(b=>{const L=TECH.filter(x=>x[2]===b&&(!x[7]||x[7]===me));return `<h2 style="margin-top:14px;font-size:15px">${b==='nat'?T[me].n+': national technologies':BR[b]}</h2>`+L.map(x=>{const st=has(me,x[0])?'done':can(me,x)?'ok':'lock';return `<div class="tn ${st}" style="margin-left:${dep(x)*14}px"><button onmousedown="buy('${x[0]}')" ${st!=='ok'||rp[me]<x[3]?'disabled':''}>${st==='done'?'✓ ':st==='lock'?'🔒 ':''}${x[1]} (${x[3]})</button><div class="dim">${x[6]?x[6]+' ':''}${fx(x[5])}.${st==='lock'?' Needs '+x[4].map(q=>tById(q)[1]).join(', ')+'.':''}</div></div>`}).join('')}).join('');
+ if(openP==='sys'){const sl=n=>{const m=meta(n);return `<div class="rw" style="cursor:default"><span style="flex:1">${n==='auto'?'Autosave':'Slot '+n}<br><span class="dim">${m||'empty'}</span></span>${n==='auto'?'':`<button onmousedown="saveSlot('${n}')">Save</button>`}<button onmousedown="loadSlot('${n}')" ${m?'':'disabled'}>Load</button></div>`};
+  return `<h2>Save, load and sound</h2>${['1','2','3','auto'].map(sl).join('')}<div class="row" style="margin:10px 0"><button onmousedown="exportSave()">Export to file</button><label class="dim">Import: <input type="file" accept=".json" onchange="importSave(this)"></label></div><h2 style="font-size:15px;margin-top:14px">Sound</h2><div class="row"><button class="${AU.mOn?'on':''}" onmousedown="togAud('mOn')">Music</button><input type="range" min="0" max="100" value="50" oninput="setAud('mus',this.value/100)"></div><div class="row" style="margin-top:8px"><button class="${AU.sOn?'on':''}" onmousedown="togAud('sOn')">War sounds</button><input type="range" min="0" max="100" value="50" oninput="setAud('sfx',this.value/100)"></div><p class="dim">Sound starts after your first click. Saves live in this browser, so use Export to move one to another device. The game also autosaves every 90 days.</p><div class="row"><button onmousedown="menu()">Quit to main menu</button></div>`}
  if(openP==='dip'){const st=t=>same(me,t)?'Ally':hostile(me,t)?'At war':pacts.has([T[me].f,T[t].f].sort().join())?'Pact':'Peace',o={'At war':0,Peace:1,Pact:2,Ally:3};
   return `<h2>Diplomacy</h2><p class="dim">You can only attack countries you are at war with. Declaring war also brings in the country’s allies, and their armies can attack you along every shared border.</p>`+C.filter(c=>c[0]!==me&&owned(c[0]).length).sort((a,b)=>o[st(a[0])]-o[st(b[0])]).map(c=>{const t=c[0],x=st(t),n=owned(t).length;return `<div class="rw" style="cursor:default"><i style="background:${T[t].c}"></i><span style="flex:1"><b onmousedown="pickR('${CAP[t]}')" style="cursor:pointer;font-weight:400">${c[1]}</b><br><span class="dim">${x} · ${n} region${n>1?'s':''} · power ${owned(t).reduce((a,i)=>a+pp(reg[i]),0)}</span></span>${x==='Peace'?`<button onmousedown="askWar('${t}')">Declare war</button>`:''}</div>`}).join('')}
  if(openP==='war'){const en=C.filter(c=>c[0]!==me&&hostile(me,c[0])&&owned(c[0]).length).map(c=>c[1]).join(', ')||'nobody';
@@ -353,7 +409,7 @@ function panelHtml(){const mine=owned(me),F=sum(me,'fa'),B=sum(me,'ba'),r=rate()
 function topHtml(){return `<div>Power <b>${owned(me).reduce((a,i)=>a+pp(reg[i]),0)}</b> · Men <b>${Math.floor(men[me])}</b> · Tanks <b>${Math.floor(tk[me])}</b> · Guns <b>${Math.floor(ar[me])}</b> · Research <b>${Math.floor(rp[me])}</b></div><div class="dim tick">${logs[0]||''}</div><div class="tr"><div style="text-align:right"><h2>${dateStr()}</h2><div class="dim">${T[me].n}</div></div><div class="row">${[['Pause',0],['1',1],['2',2],['3',3],['4',4],['5',5]].map(([l,s])=>`<button class="${spd===s?'on':''}" onmousedown="setSpeed(${s})">${l}</button>`).join('')}</div></div>`}
 function cardHtml(){const r=sel&&reg[sel];if(!r)return'';const o=R0[ids.indexOf(sel)][2],mm=Math.floor(men[me]),kk=Math.floor(tk[me]),gg=Math.floor(ar[me]);
  return `<div class="row" style="justify-content:space-between"><h2>${r.name}</h2><button onmousedown="sel=null;render()" aria-label="Close">×</button></div><div class="dim">${T[o].n}${o!==r.tag?', held by '+T[r.tag].n:''} · ${T[o].g}<br>${r.fa} factories · ${r.ba} barracks · ${TN[TER[sel]]}${oos(sel)?' · out of supply':''}<br>Power projection <b>${pp(r)}</b><br>${r.t} men · ${r.k} tanks · ${r.a} guns</div>${battles.filter(b=>b.to===sel&&b.kind!=='mv').map(b=>`<div style="color:#e8806e;font-size:13px;margin-top:4px">${b.st==='fight'?`${T[b.tag].n} attacking, day ${b.day}, attacker edge ${Math.round(b.E*100)}%`:`${T[b.tag].n} army ${b.st==='mob'?'mobilising':'marching'} against this region, ${b.wait} days`}</div>`).join('')}`+
- (r.tag===me?`<div class="row" style="margin-top:8px"><button onmousedown="act('m')" ${mm<1?'disabled':''}>Deploy ${mm} men</button><button onmousedown="act('k')" ${kk<1?'disabled':''}>Deploy ${kk} tanks</button><button onmousedown="act('a')" ${gg<1?'disabled':''}>Deploy ${gg} guns</button><button onmousedown="act('fa')" ${men[me]<CF||r.fa>=MAXB?'disabled':''}>Factory (${CF} men)</button><button onmousedown="act('ba')" ${men[me]<CB||r.ba>=MAXB?'disabled':''}>Barracks (${CB} men)</button></div><div class="dim" style="margin-top:8px">Send how many? Then click a neighbouring region.</div><div class="row" style="margin-top:4px">${[['All',1],['Half',.5],['Quarter',.25]].map(([l,f])=>`<button class="${frac===f?'on':''}" onmousedown="setFrac(${f})">${l}</button>`).join('')}</div><div class="dim" style="margin-top:4px">At least one man always stays behind. Shift-click selects without moving.</div>${oddsHtml()}`:'')}
+ (r.tag===me?`<div class="row" style="margin-top:8px"><button onmousedown="act('m')" ${mm<1?'disabled':''}>Deploy ${mm} men</button><button onmousedown="act('k')" ${kk<1?'disabled':''}>Deploy ${kk} tanks</button><button onmousedown="act('a')" ${gg<1?'disabled':''}>Deploy ${gg} guns</button><button onmousedown="act('fa')" ${men[me]<CF||r.fa>=MAXB?'disabled':''}>Factory (${CF} men)</button><button onmousedown="act('ba')" ${men[me]<CB||r.ba>=MAXB?'disabled':''}>Barracks (${CB} men)</button></div><div class="dim" style="margin-top:8px">Send how many? Then shift-click a neighbouring region, or press Send troops and click one.</div><div class="row" style="margin-top:4px">${[['All',1],['Half',.5],['Quarter',.25]].map(([l,f])=>`<button class="${frac===f?'on':''}" onmousedown="setFrac(${f})">${l}</button>`).join('')}<button class="${sendMode?'on':''}" onmousedown="sendMode=!sendMode;render()">Send troops</button></div><div class="dim" style="margin-top:4px">At least one man always stays behind.</div>${oddsHtml()}`:'')}
 function oddsHtml(){const foes=nb[sel].filter(j=>hostile(me,reg[j].tag)),peace=[...new Set(nb[sel].filter(j=>!same(me,reg[j].tag)&&!hostile(me,reg[j].tag)).map(j=>T[reg[j].tag].n))];
  return (foes.length?`<div class="dim" style="margin-top:8px">Your edge if you attack (after mobilising and marching):</div>`+foes.map(j=>{const E=edgeOf(sel,j,frac);return `<div class="dim">${reg[j].name}: ${Math.round(E*100)}% edge · ${E>=.65?'favoured':E>=.45?'even':'risky'}</div>`}).join(''):'')+(peace.length?`<div class="dim" style="margin-top:8px">At peace with ${peace.join(', ')}. Declare war in the Diplomacy panel to attack.</div>`:'')}
 const armyTxt=bt=>bt.st==='fight'?`Battle for ${reg[bt.to].name}: day ${bt.day}, edge ${Math.round(bt.E*100)}% (${T[bt.tag].n})`:`${bt.st==='mob'?'Mobilising':'Marching'} ${reg[bt.from].name} → ${reg[bt.to].name}: ${bt.wait} days · ${bt.t} men ${bt.k}T ${bt.a}A (${T[bt.tag].n})`;
@@ -362,10 +418,10 @@ function askWar(y){const B=T[y].f==='nu'?[y]:members(T[y].f),mine=owned(me),bord
  evQ.push({icon:'⚔️',title:'Declare war on '+T[y].n+'?',text:()=>`${T[y].n} borders ${borders} of your regions${borders?'':' (none directly)'}. Once war is declared, their armies can strike across every one of those borders at once, so each front needs a garrison.${allies.length?' Their allies '+allies.join(', ')+' will join them.':''} Your own armies need days to mobilise and march before any fighting starts.`,opts:[{l:'Declare war',d:'The war begins today.',f:()=>declareWar(me,y)},{l:'Not yet',d:'Stay at peace.',f:()=>{}}]});showEv()}
 function render(){if(!reg)return;calcSupply();drawMap();
  put($('rail'),PANELS.map(([k,g,n])=>`<button class="${openP===k?'on':''}" title="${n}" aria-label="${n}" onmousedown="togP('${k}')">${g}</button>`).join(''));
- const d=$('drawer');d.style.display=openP?'block':'none';d.className=openP==='res'?'wide':'';if(openP)put(d,panelHtml());
+ const d=$('drawer');d.style.display=openP?'block':'none';d.className=openP==='res'?'wide':'';if(openP){const h=panelHtml(),ch=d._h!==h;put(d,h);if(ch)syncSliders()}
  const c=$('card'),h=cardHtml();c.style.display=h?'block':'none';put(c,h);put($('top'),topHtml())}
 
 function menu(){const o=$('ov');o.style.display='flex';setSpeed(0);
- o.innerHTML=`<div><h1>Fronts</h1><p>A small grand strategy game on a map of Europe. Factories build tanks and artillery, barracks train the men who crew them, and terrain, supply and research change how battles go. Men, tanks and artillery are separate weapons, and having more of each gives you an edge. Battles take several days, with losses on both sides until one gives way. Space pauses, keys 1 to 5 set the speed. Use the buttons on the left for production, military, diplomacy, research, the world and your war log. You can only attack countries you have declared war on, and armies take time to mobilise and march. Each region shows one power projection number: a man counts 1, a tank 3 and a gun 2, improved by your research. Events will interrupt the game and ask you to decide.</p><div class="row">${['GER','UK','SOV','ITA','FRA','POL'].map(t=>`<button onmousedown="start('${t}')">${T[t].n}</button>`).join('')}</div><p class="dim">January 1936. Everyone is at peace, and nations start with very different industry. Tensions rise toward 1939.</p></div>`}
+ o.innerHTML=`<div><h1>Fronts</h1><p>A small grand strategy game on a map of Europe. Factories build tanks and artillery, barracks train the men who crew them, and terrain, supply and research change how battles go. Men, tanks and artillery are separate weapons, and having more of each gives you an edge. Battles take several days, with losses on both sides until one gives way. Space pauses, keys 1 to 5 set the speed. Click a region to select it, then shift-click a neighbouring region to send troops there. The game starts paused. Use the buttons on the left for production, military, diplomacy, research, the world and your war log. You can only attack countries you have declared war on, and armies take time to mobilise and march. Each region shows one power projection number: a man counts 1, a tank 3 and a gun 2, improved by your research. Events will interrupt the game and ask you to decide.</p><div class="row">${['GER','UK','SOV','ITA','FRA','POL'].map(t=>`<button onmousedown="start('${t}')">${T[t].n}</button>`).join('')}</div>${['1','2','3','auto'].filter(n=>meta(n)).length?`<div class="row" style="margin-top:10px">${['1','2','3','auto'].filter(n=>meta(n)).map(n=>`<button onmousedown="loadSlot('${n}')">Load ${n==='auto'?'autosave':'slot '+n}: ${meta(n)}</button>`).join('')}</div>`:''}<p class="dim">January 1936. Everyone is at peace, and nations start with very different industry. Tensions rise toward 1939.</p></div>`}
 buildMap();menu();
 </script></body></html>
