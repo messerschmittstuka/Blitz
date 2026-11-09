@@ -78,7 +78,7 @@ const CAP={};R0.forEach(r=>{if(!CAP[r[2]])CAP[r[2]]=r[0]});Object.assign(CAP,{SO
 const TER=Object.fromEntries(R0.map(r=>[r[0],r[8]]));
 const ids=R0.map(r=>r[0]),GOAL=Math.ceil(ids.length*.5),BARR=.2,FACT=.05,CF=25,CB=15,MAXB=12,nb={};
 const MW=3185,MH=1716,X=lon=>(lon+170)*9.1,Y=lat=>(76-lat)*13;
-const PATCH=22;
+const PATCH='1.23';
 const HUB=["EGY","SUD","NIN","EAU","ALA","PHI","FNA","FWA","IDC","MAD"];
 const D_POLAND=1339,D_USSR=1999,D_USA=2167; // days since 1 Jan 1936
 const TN={p:'plains',f:'forest',m:'mountains',d:'desert'},TD={p:1,f:1.15,m:1.5,d:1},TV={p:3,f:2,m:1.5,d:3};
