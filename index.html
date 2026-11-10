@@ -144,6 +144,15 @@ button{touch-action:manipulation}
 @media (min-width:900px){.mn-flags{grid-template-columns:repeat(3,1fr);gap:22px 20px}.fc{display:grid;grid-template-columns:150px 1fr;grid-template-rows:auto 1fr;column-gap:14px;row-gap:2px;align-items:start;padding:12px}.fc .fl{grid-row:1/3}.fc b{margin-top:2px;align-self:end}.fc i{align-self:start;font-size:13.5px}}
 @media (max-width:760px){.mn-flags{grid-template-columns:repeat(2,1fr);gap:16px 12px}.fc b{font-size:16px}.fc i{font-size:12px}.mn-head{margin:2vh 0 3vh}.mn-act button{flex:1 1 100%}}
 @media (prefers-reduced-motion:reduce){.mn-ar{animation:none;stroke-dashoffset:0}.mn-ah{animation:none;opacity:1}.fc{transition:none}}
+
+.gcard{background:#2f3a34;margin:10px 0;padding:10px;border-left:5px solid var(--gc,#888);border-radius:3px}
+.gcard h3{margin:0 0 2px;font-size:16px;font-family:'Special Elite','Courier New',monospace;font-weight:400}
+.gt{font-size:13px;margin:2px 0}.gt.good b{color:#8fd19e;font-weight:600}.gt.bad b{color:#e8806e;font-weight:600}
+.gs{font-size:13px;color:var(--acc);margin-top:4px}
+.gcard .row{margin-top:8px}.gcard button{padding:5px 9px;font-size:13px}
+.gchip{display:inline-flex;gap:2px;align-items:center;background:#1d2421;border:1px solid #55635a;border-radius:12px;padding:1px 2px 1px 9px;margin:2px 3px 2px 0;font-size:13px}
+.gchip button{padding:0 7px!important;min-height:0!important;font-size:15px!important;border:0;background:none}
+@media (max-width:760px),(max-height:520px) and (pointer:coarse){#rail button{width:auto;flex:1 1 0;max-width:42px;min-width:26px;padding:0}}
 </style></head><body>
 <div id="flag" title=""></div><nav id="rail"></nav>
 <section id="drawer"></section>
@@ -166,7 +175,7 @@ const CAP={};R0.forEach(r=>{if(!CAP[r[2]])CAP[r[2]]=r[0]});Object.assign(CAP,{SO
 const TER=Object.fromEntries(R0.map(r=>[r[0],r[8]]));
 const ids=R0.map(r=>r[0]),GOAL=Math.ceil(ids.length*.5),BARR=.2,FACT=.065,CF=25,CB=15,MAXB=12,nb={};
 const MW=3276,MH=1716,X=lon=>(lon+180)*9.1,Y=lat=>(76-lat)*13;
-const PATCH='1.37';
+const PATCH='1.38';
 const FLAGIMG={CHN:'iVBORw0KGgoAAAANSUhEUgAAAKgAAABwCAMAAAC9+MvEAAAAVFBMVEUAAJQnAIPjABX+AAAoKKF4eMNoaLwYGJurq9lFRa1TU7PX1+zd3e8gIJ7Hx+VMTLD39/s1Nabk5PKFhcj+/v6zs9zh4fHm5vP19fq8vOBIAHb+GhpVb35EAAAClElEQVR42u3Z23KjMAwGYNrKCNtgYywM7L7/e+6YU9omYfaiCcqu/qtcZb4BS7ZMUfx83t4/fj4PcApUoAL9R6AALwJVJWso7r+qijVUm01s62b9aTRDKLhV6tvWr04XGELRdYs0EqnF2TlkCC0izVLsifrFSZHjGi1MO0shEXUwO7clwAwKNWWpGYZhMIVJRHtR8YIWFRG5BnQIGtDRugL4QHVYS0ZRrQB1GWOpEVS91lSBoFlAvXPR5F1TVwDRtkRErY0AVW5OYKJzngW08B21qVca0VjaYw2iVlW9lBgLaOFTllVYDvQpQ4l51VK663x+MWVpDeaLk2g0oSZKBz3q+VXvEymw9C22UYfOM9qTnyDSVRRMhz3/jD6KaK+htjne7J8ORTCg22toq8EAcoGij1M3+pJupNRjN0WP50OD6uv8KIcQb0FVyJ2grXsVToZCWdkxt6JDqK1KOBmaX33ef+6/+jrvWee/+jXNQTFxqvpMvd2ejk+kJ0CNA3Wr4TvDC2o6Uo27tYV2hhPUdEQpfD+UDD4kOpQ+G5qd9495HZtjnhlyp1QB0X96+84jBlXZlgYmB2fjpuibeRQJjXLjfBR1qgmVnjdYNd2tqKdCUcM+3KUIjS6VysNdTNyGuz39Mi57AM9yXN4Cy9xhxnEcTeHrPJ2whJp2njtmL8zTCdMrnbjOR9slmU88L8nQrXOc2q4dfWJ57Ri2+xC9X+R6lhe5eluQaO32ID3Hq/FLmH9suKTk/fnmkpf5IPb3EahABcoa+vbz+fUQ6PsD8gDnR/GIPxXoK0SgAuUegQqUewQqUO4RqEC5R6AC5R6BCpR7BCpQ7hGoQLlHoALlHoEKlHsEKlDuEahAuUeg/y/094vkD0Uo6uFQirNKAAAAAElFTkSuQmCC',POL:'iVBORw0KGgoAAAANSUhEUgAAAKgAAABwBAMAAAB4CCbFAAAAD1BMVEX////64+XfMlDbETrcFDyAo3HUAAAAPUlEQVRo3u3MMREAIBADsFrAAhbeAv414YCtx5IISAIAAAAAb6sguyBTkFMglUqlUqlUKpVKpVKpVCr9lF5S09aV3WDNTQAAAABJRU5ErkJggg==',ITA:'iVBORw0KGgoAAAANSUhEUgAAAKgAAABwCAMAAAC9+MvEAAAAOVBMVEUAkkYjn13h8ej////45ObUQ07NKTXOKzcAkUQin1zUQk4amVM4pWfe7+X4/Prz4+PSTljMNkDNN0KT7s1sAAAEJElEQVR42s2byXIUMRBEzVbFbuD/P5YgZrqVS41xtA8pRYCbsQ/PUi1Zqebp6dp69/7DpfXxU91XF6xufG58vv/jIufbQRt4WkDXL3L7qX9/QqB9X/AMn5+I8Jza0UXX/ti0l1HQA+POhfso373FQBS0XwV6wGZAFxikFpAWRW/nsn5lD4L2qgXHd7uCoIACqYM7OFXSFCil+RECK2JLQSPJ1LKDZ5nnyrqqaTTrpb4XJhd3g8qVJz1g3E0t9dGC76BNoP53roUWR+Rx7NjfWblkQU1HYeWPg6KM41KPkFr6Ezva48FLqu8ASliUUiSWb43gBp0p+OU9CScQTq5jBXeUkVaz5D3eALQfg7aCxmVeg5Arl8udTiZQck3PMjhls54LOu4koUuypUApcTiJWlItWvB7KPpuQiB6JkYL0+c8ZJmj7sm0i8w7ipLKExHUW4LysSdBJyXP6DI1hYY7OlyBKy35eVBMHDYjNJ2CToknzvh8Sugd9Oij5z7np6QomdxbsSQ4TqM76jBuOK7RJHn0L4Kqw5cBRT3axV1Uyn1W4bOzOMykPowEQGd/FF1Iu3QKgpJuYlAWfNU59aT+qEroso1NTqFeQaumXyAKilrJwdR5Cvb6AbSOo271R6PXNyw/psuFcwRJ93oxm7hwbgLq/uik6qX0p8rT6/3RHS5tH/ijXqqSyYS6SYKWulWHQVXc+WeFUiB2Da7+6H9AN5B5zfW0OJVQlYZBx3cKZBCJgc7+6KTqsQqkQN3CFSNXLfPE0U/+KMUqaOYKtlDJGwetbUDFu3OZUn5RtgMoevfWTveQeY3Hjq6TK6ksaBmolac86IPQFAPifIqBcm/CUcTHkrB6oha5hrtR5+/w/qgZERKdFTYgpvdIRJGQYk0e/WjpHGGwfiAJCnp0MslWwq/fIww6VVMqT0nQ8ep76PxcA1Kg7o/aBfN9GAmKksEfnXMfW0AmRs0ffRl0Cz3qF2LwNT2FMqiKuntoyO1T6OhFMvulLXn5eeHsam5wSm60AVDzR0U467sRuRYqaVMzaOdBpwoqqQRXt+FksgoKApr/d1gWVMt8t362wPOvapilU/wyIXn5GVDQo+rprZu7FRwbgNYAqlUgdvR2Xy83eDimLPQUqPujJKlWqUrO9e6PispHI+Kgz8So+aMOqiIlAuotUkUKPgZb6ENQxUuDItjsNEEVrailIwKPpaeV+1380eHdAhqYs6BtnajslewGxycEKnqURrt5Ok3t6GPQ2gqUIVe7nIyJYMFnPeqSDvbyDIQMKOvRIq2E+wjtIAzK+pPkX20AuoY4t8N0BYWzg+owRx5UbhRpedcBA2AdvvapBOh8iTzc12M4R45+WhSp/klKj4IsQetxGkLeBvr5y1XQr3VtPX27tr7/+HlpPf/6/efS+gsTgO7Pwnd+KwAAAABJRU5ErkJggg==',FRA:'iVBORw0KGgoAAAANSUhEUgAAAKgAAABwBAMAAAB4CCbFAAAAG1BMVEUAJlQAH1AxOGbf4eX////33+HTMzjNDB/OESbKu0nAAAAARklEQVRo3u3MwQAAIAAEsGOIJYRiSSXsCO7fYwNY0o25qn1uF6lUKpVKpVKpVCqVSqVSqVQqlUqlUqlUKpVKpVKpVCr9L30TnbZolt1bNAAAAABJRU5ErkJggg==',JAP:'iVBORw0KGgoAAAANSUhEUgAAAKgAAABwCAMAAAC9+MvEAAAAb1BMVEX////8+fr35+nsxMjmrbLjpajek5bbjJLYgob89/jOVWPFOUbAHTm7ACy5AB379PW9FSr57e/os7bOT2G+FzHMUVry2NnSZ3PELkHCKjvWeYLGQU3VdHvRY27KSlXqu8L9/P29DjD03uC/IDXfmZvKO37GAAACRklEQVR42u2aC3KjMAxAAWPsQhU+BefTAKHd+59xB0qnu+0kAWtXIjN6J3hjyULICgJBEARBEARBEARBeEjCSMU6MdaaRMcqeuL2uSZp0uwZdjPwnKVGRSG31zdyZbMCflBkVuXcbn9QVi81XKFOq5LbbyavmgJuUDTVJk7V7W9qTqp7x20Z5PpwT3PkqJkPNTrdPc75UE8Rp6d7WaY50jCG370u9wR4ZTNd58lnutaTyzRq1noCNAw3Kj+v9wQ401cpvbAu/U2hqT3d0ccT4Eicpnnr5wnQ0ga/8gr8FPyK0rPsfD0BOsquL/b3BIjpPHOPEvpFQ5elvXeGTlmqyERPGE+AM5VntKhXvs6B6kOqUJEnjD0y8gAnGs8L6s6PNBcSUWyKkiWpGrCiA02Sxjus6I7m46TxojRdqcGLGhJRixe1Iiqi/5N/cJkSEtGHKU+o/5APaAq+qrGeNc0nFN+UZESdM77No/EMLFaUpjo90K8INkmpUhQde6rIYwsUUXEaCXEjHcLn8RhxnUjnjpgpGeGM7IEGuUHo9SYycibeiXCetZT6scH3PhWE4+aZ0KvqW4ZlmDJd3+mnLOsl0eqnkY5pucCtNO34HuxXmfJ5BkHULr77Rcu6VFKahY1UbZjXtMIqW+KZVfxLem/2/Z7mu33jtpwOVbU3h+VDq/iP84O831/dMzju+01s5s08OdMUPytA0Ri3Jc2J0um2Owyfi67DoWu128pG5jcupetj/StJEh33W5UUBEEQBEEQBEEQhLv8Bl6sv2/BIZ2DAAAAAElFTkSuQmCC',USA:'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',SOV:'iVBORw0KGgoAAAANSUhEUgAAAKgAAABwCAMAAAC9+MvEAAAARVBMVEXMAADUJwDeVQDoeADQGADndgDXNwDbRQDgWwDxoQDofADiZgDPEADoggDwnADvmgDulAD6xwDqhgD2tgD+1wDypwDmeAD8b3L+AAABwklEQVR42u3YwbLbIAwFUEGIsC1iGyO////UjnCni9e+JjvkmXt23t1BQighAgC4nRBGJ/hQjKMTfOjxGJ3gM+n5TKMzvMc5T9M05cyjk7yR50WYZZnz6CRvlPhiovCKZXSS90mFSPznJAqSktxhkmZZFvHeoeaxMm83mKTllYl48d+jpbdn8B+0hx0d4FOB7xI1Pu8wn6z2snl/6383aNln72fKEjkU4nr47tPQVNueqBzV9Z6fdlXVp72kdXa8Ppen5dwtYTrV8ZFOVVXP6xoturvtUm52oHJ9RG1eL35a9U/libi6rT1b4Zvqo5c8NP0anegHdpVOPrRO9pWa3yZNW80UTq18BV29BiWOfYL2i5+aep6kRtSKztXxiV7KZjNKVDfnQe3CV9lUl9FB/pex76Gxqo0qr3PUFubWciEqh01+ty9TP0mtXxxyX6Jeo+P8KK06N9Xaan9L3a7OvOsacl9Mujr5TJpPbUzEaz/PZqu+y7+gwnmt9pSm4zgk2M7n8hde1OuNt8vfSy7V54CS77fHZpSMTvUPsR3fCh321WPpS/hrV0rOtycAAAAAAAAAAAAAAAAAAAAAAAAAgPF+Acw8E2MyR50FAAAAAElFTkSuQmCC',UK:'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',GER:'iVBORw0KGgoAAAANSUhEUgAAAKgAAABwBAMAAAB4CCbFAAAAFVBMVEUAAAAEBASjo6P////zo6PdBATdAACUi9NmAAAASUlEQVRo3u3MAQ3AIAADsFnAAhawgIVbwL8EVCwhTyugCQAA8GujILMgq0AqlUqlUqlUKpW+k+6CfAU5BVKpVCqVSqVSqfSZ9ALNtlKqZQg92gAAAABJRU5ErkJggg=='};
 function flagSvg(t){if(FLAGIMG[t])return `<img src="data:image/png;base64,${FLAGIMG[t]}" alt="" style="width:100%;height:100%;display:block">`;const star=(x,y,r,f)=>{let d='';for(let i=0;i<10;i++){const a=-Math.PI/2+i*Math.PI/5,q=i%2?r*.4:r;d+=(i?'L':'M')+(x+q*Math.cos(a)).toFixed(1)+' '+(y+q*Math.sin(a)).toFixed(1)}return `<path d="${d}Z" fill="${f}"/>`};
  const R=(x,y,w,h,f)=>`<rect x="${x}" y="${y}" width="${w}" height="${h}" fill="${f}"/>`;let b;
@@ -238,7 +247,7 @@ function eff(u,tag,ter,att,low,dsr){const tf=TV[ter]/3,f=att?tf+(1-tf)*(bn(tag,'
  return [u.t*(1+bn(tag,'ia'))*m,u.k*(1+bn(tag,'ta'))*f*m,u.a*(1+bn(tag,'aa'))*m]}
 const edge=(A,D)=>{let t=0,n=0;A.forEach((x,i)=>{if(x+D[i]>0){t+=x/(x+D[i]);n++}});return n?t/n:.5};
 function edgeOf(f,t,fr=1){const a=reg[f],b=reg[t],ter=TER[t];
- const A=eff({t:Math.floor((a.t-1)*fr),k:Math.floor(a.k*fr),a:Math.floor(a.a*fr)},a.tag,ter,1,oos(f),reg[f].dis>day).map(x=>x*(isSea(f,t)?1-.25*(1-Math.min(1,bn(a.tag,'amph'))):1)),D=eff(b,b.tag,ter,0,oos(t),reg[t].dis>day);return edge(A,D)}
+ const A=eff({t:Math.floor((a.t-1)*fr),k:Math.floor(a.k*fr),a:Math.floor(a.a*fr)},a.tag,ter,1,oos(f),reg[f].dis>day).map(x=>x*(isSea(f,t)?1-.25*(1-Math.min(1,bn(a.tag,'amph'))):1)),D=eff(b,b.tag,ter,0,oos(t),reg[t].dis>day);return edge(applyGen(A,a.grp,a.tag,ter,1,isSea(f,t),oos(f)),applyGen(D,b.grp,b.tag,ter,0,false,oos(t)))}
 const lose=(c,r)=>{const x=c*r;return Math.min(c,Math.floor(x)+(Math.random()<x%1?1:0))};
 const oos=i=>T[reg[i].tag].f!=='nu'&&!(sup[i]<=3+bn(reg[i].tag,'sr'));
 function calcSupply(){sup={};const q=[];[...Object.values(CAP),...HUB].forEach(c=>{if(T[reg[c].tag].f!=='nu'&&sup[c]===undefined){sup[c]=0;q.push(c)}});
@@ -264,7 +273,7 @@ const owned=t=>ids.filter(i=>reg[i].tag===t);
 const sum=(t,k)=>owned(t).reduce((s,i)=>s+reg[i][k],0);
 const aggr=()=>day>=D_POLAND||atWarF('al','ax');
 
-function start(t){me=t;day=0;sel=null;over=false;logs=[];wars=new Set();reg={};wlogs=[];wstat={won:0,lost:0};aid=0;won=false;WARS=[];wid=0;npacts=new Set();guar=new Set();truces={};rpWarned=false;men={};mp={};cons={};tk={};prog={};ar={};tech={};rp={};tp={};fl={};alc={};wty={};air={};pty={};sorts=[];battles=[];flags={};pacts=new Set();evQ=[];evOpen=null;lastRand=0;fireAt={};C.forEach(c=>{T[c[0]].f=c[2]});EV.forEach(e=>{if(e.day)fireAt[e.id]=e.day[0]+Math.floor(Math.random()*(e.day[1]-e.day[0]+1))});EV.forEach(e=>{if(e.after)fireAt[e.id]=fireAt[e.after]+2});
+function start(t){me=t;day=0;sel=null;over=false;logs=[];wars=new Set();reg={};wlogs=[];wstat={won:0,lost:0};aid=0;won=false;WARS=[];wid=0;npacts=new Set();guar=new Set();truces={};rpWarned=false;men={};mp={};cons={};tk={};prog={};ar={};tech={};rp={};tp={};fl={};alc={};wty={};air={};pty={};sorts=[];battles=[];GRP=[];grpId=0;objMode=0;grpNew=null;grpSel=0;flags={};pacts=new Set();evQ=[];evOpen=null;lastRand=0;fireAt={};C.forEach(c=>{T[c[0]].f=c[2]});EV.forEach(e=>{if(e.day)fireAt[e.id]=e.day[0]+Math.floor(Math.random()*(e.day[1]-e.day[0]+1))});EV.forEach(e=>{if(e.after)fireAt[e.id]=fireAt[e.after]+2});
  R0.forEach(([id,name,tag,fa,ba,tr])=>reg[id]={id,name,tag,own:tag,fa,ba,t:tr,k:Math.floor(fa/3),a:Math.floor(fa/4)});
  const NAVY0={UK:[6,8,4,3,0,0],JAP:[5,6,3,2,1,2],USA:[5,6,3,3,0,0],ITA:[3,5,2,1,0,2],FRA:[3,5,2,1,0,1],GER:[2,3,1,0,0,2],SOV:[2,3,1,0,0,1]},ALC0={UK:[2,2,3,4,3],JAP:[2,2,3,4,3],USA:[2,2,3,4,3],ITA:[3,2,2,2,2],FRA:[3,2,2,2,2],GER:[5,2,1,1,3]},AIR0={GER:[8,5,0],UK:[7,3,0],USA:[6,3,1],ITA:[5,3,0],FRA:[6,2,0],SOV:[6,4,0],JAP:[6,4,0],POL:[3,1,0]};
  Object.keys(T).forEach(k=>{men[k]=sum(k,'ba')*3;mp[k]=Math.round(popTot(k)*.5);cons[k]=[];tk[k]=0;prog[k]={k:0,a:0,t:0,n:0,p:0};ar[k]=0;tech[k]=new Set();rp[k]=0;const n=NAVY0[k]||[1,1,0,0,0,0],a=ALC0[k]||[4,2,1,1,2],w=AIR0[k]||[1,0,0];tp[k]=n[0];fl[k]={dd:n[1],cl:n[2],bb:n[3],cv:n[4],ss:n[5]};alc[k]={k:a[0],a:a[1],t:a[2],n:a[3],p:a[4]};wty[k]='dd';air[k]={fg:w[0],tb:w[1],sb:w[2]};pty[k]='fg'});alc[me]={k:4,a:2,t:1,n:1,p:2};
@@ -274,21 +283,21 @@ function start(t){me=t;day=0;sel=null;over=false;logs=[];wars=new Set();reg={};w
 let wlogs=[],wstat={won:0,lost:0},aid=0;
 const wl=m=>{wlogs.unshift(dateStr()+': '+m);wlogs.length=Math.min(wlogs.length,200)};
 const cpos=id=>{const i=ids.indexOf(id);return cen[i]||[X(R0[i][6]),Y(R0[i][7])]};
-const march=(f,t,g)=>{const a=cpos(f),b=cpos(t);return Math.max(2,Math.round(Math.hypot(Math.min(Math.abs(a[0]-b[0]),MW-Math.abs(a[0]-b[0])),a[1]-b[1])/30*(1-Math.min(.5,g?bn(g,'mvs'):0))))+(SEA.includes(f+'-'+t)||SEA.includes(t+'-'+f)?3:0)};
+const march=(f,t,g,gr)=>{const a=cpos(f),b=cpos(t);return Math.max(2,Math.round(Math.hypot(Math.min(Math.abs(a[0]-b[0]),MW-Math.abs(a[0]-b[0])),a[1]-b[1])/30*(1-Math.min(.5,(g?bn(g,'mvs'):0)+(gr&&g&&gfx(gr,g)?gfx(gr,g).mvs:0)))))+(SEA.includes(f+'-'+t)||SEA.includes(t+'-'+f)?3:0)};
 const inv=bt=>bt.tag===me||reg[bt.to].tag===me;
 const note=(bt,m)=>{log(m);if(inv(bt))wl(m)};
 const nearestOwn=(id,tag)=>{const c=cpos(id);let best=null,bd=1e18;ids.forEach(i=>{if(i!==id&&reg[i].tag===tag){const q=cpos(i),dx=Math.min(Math.abs(q[0]-c[0]),MW-Math.abs(q[0]-c[0])),d=dx*dx+(q[1]-c[1])**2;if(d<bd){bd=d;best=i}}});return best};
 // troops are never destroyed: if their origin is gone they fall back to the nearest region their country still holds
 function back(bt){rel(bt);let h=reg[bt.from];if(h.tag!==bt.tag){const n=nearestOwn(bt.from,bt.tag);h=n?reg[n]:null}if(h){h.t+=bt.t;h.k+=bt.k;h.a+=bt.a}}
 function withdraw(r){const tag=r.tag;if(!(r.t||r.k||r.a))return;const best=nearestOwn(r.id,tag);
- if(best){battles.push({id:++aid,kind:'mv',st:'move',wait:march(r.id,best,tag)+1,from:r.id,to:best,tag,t:r.t,k:r.k,a:r.a,t0:r.t,d0:0,day:0,E:.5});if(tag===me)wl(`Your forces in ${r.name} withdraw toward ${reg[best].name} because the region changed hands.`)}
+ if(best){battles.push({id:++aid,kind:'mv',st:'move',wait:march(r.id,best,tag)+1,from:r.id,to:best,tag,grp:r.grp||0,t:r.t,k:r.k,a:r.a,t0:r.t,d0:0,day:0,E:.5});if(tag===me)wl(`Your forces in ${r.name} withdraw toward ${reg[best].name} because the region changed hands.`)}
  r.t=0;r.k=0;r.a=0}
 function attack(f,t,fr=1){const a=reg[f],b=reg[t],n=Math.floor((a.t-1)*fr),k=Math.floor(a.k*fr),g=Math.floor(a.a*fr);
- if(same(a.tag,b.tag)){if(a.tag!==b.tag){if(a.tag===me)log(`${T[b.tag].n} is your ally, so you cannot station troops in its regions.`);return}if(n+k+g<1)return;const sh=takeShips(a.tag,f,t,n,k,g);if(sh<0)return;a.t-=n;a.k-=k;a.a-=g;battles.push({ships:sh,sea:isSea(f,t),id:++aid,kind:'mv',st:'move',wait:march(f,t,a.tag),from:f,to:t,tag:a.tag,t:n,k,a:g,t0:n,d0:0,day:0,E:.5});return}
+ if(same(a.tag,b.tag)){if(a.tag!==b.tag){if(a.tag===me)log(`${T[b.tag].n} is your ally, so you cannot station troops in its regions.`);return}if(n+k+g<1)return;const sh=takeShips(a.tag,f,t,n,k,g);if(sh<0)return;a.t-=n;a.k-=k;a.a-=g;battles.push({ships:sh,sea:isSea(f,t),id:++aid,kind:'mv',st:'move',wait:march(f,t,a.tag,a.grp),from:f,to:t,tag:a.tag,grp:a.grp||0,t:n,k,a:g,t0:n,d0:0,day:0,E:.5});return}
  if(!hostile(a.tag,b.tag)){if(a.tag===me)log(`You are not at war with ${T[b.tag].n}. Declare war in the Diplomacy panel first.`);return}
  if(n<1)return;
  const sh=takeShips(a.tag,f,t,n,k,g);if(sh<0)return;a.t-=n;a.k-=k;a.a-=g;const mob=Math.max(1,2+Math.min(6,Math.floor((n+3*k+2*g)/20))-bn(a.tag,'mob'));
- battles.push({ships:sh,sea:isSea(f,t),id:++aid,kind:'atk',st:'mob',wait:mob,from:f,to:t,tag:a.tag,t:n,k,a:g,t0:n,d0:b.t,day:0,E:.5});
+ battles.push({ships:sh,sea:isSea(f,t),id:++aid,kind:'atk',st:'mob',wait:mob,from:f,to:t,tag:a.tag,grp:a.grp||0,t:n,k,a:g,t0:n,d0:b.t,day:0,E:.5});
  if(a.tag===me)wl(`Orders given: ${n} men, ${k} tanks and ${g} guns mobilise in ${a.name} to attack ${b.name}. Ready in ${mob} days.`);
  else if(b.tag===me)wl(`Warning: ${T[a.tag].n} is mobilising forces in ${a.name} to attack ${b.name}.`)}
 // each day: armies mobilise, then march, then fight one round; the side with more of each weapon loses less
@@ -297,23 +306,23 @@ function stepBattles(){const keep=[];
   if(bt.st!=='fight'){
    if(bt.st==='move'&&bt.sea&&bt.ships>0&&intercept(bt))continue;
    if(--bt.wait>0){keep.push(bt);continue}
-   if(bt.st==='mob'){bt.st='move';bt.wait=march(bt.from,bt.to,bt.tag);if(bt.tag===me)wl(`The army from ${reg[bt.from].name} marches on ${b.name}. Arrival in ${bt.wait} days.`);keep.push(bt);continue}
+   if(bt.st==='mob'){bt.st='move';bt.wait=march(bt.from,bt.to,bt.tag,bt.grp);if(bt.tag===me)wl(`The army from ${reg[bt.from].name} marches on ${b.name}. Arrival in ${bt.wait} days.`);keep.push(bt);continue}
    rel(bt);
-   if(bt.tag===b.tag){b.t+=bt.t;b.k+=bt.k;b.a+=bt.a;continue}
+   if(bt.tag===b.tag){adoptG(b,bt);b.t+=bt.t;b.k+=bt.k;b.a+=bt.a;continue}
    if(bt.kind==='mv'||!hostile(bt.tag,b.tag)){back(bt);continue}
    const ex=[...keep,...battles].find(x=>x!==bt&&x.st==='fight'&&x.to===bt.to&&x.tag===bt.tag);
    if(ex){ex.t+=bt.t;ex.k+=bt.k;ex.a+=bt.a;ex.t0+=bt.t;if(inv(bt))wl(`Reinforcements from ${reg[bt.from].name} reach the battle for ${b.name}.`);continue}
    bt.st='fight';bt.d0=b.t;bt.day=0;if(inv(bt))wl(`Battle for ${b.name} begins: ${T[bt.tag].n} attacks from ${reg[bt.from].name} with ${bt.t} men, ${bt.k} tanks and ${bt.a} guns.`);keep.push(bt);continue}
   if(!hostile(bt.tag,b.tag)){if(bt.tag===b.tag){b.t+=bt.t;b.k+=bt.k;b.a+=bt.a}else back(bt);continue}
-  const A=eff(bt,bt.tag,ter,1,oos(bt.from),reg[bt.from].dis>day).map(x=>x*apen(bt)),D=eff(b,b.tag,ter,0,oos(bt.to),b.dis>day),E=edge(A,D),Ed=Math.min(.97,Math.max(.03,E+(Math.random()-.5)*.12)),ra=.16*(1-Ed)*(1-Math.min(.5,bn(bt.tag,'cas'))),rd=.16*Ed*(1-Math.min(.5,bn(b.tag,'cas')));
+  const A=applyGen(eff(bt,bt.tag,ter,1,oos(bt.from),reg[bt.from].dis>day).map(x=>x*apen(bt)),bt.grp,bt.tag,ter,1,bt.sea,oos(bt.from)),D=applyGen(eff(b,b.tag,ter,0,oos(bt.to),b.dis>day),b.grp,b.tag,ter,0,false,oos(bt.to)),E=edge(A,D),Ed=Math.min(.97,Math.max(.03,E+(Math.random()-.5)*.12)),ra=.16*(1-Ed)*(1-Math.min(.5,bn(bt.tag,'cas')))*gcas(bt.grp,bt.tag),rd=.16*Ed*(1-Math.min(.5,bn(b.tag,'cas')))*gcas(b.grp,b.tag);
   bt.t-=lose(bt.t,ra);bt.k-=lose(bt.k,ra);bt.a-=lose(bt.a,ra*.6);
   b.t-=lose(b.t,rd);b.k-=lose(b.k,rd);b.a-=lose(b.a,rd*.6);bt.day++;bt.E=E;
   if(bt.day%7===0&&inv(bt))wl(`Battle for ${b.name}, day ${bt.day} (attack from ${reg[bt.from].name}): attacker edge ${Math.round(E*100)}%. Attackers ${bt.t} men ${bt.k}T ${bt.a}A, defenders ${b.t} men ${b.k}T ${b.a}A.`);
   const aB=bt.t<=0||bt.t<.3*bt.t0,dB=b.t<=0||b.t<.25*bt.d0;
-  if((b.t<=0&&bt.t>0)||(!aB&&dB)){const old=b.tag;b.tag=bt.tag;b.t=Math.max(1,bt.t);b.k=bt.k;b.a=bt.a;
+  if((b.t<=0&&bt.t>0)||(!aB&&dB)){const old=b.tag;b.tag=bt.tag;b.t=Math.max(1,bt.t);b.k=bt.k;b.a=bt.a;b.grp=bt.grp||0;if(bt.grp)genXP(bt.grp,bt.tag);
    if(bt.tag===me)wstat.won++;if(old===me)wstat.lost++;gainPop(bt.tag,b);{const w=warOf(bt.tag,old);if(w)w.score=Math.max(-100,Math.min(100,w.score+(w.a.includes(bt.tag)?1:-1)*rval(b)))}
    note(bt,CAP[old]===bt.to?`${b.name}, capital of ${T[old].n}, has fallen to ${T[bt.tag].n} after ${bt.day} days, attacking from ${reg[bt.from].name}!`:`${T[bt.tag].n} took ${b.name} after ${bt.day} days, attacking from ${reg[bt.from].name}.`);if(bt.tag===me)sfx('win');else if(old===me)sfx('loss');if(CAP[old]===bt.to&&b.own===old)takeCountry(bt.tag,old,bt);check();continue}
-  if(aB){back(bt);note(bt,`${T[bt.tag].n} failed to take ${b.name} from ${reg[bt.from].name} after ${bt.day} days.`);continue}
+  if(aB){if(b.grp&&b.tag===me)genXP(b.grp,b.tag);back(bt);note(bt,`${T[bt.tag].n} failed to take ${b.name} from ${reg[bt.from].name} after ${bt.day} days.`);continue}
   keep.push(bt)}
  battles=keep}
 
@@ -348,7 +357,7 @@ function ai(t){const mine=owned(t);if(!mine.length)return;
   else{const fs=nb[i].filter(j=>reg[j].tag===t);const f2=fs.filter(j=>front(j)>0);const c=f2.length?f2[0]:pick(fs);if(c)attack(i,c)}
   if(over)return}}
 
-let flags={},pacts=new Set(),evQ=[],evOpen=null,evPrev=1,fireAt={},lastRand=0;
+let GRP=[],grpId=0,objMode=0,grpNew=null,grpSel=0,grpQ='';let flags={},pacts=new Set(),evQ=[],evOpen=null,evPrev=1,fireAt={},lastRand=0;
 const rnd=a=>a[Math.floor(Math.random()*a.length)];
 const addM=(t,n)=>{men[t]=Math.max(0,men[t]+n)},addRP=(t,n)=>{rp[t]=Math.max(0,rp[t]+n)};
 const annex=(id,t)=>{const r=reg[id];if(T[r.tag].f==='nu'){gainPop(t,r);r.tag=r.own=t;r.t=Math.max(r.t,3);log(`${T[t].n} annexes ${r.name}.`);check()}};
@@ -440,10 +449,10 @@ if(typeof addEventListener!=='undefined'){const wake=()=>{if(AU.ctx&&AU.ctx.stat
  addEventListener('pageshow',wake)}
 // ---------- saving and loading (browser storage, plus export/import of a file)
 const SK='fronts5_save_',meta=n=>{try{return localStorage.getItem(SK+'meta'+n)}catch(e){return null}};
-function snap(){return JSON.stringify({v:5,day,me,reg,men,mp,cons,tk,prog,ar,rp,tp,fl,alc,wty,air,pty,sorts,tech:Object.fromEntries(Object.entries(tech).map(([k,v])=>[k,[...v]])),wars:[...wars],pacts:[...pacts],battles,flags,logs,wlogs,wstat,fireAt,lastRand,aid,frac,won,WARS,wid,npacts:[...npacts],guar:[...guar],truces,f:Object.fromEntries(Object.keys(T).map(k=>[k,T[k].f]))})}
+function snap(){return JSON.stringify({v:5,day,me,reg,men,mp,cons,tk,prog,ar,rp,tp,fl,alc,wty,air,pty,sorts,tech:Object.fromEntries(Object.entries(tech).map(([k,v])=>[k,[...v]])),wars:[...wars],pacts:[...pacts],battles,flags,logs,wlogs,wstat,fireAt,lastRand,aid,frac,won,WARS,wid,npacts:[...npacts],guar:[...guar],truces,GRP,grpId,f:Object.fromEntries(Object.keys(T).map(k=>[k,T[k].f]))})}
 function unsnap(j){const d=JSON.parse(j);if(d.v!==5||!d.reg||!d.me)throw 0;
  day=d.day;me=d.me;reg=d.reg;men=d.men;mp=d.mp;cons=d.cons;tk=d.tk;prog=d.prog;ar=d.ar;rp=d.rp;tp=d.tp;fl=d.fl;alc=d.alc;wty=d.wty;air=d.air;pty=d.pty;sorts=d.sorts;tech={};Object.entries(d.tech).forEach(([k,v])=>tech[k]=new Set(v));
- wars=new Set(d.wars);pacts=new Set(d.pacts);battles=d.battles;flags=d.flags;logs=d.logs;wlogs=d.wlogs;wstat=d.wstat;fireAt=d.fireAt;lastRand=d.lastRand;aid=d.aid;frac=d.frac||1;won=!!d.won;WARS=d.WARS||[];wid=d.wid||0;npacts=new Set(d.npacts||[]);guar=new Set(d.guar||[]);truces=d.truces||{};rpWarned=false;
+ wars=new Set(d.wars);pacts=new Set(d.pacts);battles=d.battles;flags=d.flags;logs=d.logs;wlogs=d.wlogs;wstat=d.wstat;fireAt=d.fireAt;lastRand=d.lastRand;aid=d.aid;frac=d.frac||1;won=!!d.won;WARS=d.WARS||[];wid=d.wid||0;npacts=new Set(d.npacts||[]);guar=new Set(d.guar||[]);truces=d.truces||{};GRP=d.GRP||[];grpId=d.grpId||0;objMode=0;grpNew=null;grpSel=0;rpWarned=false;
  Object.keys(d.f).forEach(k=>T[k].f=d.f[k]);sel=null;sendMode=false;over=false;evQ=[];evOpen=null;$('ov').style.display='none';$('evt').style.display='none';lk='';last=1;setSpeed(0);startTheme();focusOn(CAP[me],3.5);render();hideTut()}
 function saveSlot(n){try{localStorage.setItem(SK+n,snap());localStorage.setItem(SK+'meta'+n,`${T[me].n}, ${dateStr()}`);log(n==='auto'?'Autosaved.':`Game saved to slot ${n}.`);render()}catch(e){log('Could not save: browser storage is unavailable or full.')}}
 function loadSlot(n){try{const j=localStorage.getItem(SK+n);if(j){audioInit();unsnap(j);log('Game loaded. The game is paused.')}}catch(e){if(logs)log('Could not load that save.')}}
@@ -484,6 +493,7 @@ const TUT=[
  {t:'Crossing the sea',x:()=>'Armies cannot cross water by themselves. A sea crossing needs troopships. Each carries 10 load: a man counts 1, a tank 3 and a gun 2. Give Troopships a priority in Production to build them, and watch the Troopships number in the top bar. Then select a coastal region, choose how many to send, press Send troops, and pick the region across the sea. The odds list on the card says how many ships a sea attack needs. If you have too few, the order is refused. The ships are tied up while the army is at sea and return to you when it lands. Crossings take longer than land marches.',hl:'#card',panel:null,sel:true},
  {t:'Warships and convoys',x:()=>'Enemy warships can sink part of a convoy at sea, killing troops and troopships. Your own fleet makes crossings safer, so build warships in Production and choose the type: destroyers from the start, and submarines, cruisers, battleships and carriers once you research them in the Navy branch. Cruisers are the best escorts and submarines are the best convoy hunters. A landing from the sea is an amphibious assault and fights 25% weaker until you research Landing craft and Marine corps.',hl:'[title="Production"]',panel:'prod',nosel:true},
  {t:'Research',x:()=>'Research points come from your factories and barracks. Spend them in the research panel, which has branches for infantry, armour, artillery, industry, logistics, the navy, the air force, defence, doctrine and science, plus a line of unique technologies for your own country. Techs unlock in order. When you have more than 1000 unspent points the game reminds you.',hl:'[title="Research"]',panel:'res'},
+ {t:'Army groups',x:()=>'Open the Army groups panel (the medal icon). Create a group, choose one of three generals (each has strengths and weaknesses), give the group regions to hold troops in, and set an objective, for example all of Ukraine and the Caucasus. When the group is active it moves its troops toward the objective and attacks when the odds are good. The general\'s traits change how those troops fight, and a general gains levels by winning.',hl:'#rail'},
  {t:'Diplomacy',x:()=>'You can only attack a country you are at war with. In Diplomacy you can declare war, offer non-aggression pacts, guarantee a country’s independence, or join an alliance. Declaring war also brings in allies and guarantors, and they can attack along every border. A red banner with an alarm warns you whenever someone declares war on you.',hl:'[title="Diplomacy"]',panel:'dip'},
  {t:'Fighting a war',x:()=>'Armies mobilise, march, then fight for days. The edge percentage shows who is stronger, using men, tanks and guns separately. Regions far from your capital fall out of supply and fight worse. The Military panel lists your armies and battles, and your fleet and air force.',hl:'[title="Military"]',panel:'mil'},
  {t:'The air force',x:()=>'Factories also build aircraft. Fighters are available at the start, and tactical bombers and heavy bombers unlock in the Air force research branch. Give Aircraft a priority in Production and choose the type to build. Planes live in one national pool, so you do not need to base them anywhere. Fighters defend you against enemy raids and escort your own bombers. Tactical bombers give all your armies up to +20% strength in every battle.',hl:'[title="Production"]',panel:'prod',nosel:true},
@@ -637,7 +647,148 @@ function warTick(){
   const mine=wsc(w,me);
   if(mine<=-40&&day-w.offer>45&&day-w.day>40){w.offer=day;const es=side==='a'?'b':'a',et=mainOf(w,es),dm=autoDemand(w,es,-mine);
    evQ.push({icon:'🏳️',title:`${T[et].n} offers terms`,text:()=>`${T[et].n} is winning the war and proposes peace. ${dm.length?'They demand '+dm.map(i=>reg[i].name).join(', ')+'.':'They ask for nothing but an end to the fighting.'}`,opts:[{l:'Accept the treaty',d:dm.length?'You lose those regions and the war ends.':'The war ends with no changes.',f:()=>peace(w,dm.length?es:null,dm,false,et)},{l:'Fight on',d:'The war continues.',f:()=>{}}]});showEv()}}}
-function tick(){if(over)return;day++;calcSupply();evTick();warTick();airTick();rpCheck();if(day%90===0)saveSlot('auto');
+
+// ================= ARMY GROUPS =================
+const GCOL=['#4fc3f7','#ffb74d','#ba68c8','#81c784','#f06292','#fff176','#a1887f','#90a4ae'];
+const GTR={
+ g1:{n:'Offensive genius',g:1,fx:{atk:.12},d:'+12% attack'},
+ g2:{n:'Defensive specialist',g:1,fx:{def:.12},d:'+12% defence'},
+ g3:{n:'Logistician',g:1,fx:{sup:.5},d:'Out-of-supply penalty halved'},
+ g4:{n:'Fast mover',g:1,fx:{mvs:.2},d:'Armies march 20% faster'},
+ g5:{n:'Armour specialist',g:1,fx:{tank:.15},d:'Tanks fight 15% better'},
+ g6:{n:'Artillery specialist',g:1,fx:{art:.15},d:'Guns fight 15% better'},
+ g7:{n:'Mountain fighter',g:1,fx:{tm:.2},d:'+20% in mountains'},
+ g8:{n:'Forest fighter',g:1,fx:{tf:.2},d:'+20% in forests'},
+ g9:{n:'Desert fox',g:1,fx:{td:.2},d:'+20% in deserts'},
+ g10:{n:'Plains tactician',g:1,fx:{tp:.12},d:'+12% on plains'},
+ g11:{n:'Careful planner',g:1,fx:{cas:.15},d:'15% fewer losses'},
+ g12:{n:'Amphibious expert',g:1,fx:{amph:.25},d:'+25% when landing from the sea'},
+ g13:{n:'Inspiring leader',g:1,fx:{atk:.06,def:.06},d:'+6% attack and defence'},
+ g14:{n:'Bold',g:1,fx:{atk:.05,thr:-.1},d:'+5% attack, attacks at worse odds'},
+ b1:{n:'Reckless',fx:{cas:-.2},d:'20% more losses'},
+ b2:{n:'Poor logistician',fx:{sup:-.5},d:'Out-of-supply penalty 50% worse'},
+ b3:{n:'Slow',fx:{mvs:-.2},d:'Armies march 20% slower'},
+ b4:{n:'Cautious',fx:{atk:-.05,thr:.1},d:'-5% attack, waits for better odds'},
+ b5:{n:'Defeatist',fx:{def:-.1},d:'-10% defence'},
+ b6:{n:'Rigid doctrine',fx:{atk:-.08},d:'-8% attack'},
+ b7:{n:'Hates the mountains',fx:{tm:-.2},d:'-20% in mountains'},
+ b8:{n:'Fears the forests',fx:{tf:-.2},d:'-20% in forests'},
+ b9:{n:'Lost in the desert',fx:{td:-.2},d:'-20% in deserts'},
+ b10:{n:'Cavalry mind',fx:{tank:-.15},d:'Tanks fight 15% worse'},
+ b11:{n:'Old-fashioned gunnery',fx:{art:-.12},d:'Guns fight 12% worse'},
+ b12:{n:'Political appointee',fx:{atk:-.05,def:-.05},d:'-5% attack and defence'},
+ b13:{n:'Seasick',fx:{amph:-.25},d:'-25% when landing from the sea'}};
+const GNAMES={GER:[['Heinrich','Walter','Ernst','Fritz','Karl','Erwin','Hermann','Otto'],['Vogt','Brandt','Kessler','Hartmann','Lindner','Falk','Reinhardt','Stahl']],
+ UK:[['Arthur','Edmund','Bernard','Harold','Gerald','Reginald','Alan','Oliver'],['Whitcombe','Ashford','Hargreaves','Lyndon','Fairfax','Pemberton','Carrow','Stanhope']],
+ SOV:[['Georgy','Ivan','Konstantin','Nikolai','Pavel','Vasily','Aleksei','Semyon'],['Voronov','Belov','Orlov','Smirnov','Gromov','Zubarev','Lebedev','Rakitin']],
+ USA:[['Clarence','Omar','Walter','Lloyd','Raymond','Henry','Ward','Marshall'],['Hollis','Brennan','Maddox','Whitfield','Calloway','Prescott','Tolliver','Harlan']],
+ JAP:[['Takeshi','Hideo','Masao','Kenji','Shigeru','Tadashi','Kiyoshi','Isamu'],['Hayashi','Morita','Okabe','Nakagawa','Fujimori','Sakurai','Tsuda','Yamane']],
+ FRA:[['Henri','Jacques','Louis','Maurice','Pierre','Gaston','Lucien','Émile'],['Delacroix','Montclair','Verneuil','Lefèvre','Fontaine','Marchand','Bellamy','Rousseau']],
+ ITA:[['Giovanni','Alberto','Enrico','Ettore','Vittorio','Pietro','Carlo','Umberto'],['Moretti','Ferrante','Bellini','Rinaldi','Castelli','Donati','Visconti','Serra']],
+ POL:[['Władysław','Tadeusz','Stanisław','Kazimierz','Jerzy','Marian','Zygmunt','Wacław'],['Nowicki','Kowalczyk','Wiśniewski','Zieliński','Maj','Sokołowski','Dąbrowski','Pawlak']],
+ CHN:[['Jianguo','Zhiyuan','Mingxuan','Haoran','Wenlong','Shouyi','Yongkang','Tianyu'],['Li','Zhang','Wang','Liu','Chen','Yang','Zhao','Huang']]};
+const ordN=n=>n+(n%100>=11&&n%100<=13?'th':['th','st','nd','rd'][n%10]||'th');
+const gMake=(tag,prof,taken)=>{const N=GNAMES[tag]||GNAMES.GER;let nm,tries=0;do{nm=tag==='CHN'?pick(N[1])+' '+pick(N[0]):pick(N[0])+' '+pick(N[1]);tries++}while(taken.has(nm)&&tries<20);taken.add(nm);
+ const used=new Set(),tr=[];for(const ch of prof){const pool=Object.keys(GTR).filter(k=>!!GTR[k].g===(ch==='G')&&!tr.includes(k)&&!Object.keys(GTR[k].fx).some(f=>used.has(f)));if(!pool.length)continue;const k=pick(pool);tr.push(k);Object.keys(GTR[k].fx).forEach(f=>used.add(f))}
+ return {name:nm,traits:tr,lvl:1,xp:0}};
+const genOptions=tag=>{const taken=new Set(),P=['GB','GB','GGB','GGB','GGBB','GBB'],out=[];for(let i=0;i<3;i++)out.push(gMake(tag,pick(P),taken));return out};
+function gfx(id,tag){const g=GRP.find(x=>x.id===id);if(!g||(tag&&g.tag!==tag))return null;const f={atk:0,def:0,cas:0,sup:0,mvs:0,tank:0,art:0,amph:0,thr:0,ter:{p:0,m:0,f:0,d:0},lvl:Math.max(0,(g.gen.lvl-1)*.03)};
+ g.gen.traits.forEach(k=>{const x=GTR[k];if(!x)return;for(const q in x.fx){const v=x.fx[q];if(q==='tm')f.ter.m+=v;else if(q==='tf')f.ter.f+=v;else if(q==='td')f.ter.d+=v;else if(q==='tp')f.ter.p+=v;else f[q]+=v}});return f}
+function applyGen(X,gid,tag,ter,att,sea,low){const f=gid&&gfx(gid,tag);if(!f)return X;let m=1+(att?f.atk:f.def)+(f.ter[ter]||0)+f.lvl;
+ if(low){const base=att?.6:.8,nb2=Math.min(1,1-(1-base)*(1-f.sup));m*=nb2/base}
+ if(att&&sea)m*=1+f.amph;m=Math.max(.3,m);return [X[0]*m,X[1]*m*(1+f.tank),X[2]*m*(1+f.art)]}
+const gcas=(gid,tag)=>{const f=gid&&gfx(gid,tag);return f?Math.min(1.6,Math.max(.5,1-f.cas)):1};
+const XPT=[3,8,16,30];
+function genXP(id,tag){const g=GRP.find(x=>x.id===id);if(!g||g.tag!==tag)return;g.gen.xp++;const l=1+XPT.filter(x=>g.gen.xp>=x).length;if(l>g.gen.lvl){g.gen.lvl=l;if(g.tag===me){const m=`${g.gen.name} of the ${g.name} has reached level ${l}.`;log(m);wl(m)}}}
+function adoptG(b,bt){if(bt.grp&&(!b.grp||b.grp===bt.grp||b.t+b.k+b.a<=2))b.grp=bt.grp}
+const gMem=g=>ids.filter(i=>reg[i].grp===g.id&&reg[i].tag===g.tag);
+function gWant(g){const s=new Set(g.goal.regs.filter(i=>reg[i]));if(g.goal.ctry.length)ids.forEach(i=>{if(g.goal.ctry.includes(reg[i].tag)||g.goal.ctry.includes(reg[i].own)&&!same(g.tag,reg[i].tag))s.add(i)});return [...s].filter(i=>!same(g.tag,reg[i].tag))}
+const gTodo=g=>gWant(g).filter(i=>hostile(g.tag,reg[i].tag));
+function gDist(g,targets){const d={},dest={},open=new Set(targets);targets.forEach(t=>{d[t]=0;dest[t]=t});const pass=j=>reg[j].tag===g.tag||hostile(g.tag,reg[j].tag);
+ while(open.size){let u=null,b=1e9;open.forEach(x=>{if(d[x]<b){b=d[x];u=x}});open.delete(u);nb[u].forEach(v=>{if(!pass(v))return;const nd=d[u]+(isSea(u,v)?6:1);if(d[v]===undefined||nd<d[v]){d[v]=nd;dest[v]=dest[u];open.add(v)}})}
+ return {d,dest,pass}}
+function gRun(g,nAuto){const mem=gMem(g);
+ if(g.auto&&g.on)gRein(g.id,true,nAuto);
+ const mem2=gMem(g);if(!g.on){g.front=null;g.aim=null;return}
+ const want=gWant(g);if(!want.length){g.status='Objective complete.';g.on=false;g.front=g.aim=null;if(g.tag===me){banner(`🎯 ${g.name} has completed its objective.`);wl(`${g.name} completed its objective.`)}return}
+ const todo=gTodo(g);if(!todo.length){g.status='Waiting: you are not at war with the holders of the objective.';g.front=g.aim=null;return}
+ if(!mem2.length){g.status='No regions assigned. Add regions with troops to this group.';g.front=g.aim=null;return}
+ const {d,dest,pass}=gDist(g,todo);let st='',fr=null,bd=1e9,orders=0;
+ mem2.forEach(i=>{if(d[i]!==undefined&&d[i]<bd&&reg[i].t>=3){bd=d[i];fr=i}});g.front=fr;g.aim=fr!==null?dest[fr]:null;
+ const f=gfx(g.id,g.tag),thr=.55+(f?f.thr:0);
+ for(const i of mem2){const a=reg[i];if(a.tag!==g.tag||a.grp!==g.id||a.t<3)continue;
+  if(d[i]===undefined){st=st||'No route to the objective from some regions.';continue}
+  const nx=nb[i].filter(j=>d[j]!==undefined&&d[j]<d[i]&&pass(j)).sort((x,y)=>d[x]-d[y])[0];if(nx===undefined)continue;
+  const hostileNx=reg[nx].tag!==g.tag;
+  if(battles.some(b=>b.from===i&&b.to===nx&&b.tag===g.tag))continue;
+  if(!hostileNx){const fr2=front(i)>0?.5:.9;if(isSea(i,nx)&&needShips(i,fr2)>tp[g.tag]){st='Needs troopships to cross the sea.';continue}attack(i,nx,fr2);orders++}
+  else{if(a.t<8){st=st||'Gathering troops at the front.';continue}if(isSea(i,nx)&&needShips(i,1)>tp[g.tag]){st='Needs troopships to cross the sea.';continue}
+   const E=edgeOf(i,nx,1);if(E>=thr){attack(i,nx,1);orders++}else st=`Holding at ${a.name}: edge ${Math.round(E*100)}% against ${reg[nx].name}, waiting for better odds.`}}
+ g.status=st||(orders?`Advancing on ${reg[g.aim!==null?g.aim:todo[0]].name}.`:'Advancing.')}
+function grpTick(){if(day%2)return;const gs=GRP.filter(g=>g.tag===me),au=gs.filter(g=>g.auto&&g.on).length;gs.forEach(g=>gRun(g,au))}
+function gRein(id,auto,share){const g=GRP.find(x=>x.id===id);if(!g)return;const mem=gMem(g);let rear=null;
+ if(mem.length){const todo=gTodo(g);if(todo.length){const {d}=gDist(g,todo);let bd=-1;mem.forEach(i=>{const v=d[i]===undefined?-1:d[i];if(v>bd){bd=v;rear=i}})}if(rear===null)rear=mem[0]}
+ else if(reg[CAP[g.tag]]&&reg[CAP[g.tag]].tag===g.tag)rear=CAP[g.tag];
+ if(rear===null)return;const keep=auto?60:0,sh=auto?1/Math.max(1,share||1):1,m=Math.floor(Math.max(0,men[me]-keep)*sh),k=Math.floor(tk[me]*sh),gg=Math.floor(ar[me]*sh);
+ if(m+k+gg<1)return;deploy(me,reg[rear],m,k,gg);if(!reg[rear].grp)reg[rear].grp=g.id}
+function gToggleReg(id,r){const g=GRP.find(x=>x.id===id);if(!g)return;const i=g.goal.regs.indexOf(r);if(i>=0)g.goal.regs.splice(i,1);else g.goal.regs.push(r)}
+const objText=g=>{const a=g.goal.regs.map(i=>reg[i].name),b=g.goal.ctry.map(t=>'all of '+T[t].n),L=[...a,...b];return L.length?'Objective: '+L.join(', ')+'.':'No objective yet.'};
+// --- actions
+function gNew(){grpNew={opts:genOptions(me),re:0};render()}
+function gChange(id){grpNew={opts:genOptions(me),re:id};render()}
+function gRoll(){if(men[me]<10)return;men[me]-=10;grpNew.opts=genOptions(me);render()}
+function gCancelNew(){grpNew=null;render()}
+function gPick(i){if(!grpNew)return;const gen=grpNew.opts[i];if(grpNew.re){const g=GRP.find(x=>x.id===grpNew.re);if(g)g.gen=gen}
+ else{const id=++grpId,g={id,name:ordN(id)+' Army Group',tag:me,gen,goal:{regs:[],ctry:[]},on:false,auto:false,front:null,aim:null,status:'Not started. Give it regions and an objective.'};GRP.push(g);if(sel&&reg[sel]&&reg[sel].tag===me&&!reg[sel].grp)reg[sel].grp=id;grpSel=id}
+ grpNew=null;render()}
+function gGo(id){const g=GRP.find(x=>x.id===id);if(!g)return;g.on=!g.on;if(g.on){g.status='Starting…';gRun(g,1)}else g.status='Paused.';render()}
+function gAuto(id){const g=GRP.find(x=>x.id===id);if(g){g.auto=!g.auto;render()}}
+function gReinNow(id){gRein(id,false,1);render()}
+function gAddSel(id){if(sel&&reg[sel]&&reg[sel].tag===me){reg[sel].grp=id;render()}}
+function gAddAll(id){owned(me).forEach(i=>{const r=reg[i];if(!r.grp&&r.t+r.k+r.a>=3)r.grp=id});render()}
+function gAssign(rid,id){if(reg[rid]&&reg[rid].tag===me){reg[rid].grp=id;render()}}
+function gEdit(id){grpSel=grpSel===id?0:id;grpQ='';render()}
+function gMap(id){objMode=id;grpSel=id;render()}
+function gAddCtry(id,t){const g=GRP.find(x=>x.id===id);if(g&&!g.goal.ctry.includes(t))g.goal.ctry.push(t);render()}
+function gDelCtry(id,t){const g=GRP.find(x=>x.id===id);if(g)g.goal.ctry=g.goal.ctry.filter(x=>x!==t);render()}
+function gAddReg(id,r){const g=GRP.find(x=>x.id===id);if(g&&!g.goal.regs.includes(r))g.goal.regs.push(r);render()}
+function gDelReg(id,r){const g=GRP.find(x=>x.id===id);if(g)g.goal.regs=g.goal.regs.filter(x=>x!==r);render()}
+function gClear(id){const g=GRP.find(x=>x.id===id);if(g){g.goal={regs:[],ctry:[]};render()}}
+function gDisband(id){GRP=GRP.filter(x=>x.id!==id);ids.forEach(i=>{if(reg[i].grp===id)reg[i].grp=0});if(grpSel===id)grpSel=0;if(objMode===id)objMode=0;render()}
+// --- UI
+const gTraitHtml=k=>`<div class="gt ${GTR[k].g?'good':'bad'}"><b>${GTR[k].g?'+':'−'} ${GTR[k].n}</b> <span class="dim">${GTR[k].d}</span></div>`;
+function newGenHtml(){const re=grpNew.re;return `<h3 style="margin:10px 0 4px;font-family:inherit;font-size:16px">${re?'Choose a new general':'Choose a general'}</h3><p class="dim">${re?'The current general retires and loses his experience. ':''}Each candidate has strengths and weaknesses that apply to every battle the group fights.</p>`+
+ grpNew.opts.map((o,i)=>`<div class="gcard" style="--gc:#d9a441"><h3>${re?'':''}Gen. ${o.name}</h3>${o.traits.map(gTraitHtml).join('')}<div class="row"><button onmousedown="gPick(${i})">Appoint</button></div></div>`).join('')+
+ `<div class="row"><button onmousedown="gRoll()" ${men[me]<10?'disabled':''}>Ask for new candidates (10 men)</button><button onmousedown="gCancelNew()">Cancel</button></div>`}
+function gCardHtml(g){const mem=gMem(g),col=GCOL[(g.id-1)%GCOL.length],sm=k=>mem.reduce((a,i)=>a+reg[i][k],0),pw=mem.reduce((a,i)=>a+pp(reg[i]),0),L=g.gen.lvl,nx=XPT[L-1];
+ const hs=hostileCtry(),ed=grpSel===g.id;
+ let h=`<div class="gcard" style="--gc:${col}"><h3>${g.name}</h3><div class="dim">Gen. ${g.gen.name} · level ${L}${L>1?` (+${(L-1)*3}% attack and defence)`:''} · ${nx?g.gen.xp+' of '+nx+' wins to level '+(L+1):'highest level'}</div>${g.gen.traits.map(gTraitHtml).join('')}
+ <div class="dim" style="margin-top:6px">${mem.length} region${mem.length===1?'':'s'} · ${sm('t')} men, ${sm('k')} tanks, ${sm('a')} guns · power ${pw}</div><div class="dim">${objText(g)}</div><div class="gs">${g.status||''}</div>
+ <div class="row"><button class="${g.on?'on':''}" onmousedown="gGo(${g.id})">${g.on?'Advancing (tap to pause)':'Start advance'}</button><button class="${g.auto?'on':''}" onmousedown="gAuto(${g.id})">Auto-reinforce: ${g.auto?'on':'off'}</button><button onmousedown="gReinNow(${g.id})">Send all reserves</button></div>
+ <div class="row"><button onmousedown="gAddSel(${g.id})" ${sel&&reg[sel]&&reg[sel].tag===me&&reg[sel].grp!==g.id?'':'disabled'}>Add selected region</button><button onmousedown="gAddAll(${g.id})">Add all regions with troops</button></div>
+ <div class="row"><button class="${ed?'on':''}" onmousedown="gEdit(${g.id})">Edit objective</button><button onmousedown="gMap(${g.id})">Pick on map</button><button onmousedown="gChange(${g.id})">Change general</button><button onmousedown="gDisband(${g.id})">Disband</button></div>`;
+ if(ed){const q=grpQ.trim().toLowerCase(),inG=new Set(g.goal.regs);
+  h+=`<div style="margin-top:8px">${g.goal.regs.map(i=>`<span class="gchip">${reg[i].name}<button onmousedown="gDelReg(${g.id},'${i}')" aria-label="Remove">×</button></span>`).join('')}${g.goal.ctry.map(t=>`<span class="gchip">All of ${T[t].n}<button onmousedown="gDelCtry(${g.id},'${t}')" aria-label="Remove">×</button></span>`).join('')}${g.goal.regs.length+g.goal.ctry.length?`<button onmousedown="gClear(${g.id})">Clear</button>`:''}</div>`+
+  `<input id="grpq" type="search" placeholder="Search for a region or country" value="${grpQ.replace(/"/g,'&quot;')}" oninput="grpQ=this.value;render()" autocomplete="off" style="width:100%;box-sizing:border-box;padding:8px 10px;margin:8px 0 4px;background:#1d2421;color:var(--ink);border:1px solid #55635a;border-radius:3px;font-size:15px">`;
+  const res=q.length>=2?[...C.filter(c=>c[1].toLowerCase().includes(q)&&c[0]!==me&&!g.goal.ctry.includes(c[0])).slice(0,4).map(c=>`<button onmousedown="gAddCtry(${g.id},'${c[0]}')">+ All of ${c[1]}</button>`),...ids.filter(i=>reg[i].name.toLowerCase().includes(q)&&!inG.has(i)&&reg[i].tag!==me).slice(0,8).map(i=>`<button onmousedown="gAddReg(${g.id},'${i}')">+ ${reg[i].name} (${T[reg[i].tag].n})</button>`)]:[];
+  h+=q.length>=2?(res.length?`<div class="row">${res.join('')}</div>`:'<p class="dim">Nothing matches that search.</p>'):`<div class="dim">${hs.length?'You are at war with:':'You are not at war with anyone yet. You can still set an objective now.'}</div>`+(hs.length?`<div class="row">${hs.filter(t=>!g.goal.ctry.includes(t)).map(t=>`<button onmousedown="gAddCtry(${g.id},'${t}')">+ All of ${T[t].n}</button>`).join('')}</div>`:'')}
+ return h+'</div>'}
+const hostileCtry=()=>C.map(c=>c[0]).filter(t=>t!==me&&owned(t).length&&hostile(me,t));
+function grpPanel(){let h=`<h2>Army groups</h2><p class="dim">An army group is a command with its own general. Give it regions to hold troops in and an objective, and when it is active it moves its troops toward the objective and attacks when the odds are good. Its general's traits change how those troops fight. Select a region and use its card to assign it to a group.</p>`;
+ if(grpNew)return h+newGenHtml();const gs=GRP.filter(g=>g.tag===me);
+ h+=`<div class="row"><button onmousedown="gNew()" ${gs.length>=8?'disabled':''}>New army group</button></div>`;
+ return h+(gs.length?gs.map(gCardHtml).join(''):'<p class="dim">You have no army groups yet. Select one of your regions with troops first, then create a group and it will start with that region.</p>')}
+function grpCardHtml(id){const r=reg[id],gs=GRP.filter(g=>g.tag===me);if(!gs.length)return'';const cur=GRP.find(g=>g.id===r.grp&&g.tag===me);
+ return `<div class="dim" style="margin-top:8px">Army group: <b>${cur?cur.name+' (Gen. '+cur.gen.name+')':'none'}</b></div><div class="row" style="margin-top:4px">${gs.map(g=>`<button class="${r.grp===g.id?'on':''}" onmousedown="gAssign('${id}',${g.id})">${ordN(g.id)} AG</button>`).join('')}${cur?`<button onmousedown="gAssign('${id}',0)">Remove</button>`:''}</div>`}
+function drawGrp(){if(!GRP.length)return;const pr=(id,k)=>{const c=cpos(id);return[(c[0]+k*MW-vx)*vs,(c[1]-vy)*vs]};
+ GRP.forEach(g=>{if(g.tag!==me)return;const c=GCOL[(g.id-1)%GCOL.length];ctx.save();ctx.textAlign='center';ctx.textBaseline='middle';
+  gWant(g).forEach(i=>[-1,0,1].forEach(k=>{const [x,y]=pr(i,k);if(x<-40||y<-40||x>VW+40||y>VH+40)return;ctx.strokeStyle=c;ctx.lineWidth=2.5*dp;ctx.setLineDash([5*dp,4*dp]);ctx.beginPath();ctx.arc(x,y,15*dp,0,7);ctx.stroke();ctx.setLineDash([]);ctx.beginPath();ctx.moveTo(x-20*dp,y);ctx.lineTo(x-9*dp,y);ctx.moveTo(x+9*dp,y);ctx.lineTo(x+20*dp,y);ctx.moveTo(x,y-20*dp);ctx.lineTo(x,y-9*dp);ctx.moveTo(x,y+9*dp);ctx.lineTo(x,y+20*dp);ctx.stroke()}));
+  if(g.on&&g.front&&g.aim&&reg[g.front]&&reg[g.aim]){const fa=cpos(g.front),ta=cpos(g.aim);let tx0=ta[0];if(Math.abs(tx0-fa[0])>MW/2)tx0+=tx0>fa[0]?-MW:MW;
+   [-1,0,1].forEach(k=>{const x1=(fa[0]+k*MW-vx)*vs,y1=(fa[1]-vy)*vs,x2=(tx0+k*MW-vx)*vs,y2=(ta[1]-vy)*vs;if(Math.max(x1,x2)<-60||Math.min(x1,x2)>VW+60)return;ctx.strokeStyle=c;ctx.globalAlpha=.8;ctx.lineWidth=3*dp;ctx.setLineDash([2*dp,7*dp]);ctx.lineCap='round';ctx.beginPath();ctx.moveTo(x1,y1);ctx.lineTo(x2,y2);ctx.stroke();ctx.setLineDash([]);ctx.globalAlpha=1})}
+  ids.forEach(i=>{if(reg[i].grp!==g.id||reg[i].tag!==g.tag)return;[-1,0,1].forEach(k=>{const [x,y]=pr(i,k);if(x<-30||y<-30||x>VW+30||y>VH+30)return;ctx.fillStyle=c;ctx.strokeStyle='#14201a';ctx.lineWidth=2*dp;ctx.beginPath();ctx.arc(x,y-16*dp,8*dp,0,7);ctx.fill();ctx.stroke();ctx.fillStyle='#14201a';ctx.font='bold '+10*dp+'px system-ui,sans-serif';ctx.fillText(g.id,x,y-16*dp+dp/2)})});
+  ctx.restore()})}
+
+function tick(){if(over)return;day++;calcSupply();evTick();warTick();grpTick();airTick();rpCheck();if(day%90===0)saveSlot('auto');
  Object.keys(T).forEach(t=>{if(T[t].f==='nu'&&t!==me)return;
   const pt=popTot(t);mp[t]=Math.min(mp[t]+pt*MPG,pt*MPCAP);men[t]+=sum(t,'ba')*BARR*(1+bn(t,'man'));buildTick(t);rp[t]+=(sum(t,'fa')+sum(t,'ba'))*.05*(1+bn(t,'rs'));produce(t);
   if(t!==me){const nx=TECH.filter(x=>can(t,x)&&rp[t]>=x[3]).sort((p,q)=>p[3]-q[3])[0];if(nx){rp[t]-=nx[3];tech[t].add(nx[0])}}});
@@ -659,6 +810,7 @@ addEventListener('keyup',e=>{if(e.code==='Space'&&running())e.preventDefault()})
 
 function click(id,e){if(over)return;
  if(pickMode){pickTag=reg[id].own;sel=id;pickBar();render();return}
+ if(objMode){gToggleReg(objMode,id);render();return}
  if(sel&&sel!==id&&sendMode&&reg[sel].tag===me&&nb[sel].includes(id)){attack(sel,id,frac);sendMode=false;if(reg[sel].tag!==me||reg[sel].t<2)sel=reg[id].tag===me?id:sel}
  else{sel=id;sendMode=false}render()}
 function act(kind){const r=reg[sel];if(!r||r.tag!==me)return;
@@ -824,17 +976,19 @@ function drawMap(){if(!ctx||!base)return;ctx.imageSmoothingEnabled=true;ctx.imag
   ctx.beginPath();if(ctx.roundRect)ctx.roundRect(x-w/2,y-h/2,w,h,h/2);else ctx.rect(x-w/2,y-h/2,w,h);ctx.fill();ctx.stroke();
   ctx.fillStyle=bad?'#e8806e':'#ece6d3';ctx.fillText(txt,x,y+dp/2);
   if((sz>=6000*dp*dp&&zr>4)||id===sel){const nm=(CAP[g.tag]===id?'★ ':'')+g.name;ctx.font=11*dp+'px system-ui,sans-serif';ctx.lineWidth=3*dp;ctx.strokeStyle='rgba(15,22,20,.8)';ctx.strokeText(nm,x,y+h/2+9*dp);ctx.fillStyle='#fff';ctx.fillText(nm,x,y+h/2+9*dp)}}));
+ drawGrp();
 }
 
 let openP=null;const openG=new Set(['r_nat']);
 const put=(el,h)=>{if(el._h!==h){el._h=h;el.innerHTML=h}};
 const WN={al:'Allies',ax:'Axis',su:'Soviet Union'};
-const PANELS=[['sys','💾','Save, load and sound'],['prod','🏭','Production'],['mil','⚔','Military'],['dip','🏛','Diplomacy'],['war','📖','War log'],['res','💡','Research'],['world','🌍','World'],['log','📜','Log']];
+const PANELS=[['sys','💾','Save, load and sound'],['prod','🏭','Production'],['mil','⚔','Military'],['grp','🎖','Army groups'],['dip','🏛','Diplomacy'],['war','📖','War log'],['res','💡','Research'],['world','🌍','World'],['log','📜','Log']];
 const rowR=(id,txt)=>`<div class="rw" onmousedown="pickR('${id}')"><i style="background:${T[reg[id].tag].c}"></i><span>${txt}</span></div>`;
 function pickR(id){sel=id;render()}
 let chipT=0;function chipTip(e,i){const t=$('chiptip'),r=e.currentTarget.getBoundingClientRect(),c=CHIPS[i];if(t.style.display==='block'&&t._i===i){t.style.display='none';return}
  t._i=i;t.innerHTML='<b style="color:var(--acc)">'+c[1]+'</b> '+c[2];t.style.display='block';const w=t.offsetWidth;t.style.left=Math.max(8,Math.min(innerWidth-w-8,r.left))+'px';t.style.top=(r.bottom+8)+'px';clearTimeout(chipT);chipT=setTimeout(()=>t.style.display='none',6000)}
-function sendBar(){const e=$('sendbar');if(!e)return;const on=sendMode&&sel&&reg[sel]&&reg[sel].tag===me&&!pickMode;e.style.display=on?'flex':'none';document.body.classList.toggle('sending',!!on);if(!on){e._h='';return}
+function sendBar(){const e=$('sendbar');if(!e)return;const og=objMode&&GRP.find(x=>x.id===objMode),on=!!og||(sendMode&&sel&&reg[sel]&&reg[sel].tag===me&&!pickMode);e.style.display=on?'flex':'none';document.body.classList.toggle('sending',!!on);if(!on){e._h='';return}
+ if(og){put(e,`<span>🎯 <b>Choose the objective for ${og.name}</b>: tap regions to add or remove them. ${objText(og)}</span><button onmousedown="objMode=0;render()">Done</button>`);return}
  put(e,`<span>📍 <b>Select where to send ${frac===1?'all':frac===.5?'half':'a quarter'} of the men</b> from ${reg[sel].name}: tap a highlighted neighbouring region.</span><button onmousedown="sendMode=false;render()">Cancel</button>`)}
 function togP(p){if(pickMode)return;openP=openP===p?null:p;render()}
 const rate=()=>({m:sum(me,'ba')*BARR*(1+bn(me,'man'))});
@@ -842,6 +996,7 @@ function panelHtml(){const mine=owned(me),F=sum(me,'fa'),B=sum(me,'ba'),r=rate()
  if(openP==='prod'){const w=alc[me],sw=(w.k+w.a+w.t+w.n+w.p)||1,cm=1-Math.min(.6,bn(me,'cost')),P=fac(me)*FACT*(1+bn(me,'fac')),wt=wty[me],cn=WCOST[wt]*cm,pt=pty[me],pcs=PCOST[pt]*cm,f=fl[me],A=air[me];
   const row=(key,lab,cost,extra)=>`<div class="rw" style="cursor:default"><span style="flex:1">${lab}<br><span class="dim">${Math.round(w[key]/sw*100)}% of output · ${(P*w[key]/sw/cost).toFixed(2)} a day${extra||''}</span></span><button onmousedown="setAlc('${key}',-1)" ${w[key]<=0?'disabled':''}>−</button><b style="min-width:22px;text-align:center;font-weight:400">${w[key]}</b><button onmousedown="setAlc('${key}',1)" ${w[key]>=10?'disabled':''}>+</button></div>`;
   return `<h2>Production</h2><p class="dim">${F} factories and ${B} barracks in ${mine.length} regions. Barracks train ${r.m.toFixed(1)} men a day, and everything the factories build needs men as crew. Factories in bombed regions work at half speed.${stalled(me)?'<br><b>Production is waiting for crews.</b>':''}</p><div class="dim">Split the factories' output with the + and − buttons. Each product has a priority from 0 to 10, and the share is its priority divided by the total.</div>${row('k','Tanks',cm)}${row('a','Artillery',.6*cm)}${row('t','Troopships',1.2*cm,' · carry '+capOf(me)+' each')}${row('n','Warships: '+CNAME[wt],cn)}${row('p','Aircraft: '+PNAME[pt],pcs)}<div class="row" style="margin:6px 0"><button onmousedown="setPreset(0)">All army</button><button onmousedown="setPreset(1)">Balanced</button><button onmousedown="setPreset(2)">Naval build-up</button><button onmousedown="setPreset(3)">Air power</button></div><div class="dim">Warship type to build</div><div class="row" style="margin:4px 0">${CLS.filter(c=>unl(me,c)).map(c=>`<button class="${wt===c?'on':''}" onmousedown="setWty('${c}')">${CNAME[c]}</button>`).join('')}</div><div class="dim">Aircraft type to build</div><div class="row" style="margin:4px 0">${['fg','tb','sb'].filter(c=>unl(me,c)).map(c=>`<button class="${pt===c?'on':''}" onmousedown="setPty('${c}')">${PNAME[c]}</button>`).join('')}</div><p class="dim">Troopships: <b>${tp[me]}</b>, each carrying ${capOf(me)} (a man counts 1, a tank 3, a gun 2). Armies cannot cross the sea without them, and enemy warships can sink convoys.<br>Fleet: ${CLS.filter(c=>f[c]).map(c=>f[c]+' '+CNAME[c].toLowerCase()).join(', ')||'none'} · naval power <b>${navP(me)}</b>.<br>Air force: ${A.fg} fighters, ${A.tb} tactical bombers, ${A.sb} heavy bombers · air power <b>${airP(me)}</b>. Tactical bombers help your armies in every battle, and bombers can raid enemy regions in range. More types unlock in the Air force research branch.</p>${consHtml()}${mine.map(i=>rowR(i,`${reg[i].name} · ${reg[i].fa} fac · ${reg[i].ba} bar`)).join('')}`}
+ if(openP==='grp')return grpPanel();
  if(openP==='mil')return `<h2>Military</h2><p class="dim">Pool: ${Math.floor(men[me])} men, ${Math.floor(tk[me])} tanks, ${Math.floor(ar[me])} guns. Deploy them from a region card.<br>Air force: ${air[me].fg} fighters and ${air[me].tb+air[me].sb} bombers ready, ${sorts.filter(x=>x.tag===me).reduce((a,x)=>a+x.tb+x.sb,0)} bombers refuelling.</p>${armyRows()}${mine.map(i=>rowR(i,`${reg[i].name} · power ${pp(reg[i])} (${reg[i].t} men, ${reg[i].k}T, ${reg[i].a}A)${oos(i)?' · no supply':''}`)).join('')}`;
  if(openP==='res')return `<h2>Research</h2><p class="dim">${Math.floor(rp[me])} points. Factories and barracks generate more. Technologies unlock in order. Open a branch to see its techs.</p>`+Object.keys(BR).map(b=>{const L=TECH.filter(x=>x[2]===b&&(!x[7]||x[7]===me));if(!L.length)return'';const k='r_'+b,dn=L.filter(x=>has(me,x[0])).length;return `<details ${openG.has(k)?'open':''} ontoggle="this.open?openG.add('${k}'):openG.delete('${k}')"><summary>${b==='nat'?T[me].n+': national technologies':BR[b]} (${dn}/${L.length})</summary>`+L.map(x=>{const st=has(me,x[0])?'done':can(me,x)?'ok':'lock';return `<div class="tn ${st}" style="margin-left:${dep(x)*14}px"><button onmousedown="buy('${x[0]}')" ${st!=='ok'||rp[me]<x[3]?'disabled':''}>${st==='done'?'✓ ':st==='lock'?'🔒 ':''}${x[1]} (${x[3]})</button><div class="dim">${x[6]?x[6]+' ':''}${fx(x[5])}.${st==='lock'?' Needs '+x[4].map(q=>tById(q)[1]).join(', ')+'.':''}</div></div>`}).join('')+'</details>'}).join('');
  if(openP==='sys'){const sl=n=>{const m=meta(n);return `<div class="rw" style="cursor:default"><span style="flex:1">${n==='auto'?'Autosave':'Slot '+n}<br><span class="dim">${m||'empty'}</span></span>${n==='auto'?'':`<button onmousedown="saveSlot('${n}')">Save</button>`}<button onmousedown="loadSlot('${n}')" ${m?'':'disabled'}>Load</button></div>`};
@@ -861,7 +1016,7 @@ function panelHtml(){const mine=owned(me),F=sum(me,'fa'),B=sum(me,'ba'),r=rate()
 function topHtml(){return `<div>Power <b>${owned(me).reduce((a,i)=>a+pp(reg[i]),0)}</b> · Men <b>${Math.floor(men[me])}</b> · Tanks <b>${Math.floor(tk[me])}</b> · Guns <b>${Math.floor(ar[me])}</b> · Research <b>${Math.floor(rp[me])}</b> · Troopships <b>${tp[me]}</b> · Navy <b>${navP(me)}</b> · Air <b>${airP(me)}</b></div><div class="dim tick">${logs[0]||''}</div><div class="tr"><div style="text-align:right"><h2>${dateStr()}</h2><div class="dim">${T[me].n}</div></div><div class="row">${[['Pause',0],['1',1],['2',2],['3',3],['4',4],['5',5]].map(([l,s])=>`<button class="${spd===s?'on':''}" onmousedown="setSpeed(${s})">${l}</button>`).join('')}</div></div>`}
 function cardHtml(){const r=sel&&reg[sel];if(!r)return'';const o=r.own,mm=Math.floor(men[me]),kk=Math.floor(tk[me]),gg=Math.floor(ar[me]);
  return `<div class="row" style="justify-content:space-between"><h2>${r.name}</h2><button onmousedown="sel=null;render()" aria-label="Close">×</button></div><div class="dim">${T[o].n}${o!==r.tag?', occupied by '+T[r.tag].n:''} · ${T[o].g}<br>${r.fa} factories · ${r.ba} barracks · ${TN[TER[sel]]}${oos(sel)?' · out of supply':''}<br>Power projection <b>${pp(r)}</b> · population ${popOf(r)}<br>${r.t} men · ${r.k} tanks · ${r.a} guns</div>${battles.filter(b=>b.to===sel&&b.kind!=='mv').map(b=>`<div style="color:#e8806e;font-size:13px;margin-top:4px">${b.st==='fight'?`${T[b.tag].n} attacking, day ${b.day}, attacker edge ${Math.round(b.E*100)}%`:`${T[b.tag].n} army ${b.st==='mob'?'mobilising':'marching'} against this region, ${b.wait} days`}</div>`).join('')}${raidHtml()}`+
- (r.tag===me?`<div class="row" style="margin-top:8px"><button onmousedown="act('m')" ${mm<1?'disabled':''}>Deploy ${mm} men</button><button onmousedown="act('k')" ${kk<1?'disabled':''}>Deploy ${kk} tanks</button><button onmousedown="act('a')" ${gg<1?'disabled':''}>Deploy ${gg} guns</button><button onmousedown="act('fa')" ${men[me]<CF||r.fa+qn(r.id,'fa')>=MAXB?'disabled':''}>Factory (${CF} men, about ${eta('fa')} days)</button><button onmousedown="act('ba')" ${men[me]<CB||r.ba+qn(r.id,'ba')>=MAXB?'disabled':''}>Barracks (${CB} men, about ${eta('ba')} days)</button></div><div class="dim" style="margin-top:8px">Send how many? Then press Send troops and pick a neighbouring region.</div><div class="row" style="margin-top:4px">${[['All',1],['Half',.5],['Quarter',.25]].map(([l,f])=>`<button class="${frac===f?'on':''}" onmousedown="setFrac(${f})">${l}</button>`).join('')}<button class="${sendMode?'on':''}" onmousedown="sendMode=!sendMode;render()">Send troops</button></div><div class="dim" style="margin-top:4px">At least one man always stays behind.</div>${oddsHtml()}`:'')}
+ (r.tag===me?`<div class="row" style="margin-top:8px"><button onmousedown="act('m')" ${mm<1?'disabled':''}>Deploy ${mm} men</button><button onmousedown="act('k')" ${kk<1?'disabled':''}>Deploy ${kk} tanks</button><button onmousedown="act('a')" ${gg<1?'disabled':''}>Deploy ${gg} guns</button><button onmousedown="act('fa')" ${men[me]<CF||r.fa+qn(r.id,'fa')>=MAXB?'disabled':''}>Factory (${CF} men, about ${eta('fa')} days)</button><button onmousedown="act('ba')" ${men[me]<CB||r.ba+qn(r.id,'ba')>=MAXB?'disabled':''}>Barracks (${CB} men, about ${eta('ba')} days)</button></div><div class="dim" style="margin-top:8px">Send how many? Then press Send troops and pick a neighbouring region.</div><div class="row" style="margin-top:4px">${[['All',1],['Half',.5],['Quarter',.25]].map(([l,f])=>`<button class="${frac===f?'on':''}" onmousedown="setFrac(${f})">${l}</button>`).join('')}<button class="${sendMode?'on':''}" onmousedown="sendMode=!sendMode;render()">Send troops</button></div><div class="dim" style="margin-top:4px">At least one man always stays behind.</div>${grpCardHtml(sel)}${oddsHtml()}`:'')}
 function consHtml(){const q=cons[me],n=Math.min(4,q.length)||1,pt=popTot(me);
  return `<h2 style="margin:12px 0 4px;font-size:15px">Construction</h2><p class="dim">Manpower <b>${Math.floor(mp[me])}</b> of ${Math.floor(pt*MPCAP)} (population ${pt}). It grows slowly each day, jumps when you conquer land, and is never used up, but more manpower builds faster: now ${consRate(me).toFixed(1)} work a day, shared by up to 4 projects. A factory costs ${CF} men and ${WF} work, and barracks cost ${CB} men and ${WB} work. Select a region and use its card to start building.</p>`+(q.length?q.map((x,i)=>`<div class="rw" style="cursor:default"><span style="flex:1">${x.k==='fa'?'Factory':'Barracks'} in ${reg[x.r].name}<br><span class="dim">${Math.round((1-x.left/x.w)*100)}% done · ${i<4?'about '+Math.ceil(x.left/(consRate(me)/n))+' days':'waiting in the queue'}</span></span><button onmousedown="cancelBuild(${i})" aria-label="Cancel">×</button></div>`).join(''):'<p class="dim">Nothing is being built.</p>')}
 function raidHtml(){const r=reg[sel];let h='';if(r.dis>day)h+=`<div style="color:#e8806e;font-size:13px;margin-top:4px">Bombed: disrupted for ${r.dis-day} more days. It fights at a disadvantage and its factories work at half speed.</div>`;
@@ -882,7 +1037,7 @@ function topUpdate(){const c=$('chips');if(!c._init){c.innerHTML=CHIPS.map(([k,i
 function trHtml(){return `<div style="text-align:right"><h2>${dateStr()}</h2><div class="dim">${T[me].n}</div></div><div class="row">${[['Pause',0],['1',1],['2',2],['3',3],['4',4],['5',5]].map(([l,s])=>`<button class="${spd===s?'on':''}" onmousedown="setSpeed(${s})">${l}</button>`).join('')}</div>`}
 function render(){if(!reg)return;calcSupply();drawMap();if(pickMode){$('card').style.display='none';return}
  put($('rail'),PANELS.map(([k,g,n])=>`<button class="${openP===k?'on':''}" title="${n}" aria-label="${n}" onmousedown="togP('${k}')">${g}</button>`).join(''));
- const d=$('drawer');d.style.display=openP?'block':'none';d.className=openP==='res'?'wide':'';if(openP){const ae=document.activeElement,keep=ae&&ae.id==='dipq'?ae.selectionStart:-1;const h='<button class="dclose" onmousedown="togP(openP)">✕ Close</button>'+panelHtml(),ch=d._h!==h;put(d,h);if(ch)syncSliders();if(keep>=0){const n=$('dipq');if(n){n.focus();try{n.setSelectionRange(keep,keep)}catch(e){}}}}
+ const d=$('drawer');d.style.display=openP?'block':'none';d.className=openP==='res'?'wide':'';if(openP){const ae=document.activeElement,keep=ae&&(ae.id==='dipq'||ae.id==='grpq')?ae.selectionStart:-1,kid=keep>=0?ae.id:'';const h='<button class="dclose" onmousedown="togP(openP)">✕ Close</button>'+panelHtml(),ch=d._h!==h;put(d,h);if(ch)syncSliders();if(keep>=0){const n=$(kid);if(n){n.focus();try{n.setSelectionRange(keep,keep)}catch(e){}}}}
  const c=$('card'),h=cardHtml();c.style.display=h?'block':'none';put(c,h);sendBar();topUpdate()}
 
 const BLURB={GER:'Industry at the heart of Europe, with rivals on every border.',UK:'A great navy and an empire to protect, but a small army.',SOV:'Endless land and manpower, slow to mobilise.',USA:'Far from the fighting, with the largest factories in the world.',JAP:'A strong fleet, short on land and resources.',FRA:'A large army behind strong fortifications.',ITA:'Mediterranean ambitions on a modest industry.',POL:'Squeezed between Germany and the Soviet Union.',CHN:'Huge, divided and poorly equipped.'};
