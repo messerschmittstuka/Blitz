@@ -120,6 +120,10 @@ button{touch-action:manipulation}
 .mn-front{fill:none;stroke:#d9a441;stroke-opacity:.3;stroke-width:3;stroke-dasharray:2 11;stroke-linecap:round}
 @keyframes mndraw{to{stroke-dashoffset:0}}@keyframes mnfade{to{opacity:1}}
 #ov h1{font-size:clamp(64px,14vw,132px);line-height:.95;letter-spacing:-.03em;margin:0;color:var(--ink);text-shadow:0 3px 0 #0006}
+.sea{cursor:pointer}
+.fn{position:absolute;box-sizing:border-box;border:2px solid #566;border-radius:6px;background:#26302c;padding:4px 6px;font-size:12px;line-height:1.2;cursor:pointer;display:flex;flex-direction:column;justify-content:center;overflow:hidden}
+.fn small{color:var(--dim,#9aa);font-size:11px;margin-top:2px}
+.fn.open{border-color:#e8dfc8}.fn.done{border-color:#7bc47f;background:#2b3d2f}.fn.cur{border-color:#d9a441;background:#3d3622}.fn.locked{opacity:.5}.fn.blocked{opacity:.4;text-decoration:line-through;border-color:#a55}.fn.sel{box-shadow:0 0 0 3px #d9a44188}
 .mn-head{margin:4vh 0 4vh}
 .mn-diff{justify-content:center;gap:10px;margin:6px 0}.mn-diff button{min-width:130px}.mn-dd{text-align:center;max-width:560px;margin:4px auto 18px}
 #ov .mn-date{font-family:Georgia,'Times New Roman',serif;font-size:clamp(16px,2.4vw,20px);line-height:1.5;color:var(--ink);margin:14px 0 0;max-width:34em;opacity:.9}
@@ -176,7 +180,7 @@ const CAP={};R0.forEach(r=>{if(!CAP[r[2]])CAP[r[2]]=r[0]});Object.assign(CAP,{SO
 const TER=Object.fromEntries(R0.map(r=>[r[0],r[8]]));
 const ids=R0.map(r=>r[0]),GOAL=Math.ceil(ids.length*.5),BARR=.2,FACT=.065,CF=25,CB=15,MAXB=12,nb={};
 const MW=3276,MH=1716,X=lon=>(lon+180)*9.1,Y=lat=>(76-lat)*13;
-const PATCH='1.56';
+const PATCH='1.60';
 const FLAGIMG={CHN:'iVBORw0KGgoAAAANSUhEUgAAAKgAAABwCAMAAAC9+MvEAAAAVFBMVEUAAJQnAIPjABX+AAAoKKF4eMNoaLwYGJurq9lFRa1TU7PX1+zd3e8gIJ7Hx+VMTLD39/s1Nabk5PKFhcj+/v6zs9zh4fHm5vP19fq8vOBIAHb+GhpVb35EAAAClElEQVR42u3Z23KjMAwGYNrKCNtgYywM7L7/e+6YU9omYfaiCcqu/qtcZb4BS7ZMUfx83t4/fj4PcApUoAL9R6AALwJVJWso7r+qijVUm01s62b9aTRDKLhV6tvWr04XGELRdYs0EqnF2TlkCC0izVLsifrFSZHjGi1MO0shEXUwO7clwAwKNWWpGYZhMIVJRHtR8YIWFRG5BnQIGtDRugL4QHVYS0ZRrQB1GWOpEVS91lSBoFlAvXPR5F1TVwDRtkRErY0AVW5OYKJzngW08B21qVca0VjaYw2iVlW9lBgLaOFTllVYDvQpQ4l51VK663x+MWVpDeaLk2g0oSZKBz3q+VXvEymw9C22UYfOM9qTnyDSVRRMhz3/jD6KaK+htjne7J8ORTCg22toq8EAcoGij1M3+pJupNRjN0WP50OD6uv8KIcQb0FVyJ2grXsVToZCWdkxt6JDqK1KOBmaX33ef+6/+jrvWee/+jXNQTFxqvpMvd2ejk+kJ0CNA3Wr4TvDC2o6Uo27tYV2hhPUdEQpfD+UDD4kOpQ+G5qd9495HZtjnhlyp1QB0X96+84jBlXZlgYmB2fjpuibeRQJjXLjfBR1qgmVnjdYNd2tqKdCUcM+3KUIjS6VysNdTNyGuz39Mi57AM9yXN4Cy9xhxnEcTeHrPJ2whJp2njtmL8zTCdMrnbjOR9slmU88L8nQrXOc2q4dfWJ57Ri2+xC9X+R6lhe5eluQaO32ID3Hq/FLmH9suKTk/fnmkpf5IPb3EahABcoa+vbz+fUQ6PsD8gDnR/GIPxXoK0SgAuUegQqUewQqUO4RqEC5R6AC5R6BCpR7BCpQ7hGoQLlHoALlHoEKlHsEKlDuEahAuUeg/y/094vkD0Uo6uFQirNKAAAAAElFTkSuQmCC',POL:'iVBORw0KGgoAAAANSUhEUgAAAKgAAABwBAMAAAB4CCbFAAAAD1BMVEX////64+XfMlDbETrcFDyAo3HUAAAAPUlEQVRo3u3MMREAIBADsFrAAhbeAv414YCtx5IISAIAAAAAb6sguyBTkFMglUqlUqlUKpVKpVKpVCr9lF5S09aV3WDNTQAAAABJRU5ErkJggg==',ITA:'iVBORw0KGgoAAAANSUhEUgAAAKgAAABwCAMAAAC9+MvEAAAAOVBMVEUAkkYjn13h8ej////45ObUQ07NKTXOKzcAkUQin1zUQk4amVM4pWfe7+X4/Prz4+PSTljMNkDNN0KT7s1sAAAEJElEQVR42s2byXIUMRBEzVbFbuD/P5YgZrqVS41xtA8pRYCbsQ/PUi1Zqebp6dp69/7DpfXxU91XF6xufG58vv/jIufbQRt4WkDXL3L7qX9/QqB9X/AMn5+I8Jza0UXX/ti0l1HQA+POhfso373FQBS0XwV6wGZAFxikFpAWRW/nsn5lD4L2qgXHd7uCoIACqYM7OFXSFCil+RECK2JLQSPJ1LKDZ5nnyrqqaTTrpb4XJhd3g8qVJz1g3E0t9dGC76BNoP53roUWR+Rx7NjfWblkQU1HYeWPg6KM41KPkFr6Ezva48FLqu8ASliUUiSWb43gBp0p+OU9CScQTq5jBXeUkVaz5D3eALQfg7aCxmVeg5Arl8udTiZQck3PMjhls54LOu4koUuypUApcTiJWlItWvB7KPpuQiB6JkYL0+c8ZJmj7sm0i8w7ipLKExHUW4LysSdBJyXP6DI1hYY7OlyBKy35eVBMHDYjNJ2CToknzvh8Sugd9Oij5z7np6QomdxbsSQ4TqM76jBuOK7RJHn0L4Kqw5cBRT3axV1Uyn1W4bOzOMykPowEQGd/FF1Iu3QKgpJuYlAWfNU59aT+qEroso1NTqFeQaumXyAKilrJwdR5Cvb6AbSOo271R6PXNyw/psuFcwRJ93oxm7hwbgLq/uik6qX0p8rT6/3RHS5tH/ijXqqSyYS6SYKWulWHQVXc+WeFUiB2Da7+6H9AN5B5zfW0OJVQlYZBx3cKZBCJgc7+6KTqsQqkQN3CFSNXLfPE0U/+KMUqaOYKtlDJGwetbUDFu3OZUn5RtgMoevfWTveQeY3Hjq6TK6ksaBmolac86IPQFAPifIqBcm/CUcTHkrB6oha5hrtR5+/w/qgZERKdFTYgpvdIRJGQYk0e/WjpHGGwfiAJCnp0MslWwq/fIww6VVMqT0nQ8ep76PxcA1Kg7o/aBfN9GAmKksEfnXMfW0AmRs0ffRl0Cz3qF2LwNT2FMqiKuntoyO1T6OhFMvulLXn5eeHsam5wSm60AVDzR0U467sRuRYqaVMzaOdBpwoqqQRXt+FksgoKApr/d1gWVMt8t362wPOvapilU/wyIXn5GVDQo+rprZu7FRwbgNYAqlUgdvR2Xy83eDimLPQUqPujJKlWqUrO9e6PispHI+Kgz8So+aMOqiIlAuotUkUKPgZb6ENQxUuDItjsNEEVrailIwKPpaeV+1380eHdAhqYs6BtnajslewGxycEKnqURrt5Ok3t6GPQ2gqUIVe7nIyJYMFnPeqSDvbyDIQMKOvRIq2E+wjtIAzK+pPkX20AuoY4t8N0BYWzg+owRx5UbhRpedcBA2AdvvapBOh8iTzc12M4R45+WhSp/klKj4IsQetxGkLeBvr5y1XQr3VtPX27tr7/+HlpPf/6/efS+gsTgO7Pwnd+KwAAAABJRU5ErkJggg==',FRA:'iVBORw0KGgoAAAANSUhEUgAAAKgAAABwBAMAAAB4CCbFAAAAG1BMVEUAJlQAH1AxOGbf4eX////33+HTMzjNDB/OESbKu0nAAAAARklEQVRo3u3MwQAAIAAEsGOIJYRiSSXsCO7fYwNY0o25qn1uF6lUKpVKpVKpVCqVSqVSqVQqlUqlUqlUKpVKpVKpVCr9L30TnbZolt1bNAAAAABJRU5ErkJggg==',JAP:'iVBORw0KGgoAAAANSUhEUgAAAKgAAABwCAMAAAC9+MvEAAAAb1BMVEX////8+fr35+nsxMjmrbLjpajek5bbjJLYgob89/jOVWPFOUbAHTm7ACy5AB379PW9FSr57e/os7bOT2G+FzHMUVry2NnSZ3PELkHCKjvWeYLGQU3VdHvRY27KSlXqu8L9/P29DjD03uC/IDXfmZvKO37GAAACRklEQVR42u2aC3KjMAxAAWPsQhU+BefTAKHd+59xB0qnu+0kAWtXIjN6J3hjyULICgJBEARBEARBEARBeEjCSMU6MdaaRMcqeuL2uSZp0uwZdjPwnKVGRSG31zdyZbMCflBkVuXcbn9QVi81XKFOq5LbbyavmgJuUDTVJk7V7W9qTqp7x20Z5PpwT3PkqJkPNTrdPc75UE8Rp6d7WaY50jCG370u9wR4ZTNd58lnutaTyzRq1noCNAw3Kj+v9wQ401cpvbAu/U2hqT3d0ccT4Eicpnnr5wnQ0ga/8gr8FPyK0rPsfD0BOsquL/b3BIjpPHOPEvpFQ5elvXeGTlmqyERPGE+AM5VntKhXvs6B6kOqUJEnjD0y8gAnGs8L6s6PNBcSUWyKkiWpGrCiA02Sxjus6I7m46TxojRdqcGLGhJRixe1Iiqi/5N/cJkSEtGHKU+o/5APaAq+qrGeNc0nFN+UZESdM77No/EMLFaUpjo90K8INkmpUhQde6rIYwsUUXEaCXEjHcLn8RhxnUjnjpgpGeGM7IEGuUHo9SYycibeiXCetZT6scH3PhWE4+aZ0KvqW4ZlmDJd3+mnLOsl0eqnkY5pucCtNO34HuxXmfJ5BkHULr77Rcu6VFKahY1UbZjXtMIqW+KZVfxLem/2/Z7mu33jtpwOVbU3h+VDq/iP84O831/dMzju+01s5s08OdMUPytA0Ri3Jc2J0um2Owyfi67DoWu128pG5jcupetj/StJEh33W5UUBEEQBEEQBEEQhLv8Bl6sv2/BIZ2DAAAAAElFTkSuQmCC',USA:'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',SOV:'iVBORw0KGgoAAAANSUhEUgAAAKgAAABwCAMAAAC9+MvEAAAARVBMVEXMAADUJwDeVQDoeADQGADndgDXNwDbRQDgWwDxoQDofADiZgDPEADoggDwnADvmgDulAD6xwDqhgD2tgD+1wDypwDmeAD8b3L+AAABwklEQVR42u3YwbLbIAwFUEGIsC1iGyO////UjnCni9e+JjvkmXt23t1BQighAgC4nRBGJ/hQjKMTfOjxGJ3gM+n5TKMzvMc5T9M05cyjk7yR50WYZZnz6CRvlPhiovCKZXSS90mFSPznJAqSktxhkmZZFvHeoeaxMm83mKTllYl48d+jpbdn8B+0hx0d4FOB7xI1Pu8wn6z2snl/6383aNln72fKEjkU4nr47tPQVNueqBzV9Z6fdlXVp72kdXa8Ppen5dwtYTrV8ZFOVVXP6xoturvtUm52oHJ9RG1eL35a9U/libi6rT1b4Zvqo5c8NP0anegHdpVOPrRO9pWa3yZNW80UTq18BV29BiWOfYL2i5+aep6kRtSKztXxiV7KZjNKVDfnQe3CV9lUl9FB/pex76Gxqo0qr3PUFubWciEqh01+ty9TP0mtXxxyX6Jeo+P8KK06N9Xaan9L3a7OvOsacl9Mujr5TJpPbUzEaz/PZqu+y7+gwnmt9pSm4zgk2M7n8hde1OuNt8vfSy7V54CS77fHZpSMTvUPsR3fCh321WPpS/hrV0rOtycAAAAAAAAAAAAAAAAAAAAAAAAAgPF+Acw8E2MyR50FAAAAAElFTkSuQmCC',UK:'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',GER:'iVBORw0KGgoAAAANSUhEUgAAAKgAAABwBAMAAAB4CCbFAAAAFVBMVEUAAAAEBASjo6P////zo6PdBATdAACUi9NmAAAASUlEQVRo3u3MAQ3AIAADsFnAAhawgIVbwL8EVCwhTyugCQAA8GujILMgq0AqlUqlUqlUKpW+k+6CfAU5BVKpVCqVSqVSqfSZ9ALNtlKqZQg92gAAAABJRU5ErkJggg=='};
 function flagSvg(t){if(FLAGIMG[t])return `<img src="data:image/png;base64,${FLAGIMG[t]}" alt="" style="width:100%;height:100%;display:block">`;const star=(x,y,r,f)=>{let d='';for(let i=0;i<10;i++){const a=-Math.PI/2+i*Math.PI/5,q=i%2?r*.4:r;d+=(i?'L':'M')+(x+q*Math.cos(a)).toFixed(1)+' '+(y+q*Math.sin(a)).toFixed(1)}return `<path d="${d}Z" fill="${f}"/>`};
  const R=(x,y,w,h,f)=>`<rect x="${x}" y="${y}" width="${w}" height="${h}" fill="${f}"/>`;let b;
@@ -256,6 +260,8 @@ const LDR={GER:[[0,'Adolf Hitler','Führer',{ta:.10,ia:.04,mob:1},'Blitzkrieg do
  UK:[[0,'Stanley Baldwin','Prime Minister',{fac:.04,rs:.04},'A cautious government that rearms slowly.'],[DD(1937,5,28),'Neville Chamberlain','Prime Minister',{fac:.06,rs:.05,df:.03},'Rearmament accelerates under pressure from the dictators.'],[DD(1940,5,10),'Winston Churchill','Prime Minister',{df:.08,cas:.04,fac:.08,rs:.05},'A war leader whose defiance rallies the whole empire.']],
  FRA:[[0,'Albert Sarraut','Prime Minister',{df:.04},'A government that trusts the Maginot Line.'],[DD(1936,6,4),'Léon Blum','Prime Minister',{fac:.06,man:.04},'The Popular Front brings reforms and strikes.'],[DD(1938,4,10),'Édouard Daladier','Prime Minister',{df:.05,fac:.06},'Late but real rearmament behind fortified lines.']]};
 const LNAME={BEL:'Leopold III',NED:'Queen Wilhelmina',DEN:'Thorvald Stauning',NOR:'Johan Nygaardsvold',SWE:'Per Albin Hansson',FIN:'Kyösti Kallio',SPA:'Manuel Azaña',POR:'António Salazar',HUN:'Miklós Horthy',ROM:'King Carol II',TUR:'Mustafa Kemal Atatürk',YUG:'Prince Paul',BUL:'Tsar Boris III',CAN:'Mackenzie King',MEX:'Lázaro Cárdenas',ETH:'Haile Selassie',IRL:'Éamon de Valera',MON:'Khorloogiin Choibalsan',SAF:'J. B. M. Hertzog',LUX:'Grand Duchess Charlotte',CZE:'Edvard Beneš',AUT:'Kurt Schuschnigg'};
+let ldrSeen=null;
+function ldrCheck(){const c=ldr(me);if(ldrSeen&&ldrSeen.tag===me&&ldrSeen.name!==c.name){const m=`${c.name} becomes ${c.title||'leader'} of ${T[me].n}. ${c.txt}`;log(m);wl(m)}ldrSeen={tag:me,name:c.name}}
 function ldr(t){const L=LDR[t];if(L){let c=L[0];L.forEach(x=>{if(day>=x[0])c=x});return{name:c[1],title:c[2],fx:c[3],txt:c[4]}}return{name:LNAME[t]||'Head of government',title:'',fx:{},txt:''}}
 let lfC={d:-1,m:{}};
 function lf(t){if(lfC.d!==day){lfC={d:day,m:{}}}if(lfC.m[t])return lfC.m[t];const o={},a=ldr(t).fx,b=IDEO[IDE_OF(t)].fx;[a,b,focFx(t),diff==='hard'&&t!==me?HARDFX:{}].forEach(f=>Object.entries(f).forEach(([k,v])=>o[k]=(o[k]||0)+v));return lfC.m[t]=o}
@@ -265,41 +271,128 @@ let foc={};
 let diff='std';try{if(localStorage.getItem('fronts_diff')==='hard')diff='hard'}catch(e){}
 const DIFFN={std:'Standard',hard:'Total War'},HARDFX={fac:.2,man:.2,rs:.15,ia:.05,ta:.05,aa:.05};
 function setDiff(d){diff=d;lfC.d=-1;try{localStorage.setItem('fronts_diff',d)}catch(e){}menu()}
-const F=(id,name,days,desc,fx,now)=>({id,name,days,desc,fx:fx||{},now});
-const FOC0=[F('g_ind','Industrial Mobilisation',90,'Put the economy on a war footing.',{fac:.08}),
- F('g_con','Conscription Reforms',75,'Extend the draft and open more recruiting offices.',{man:.10}),
- F('g_acad','Military Academies',80,'Train a better officer corps.',{cas:.04,ia:.04}),
- F('g_arm','Armoured Doctrine',90,'Concentrate tanks into striking formations.',{ta:.08}),
- F('g_art','Artillery Programme',90,'More guns, more shells, cheaper production.',{aa:.08,cost:.05}),
- F('g_res','Research Institutes',75,'Fund universities and laboratories.',{rs:.12}),
- F('g_fort','Fortify the Borders',60,'Concrete, wire and prepared positions.',{df:.06}),
- F('g_econ','War Economy',100,'Convert civilian industry. Also gives 40 men at once.',{fac:.04},t=>addM(t,40)),
- F('g_mob','Rapid Mobilisation',60,'Streamline the call-up. Armies mobilise a day faster.',{mob:1}),
- F('g_logi','Motorised Transport',80,'Trucks and better roads. Armies march faster.',{mvs:.08})];
-const FOCS={
- GER:[F('ger_re','Rearm the Wehrmacht',40,'Open rearmament in defiance of Versailles. Also gives 30 men.',{fac:.04},t=>addM(t,30)),F('ger_bl','Blitzkrieg Doctrine',100,'Fast tanks, radios and air support. Unlocks the Blitzkrieg doctrine national technology.',{ta:.06,mvs:.06}),F('ger_au','Autarky and Synthetic Fuel',90,'Reduce dependence on imports.',{fac:.06,rs:.04})],
- UK:[F('uk_sh','Shadow Factory Scheme',90,'Prepare factories for war work in advance.',{fac:.08}),F('uk_rd','Radar Chain',80,'Early warning along the coast.',{df:.06,rs:.04}),F('uk_rn','Royal Navy Supremacy',70,'Amphibious experience and sea control.',{amph:.10})],
- FRA:[F('fra_mg','Extend the Maginot Line',80,'Fortify the whole frontier. Unlocks the Maginot Line national technology.',{df:.08}),F('fra_co','Colonial Levies',70,'Recruit across the empire.',{man:.08})],
- SOV:[F('sov_fy','Five-Year Plan',110,'Heavy industry first.',{fac:.10}),F('sov_do','Deep Operations',100,'Mass tanks and guns striking in depth.',{ta:.06,aa:.06}),F('sov_pa','Great Patriotic Spirit',80,'Rally the nation behind the army.',{cas:.05,df:.04})],
- USA:[F('usa_ar','Arsenal of Democracy',110,'The world\'s greatest industrial base goes to war. Unlocks the Arsenal of democracy national technology.',{fac:.12}),F('usa_sc','Selective Service',60,'Introduce the draft. Also gives 30 men.',{man:.10},t=>addM(t,30)),F('usa_sci','Science Mobilisation',90,'Recruit the best minds.',{rs:.10})],
- JAP:[F('jap_bu','Bushido Spirit',80,'Fanatical discipline in the field.',{ia:.06,cas:.03}),F('jap_so','Southern Resource Area',90,'Plan for island hopping and landings.',{amph:.12})],
- ITA:[F('ita_gr','Battle for Grain',70,'Mobilise the countryside.',{man:.08}),F('ita_mn','Mare Nostrum',80,'Control of the Mediterranean.',{amph:.08})],
- CHN:[F('chn_uw','Unite the Warlords',90,'Bring the regional armies under one command.',{man:.12}),F('chn_dd','Defence in Depth',70,'Trade space for time.',{df:.07})]};
-const focList=t=>[...FOC0,...(FOCS[t]||[])];
+const FN=(id,name,days,col,row,req,desc,fx,now,xor)=>({id,name,days:Math.round(days*(1+.3*row)/5)*5,col,row,req:req||[],desc,fx:fx||{},now,xor:xor||[]});
+const FGEN=[
+ FN('g_ind','Industrial Mobilisation',90,0,0,[],'Put the economy on a war footing.',{fac:.08}),
+ FN('g_con','Conscription Reforms',75,1,0,[],'Extend the draft and open more recruiting offices.',{man:.10}),
+ FN('g_res','Research Institutes',75,2,0,[],'Fund universities and laboratories.',{rs:.12}),
+ FN('g_econ','War Economy',100,0,1,['g_ind'],'Convert civilian industry. Also gives 40 men at once.',{fac:.04},t=>addM(t,40)),
+ FN('g_acad','Military Academies',80,1,1,['g_con'],'Train a better officer corps.',{cas:.04,ia:.04}),
+ FN('g_sci','Technical Schools',80,2,1,['g_res'],'Engineers for the factories and the field.',{rs:.08,cost:.03}),
+ FN('g_art','Artillery Programme',90,0,2,['g_econ'],'More guns, more shells, cheaper production.',{aa:.08,cost:.05}),
+ FN('g_arm','Armoured Doctrine',90,1,2,['g_acad'],'Concentrate tanks into striking formations.',{ta:.08}),
+ FN('g_fort','Fortify the Borders',60,2,2,['g_sci'],'Concrete, wire and prepared positions.',{df:.06}),
+ FN('g_logi','Motorised Transport',80,0,3,['g_art'],'Trucks and better roads. Armies march faster.',{mvs:.08}),
+ FN('g_mob','Rapid Mobilisation',60,2,3,['g_fort'],'Streamline the call-up. Armies mobilise a day faster.',{mob:1}),
+ FN('g_tot','Total War Economy',110,1,4,['g_logi','g_mob'],'The whole nation serves the war effort. Also gives 40 men.',{fac:.06,man:.06,cas:.02},t=>addM(t,40))];
+const FTREE={
+ GER:[FN('ger_re','Rearm the Wehrmacht',40,2,0,[],'Open rearmament in defiance of Versailles. Also gives 30 men.',{fac:.04},t=>addM(t,30)),
+  FN('ger_au','Autarky and Synthetic Fuel',90,0,1,['ger_re'],'Reduce dependence on imports.',{fac:.06,rs:.04}),
+  FN('ger_bl','Blitzkrieg Doctrine',100,2,1,['ger_re'],'Fast tanks, radios and air support. Unlocks the Blitzkrieg doctrine national technology.',{ta:.06,mvs:.06}),
+  FN('ger_vg','Volksgemeinschaft',70,4,1,['ger_re'],'Unite the nation behind the regime.',{man:.08}),
+  FN('ger_fp','Four Year Plan',100,0,2,['ger_au'],'Direct the whole economy toward war.',{fac:.08,cost:.04}),
+  FN('ger_pz','Panzer Divisions',90,1,2,['ger_bl'],'Mass the tanks into armoured divisions.',{ta:.08}),
+  FN('ger_ca','Combined Arms',90,2,2,['ger_bl'],'Infantry, guns and air support working as one.',{ia:.06,aa:.06}),
+  FN('ger_ww','The Westwall',80,3,2,['ger_vg'],'Fortify the western border and secure the rear.',{df:.08},null,['ger_lb']),
+  FN('ger_lb','Lebensraum',80,4,2,['ger_vg'],'Prepare the nation for expansion in the east. Armies mobilise a day faster.',{mob:1,man:.06},null,['ger_ww']),
+  FN('ger_wp','War Production Board',90,0,3,['ger_fp'],'Cheaper weapons and more output.',{cost:.06,fac:.04}),
+  FN('ger_ab','Auftragstaktik',100,1,3,['ger_pz','ger_ca'],'Initiative and speed of decision at every level.',{cas:.05,ia:.04}),
+  FN('ger_tw','Total War Mobilisation',110,1,4,['ger_wp','ger_ab'],'Everything for the front. Also gives 40 men.',{fac:.06,man:.06,cas:.02},t=>addM(t,40))],
+ UK:[FN('uk_re','Rearmament Programme',50,2,0,[],'End the arms limits and prepare for war. Also gives 20 men.',{fac:.03},t=>addM(t,20)),
+  FN('uk_sh','Shadow Factory Scheme',90,0,1,['uk_re'],'Prepare factories for war work in advance.',{fac:.08}),
+  FN('uk_rd','Radar Chain',80,1,1,['uk_re'],'Early warning along the coast.',{df:.06,rs:.04}),
+  FN('uk_rn','Royal Navy Supremacy',70,3,1,['uk_re'],'Amphibious experience and sea control.',{amph:.10}),
+  FN('uk_em','Imperial Mobilisation',70,4,1,['uk_re'],'Call on the manpower of the empire.',{man:.10}),
+  FN('uk_ae','Aircraft Production',90,0,2,['uk_sh'],'Priority for fighters and engines.',{cost:.05,fac:.04}),
+  FN('uk_ss','Science and Intelligence',90,1,2,['uk_rd'],'Bletchley Park and the radar labs.',{rs:.12}),
+  FN('uk_co','Combined Operations',90,3,2,['uk_rn'],'Landings and joint planning.',{amph:.08,ia:.04}),
+  FN('uk_ia','Indian Army Expansion',80,4,2,['uk_em'],'Raise new divisions across the empire.',{man:.06,cas:.03}),
+  FN('uk_mw','Methodical Warfare',100,3,3,['uk_co','uk_ia'],'Careful preparation and overwhelming firepower.',{aa:.08,cas:.05}),
+  FN('uk_fh','Finest Hour',110,1,4,['uk_ae','uk_ss'],'The whole empire stands together. Also gives 30 men.',{fac:.06,df:.06,cas:.03},t=>addM(t,30))],
+ FRA:[FN('fra_re','Rebuild the Army',50,2,0,[],'Modernise the army after the lean years. Also gives 20 men.',{man:.04},t=>addM(t,20)),
+  FN('fra_ri','Nationalise the Arms Industry',90,0,1,['fra_re'],'State control of the factories.',{fac:.08}),
+  FN('fra_mg','Extend the Maginot Line',80,1,1,['fra_re'],'Fortify the whole frontier. Unlocks the Maginot Line national technology.',{df:.08},null,['fra_mo']),
+  FN('fra_mo','Mechanised Mobility',80,3,1,['fra_re'],'Trade fortresses for fast tanks and trucks.',{ta:.08,mvs:.06},null,['fra_mg']),
+  FN('fra_co','Colonial Levies',70,4,1,['fra_re'],'Recruit across the empire.',{man:.08}),
+  FN('fra_pl','Popular Front Reforms',80,0,2,['fra_ri'],'Labour peace and wider research.',{fac:.05,rs:.05}),
+  FN('fra_fo','Fortress Defence',70,1,2,['fra_mg'],'Garrisons and defence in depth.',{df:.06,cas:.03}),
+  FN('fra_ch','Heavy Tank Programme',90,3,2,['fra_mo'],'Char B1 bis and SOMUA for the armoured divisions.',{ta:.08}),
+  FN('fra_ar','Army of the Empire',80,4,2,['fra_co'],'Colonial divisions in the field.',{ia:.05,cas:.03}),
+  FN('fra_ac','Allied Coordination',90,2,3,['fra_pl','fra_ar'],'Joint planning with Britain.',{rs:.06,ia:.05}),
+  FN('fra_sv','Spirit of Verdun',100,2,4,['fra_ac'],'Not one step back. Also gives 30 men.',{df:.06,cas:.05,man:.06},t=>addM(t,30))],
+ SOV:[FN('sov_fy','Five-Year Plan',110,1,0,[],'Heavy industry first.',{fac:.10}),
+  FN('sov_re','Red Army Reforms',70,3,0,[],'Reorganise the army. Also gives 20 men.',{man:.06},t=>addM(t,20)),
+  FN('sov_ur','Industrialise the Urals',100,0,1,['sov_fy'],'Build factories beyond the reach of an invader.',{fac:.08}),
+  FN('sov_tr','Tractor Plants to Tank Plants',90,1,1,['sov_fy'],'Convert heavy industry to armour.',{ta:.06,cost:.05}),
+  FN('sov_pr','Professional Officers',80,2,1,['sov_re'],'Rebuild a competent officer corps.',{ia:.06,ta:.04},null,['sov_gp']),
+  FN('sov_do','Deep Operations',100,3,1,['sov_re'],'Mass tanks and guns striking in depth.',{ta:.06,aa:.06}),
+  FN('sov_gp','Commissar System',80,4,1,['sov_re'],'Political control and iron discipline.',{df:.06,cas:.02},null,['sov_pr']),
+  FN('sov_ev','Evacuate Industry East',90,0,2,['sov_ur'],'Plans to move the factories if the west falls.',{df:.05,fac:.05}),
+  FN('sov_ar','God of War',90,1,2,['sov_tr'],'Artillery on a vast scale.',{aa:.10}),
+  FN('sov_ml','Mass Mobilisation',70,3,2,['sov_do'],'Call up the reserves. Armies mobilise a day faster.',{man:.10,mob:1}),
+  FN('sov_wm','Everything for the Front',110,2,3,['sov_ev','sov_ml'],'Total mobilisation of the Soviet people. Also gives 40 men.',{fac:.06,man:.06,cas:.03},t=>addM(t,40))],
+ USA:[FN('usa_ar','Arsenal of Democracy',110,1,0,[],'The world\'s greatest industrial base goes to war. Unlocks the Arsenal of democracy national technology.',{fac:.12}),
+  FN('usa_sc','Selective Service',60,3,0,[],'Introduce the draft. Also gives 30 men.',{man:.10},t=>addM(t,30)),
+  FN('usa_lb','Liberty Shipyards',90,0,1,['usa_ar'],'Build ships faster than they can be sunk.',{amph:.10,cost:.04}),
+  FN('usa_dp','Defence Production Board',80,1,1,['usa_ar'],'Coordinate industry across the country.',{fac:.06,cost:.05}),
+  FN('usa_sci','Science Mobilisation',90,2,1,['usa_ar'],'Recruit the best minds.',{rs:.10}),
+  FN('usa_tc','Training Camps',70,3,1,['usa_sc'],'Millions of men, trained properly.',{ia:.06,cas:.03}),
+  FN('usa_ma','Mobile Armoured Forces',90,4,1,['usa_sc'],'Armoured divisions on the Sherman.',{ta:.08}),
+  FN('usa_ow','Two-Ocean Navy',100,0,2,['usa_lb'],'A fleet for both oceans.',{amph:.10}),
+  FN('usa_mp','Manhattan Project',120,2,2,['usa_sci'],'A race to unlock the atom.',{rs:.12,aa:.06}),
+  FN('usa_ve','Overwhelming Force',90,3,2,['usa_tc'],'Win with numbers and firepower.',{ia:.06,aa:.06}),
+  FN('usa_vp','Victory Program',110,2,3,['usa_mp','usa_ve'],'A plan to out-produce the Axis. Also gives 40 men.',{fac:.06,man:.06,cas:.03},t=>addM(t,40))],
+ JAP:[FN('jap_re','Strengthen the Empire',50,2,0,[],'Prepare the nation for the struggle ahead. Also gives 20 men.',{man:.04},t=>addM(t,20)),
+  FN('jap_zb','Zaibatsu Cooperation',90,0,1,['jap_re'],'Bring the great industrial groups into the war plan.',{fac:.08}),
+  FN('jap_bu','Bushido Spirit',80,1,1,['jap_re'],'Fanatical discipline in the field.',{ia:.06,cas:.03}),
+  FN('jap_hs','Strike North',80,3,1,['jap_re'],'Prepare for a land war against the Soviets.',{ia:.06,ta:.05},null,['jap_so']),
+  FN('jap_so','Strike South',80,4,1,['jap_re'],'Plan for island hopping and landings.',{amph:.12,fac:.03},null,['jap_hs']),
+  FN('jap_ma','Mobilise Manchuria',90,0,2,['jap_zb'],'Heavy industry on the mainland.',{fac:.06,cost:.05}),
+  FN('jap_ba','Banzai Spirit',80,1,2,['jap_bu'],'Endless willingness to attack.',{man:.06}),
+  FN('jap_ar','Army Modernisation',90,3,2,['jap_hs'],'Better tanks for the mainland.',{ta:.08}),
+  FN('jap_ca','Carrier Doctrine',90,4,2,['jap_so'],'Naval air power across the Pacific.',{amph:.08,aa:.04}),
+  FN('jap_to','Total National Mobilisation',110,2,3,['jap_ma','jap_ba'],'Every resource to the war. Also gives 30 men.',{fac:.05,man:.05,cas:.03},t=>addM(t,30))],
+ ITA:[FN('ita_re','Fascist Mobilisation',50,2,0,[],'Put the nation on a martial footing. Also gives 20 men.',{man:.04},t=>addM(t,20)),
+  FN('ita_gr','Battle for Grain',70,0,1,['ita_re'],'Mobilise the countryside.',{man:.08}),
+  FN('ita_in','Autarky Drive',80,1,1,['ita_re'],'Make Italy less dependent on imports.',{fac:.06}),
+  FN('ita_mn','Mare Nostrum',80,3,1,['ita_re'],'Control of the Mediterranean.',{amph:.08}),
+  FN('ita_al','Alpine Troops',70,4,1,['ita_re'],'Mountain defence.',{df:.06}),
+  FN('ita_ro','New Roman Empire',80,0,2,['ita_gr'],'Call up the empire.',{man:.06,cas:.02}),
+  FN('ita_bo','Breda and Ansaldo Works',90,1,2,['ita_in'],'Modern arms factories.',{aa:.06,cost:.04}),
+  FN('ita_rm','Regia Marina Expansion',90,3,2,['ita_mn'],'More battleships and cruisers.',{amph:.08}),
+  FN('ita_ar','Armoured Divisions',90,4,2,['ita_al'],'Tanks for the Po valley and beyond.',{ta:.06}),
+  FN('ita_sr','The Second Rome',100,2,3,['ita_ro','ita_bo'],'A larger and better army. Also gives 30 men.',{ia:.05,aa:.04,cas:.03},t=>addM(t,30))],
+ CHN:[FN('chn_uw','Unite the Warlords',90,2,0,[],'Bring the regional armies under one command.',{man:.12}),
+  FN('chn_in','Move Industry Inland',90,0,1,['chn_uw'],'Relocate factories beyond the front.',{fac:.08}),
+  FN('chn_gu','Guerrilla Warfare',80,1,1,['chn_uw'],'Fight in the enemy\'s rear.',{df:.07}),
+  FN('chn_ge','German Advisors',80,3,1,['chn_uw'],'Modern doctrine and training.',{ia:.06,ta:.04}),
+  FN('chn_vo','Volunteer Army',70,4,1,['chn_uw'],'Mass recruitment.',{man:.08}),
+  FN('chn_ar','Hanyang Arsenals',90,0,2,['chn_in'],'Domestic weapons production.',{cost:.06,fac:.04}),
+  FN('chn_dd','Defence in Depth',70,1,2,['chn_gu'],'Trade space for time.',{df:.07,cas:.03}),
+  FN('chn_mo','Modern Army',90,3,2,['chn_ge'],'Tanks and guns for the new army.',{ta:.06,aa:.06}),
+  FN('chn_ma','Total Resistance',100,2,3,['chn_dd','chn_mo'],'Every Chinese fights. Also gives 30 men.',{man:.06,df:.04,cas:.04},t=>addM(t,30))]};
+const focList=t=>FTREE[t]||FGEN;
+let focSel=null,focSX=0;
+const focSt=(t,f)=>{const g=focGet(t);return g.done.includes(f.id)?'done':g.cur&&g.cur.id===f.id?'cur':f.xor.some(x=>g.done.includes(x))?'blocked':f.req.every(r=>g.done.includes(r))?'open':'locked'};
 const focGet=t=>foc[t]||(foc[t]={cur:null,done:[]});
 function focFx(t){const o={},g=foc[t];if(!g)return o;g.done.forEach(id=>{const f=focList(t).find(x=>x.id===id);if(f)Object.entries(f.fx).forEach(([k,v])=>o[k]=(o[k]||0)+v)});return o}
-function focStart(t,id){const g=focGet(t),f=focList(t).find(x=>x.id===id);if(!f||g.cur||g.done.includes(id))return;g.cur={id,end:day+f.days};if(t===me){log(`National focus started: ${f.name} (${f.days} days).`);render()}}
+function focStart(t,id){const g=focGet(t),f=focList(t).find(x=>x.id===id);if(!f||g.cur||focSt(t,f)!=='open')return;g.cur={id,end:day+f.days};if(t===me){log(`National focus started: ${f.name} (${f.days} days).`);render()}}
 function focCancel(){const g=focGet(me);g.cur=null;render()}
 function focTick(){Object.keys(foc).forEach(t=>{const g=foc[t];if(!g.cur||g.cur.end>day)return;const f=focList(t).find(x=>x.id===g.cur.id);g.cur=null;if(!f)return;g.done.push(f.id);lfC.d=-1;if(f.now)f.now(t);
   if(t===me){log(`National focus complete: ${f.name}.`);wl(`National focus complete: ${f.name}.`);evQ.push({icon:'🎯',title:'Focus complete: '+f.name,text:()=>f.desc,opts:[{l:'Choose the next focus',d:'Open the focus panel.',f:()=>{openP='foc'}},{l:'Later',d:'Keep playing.',f:()=>{}}]});showEv()}})}
-function focAI(t){const g=focGet(t);if(g.cur||day%7)return;const av=focList(t).filter(x=>!g.done.includes(x.id)),pr=av.filter(x=>Object.values(TREQ).includes(x.id));if(av.length)focStart(t,pick(pr.length?pr:av).id)}
-function focPanel(){const g=focGet(me),L=focList(me),cur=g.cur&&L.find(x=>x.id===g.cur.id);
- const row=f=>`<div class="rw" style="cursor:default;display:block;margin:6px 0"><div style="display:flex;justify-content:space-between;gap:8px;align-items:center"><b>${f.name}</b><button onmousedown="focStart(me,'${f.id}')" ${g.cur?'disabled':''}>Start (${f.days} days)</button></div><div class="dim">${f.desc}</div>${fxLines(f.fx).replace('<div class="dim">No special bonuses.</div>','')}</div>`;
- const av=L.filter(x=>!g.done.includes(x.id)&&!(g.cur&&g.cur.id===x.id)),dn=L.filter(x=>g.done.includes(x.id));
- return `<h2>National focus</h2><p class="dim">Your government can pursue one focus at a time. When it finishes you gain its permanent bonus. Cancelling loses the progress.</p>`+
- (cur?`<div class="rw" style="cursor:default;display:block;background:#2f3a34;margin:8px 0;padding:10px"><b>In progress: ${cur.name}</b><div class="dim">${cur.desc}</div><div style="height:8px;background:#1d2421;border-radius:4px;margin:6px 0;overflow:hidden"><div style="height:100%;width:${Math.round(100*(1-(g.cur.end-day)/cur.days))}%;background:#d9a441"></div></div><div class="row"><span class="dim">${Math.max(0,g.cur.end-day)} days left</span><button onmousedown="focCancel()">Cancel</button></div></div>`:'<p style="color:#d9a441">No focus in progress. Pick one below.</p>')+
- `<h2 style="font-size:15px;margin:12px 0 4px">Available</h2>${av.map(row).join('')||'<p class="dim">Nothing left to pursue.</p>'}`+
- (dn.length?`<h2 style="font-size:15px;margin:12px 0 4px">Completed</h2>${dn.map(f=>`<div class="dim">✓ ${f.name}</div>`).join('')}`:'')}
+function focAI(t){const g=focGet(t);if(g.cur||day%7)return;const av=focList(t).filter(x=>focSt(t,x)==='open'),pr=av.filter(x=>Object.values(TREQ).includes(x.id));if(av.length)focStart(t,pick(pr.length?pr:av).id)}
+function focDetail(){const L=focList(me),f=L.find(x=>x.id===focSel);if(!f)return '<p class="dim">Tap a focus to see what it does. Lines connect a focus to the ones that must be finished first.</p>';
+ const st=focSt(me,f),g=focGet(me),nm=id=>(L.find(x=>x.id===id)||{}).name;
+ const stx={done:'Completed',cur:'In progress',blocked:'Blocked: you chose '+f.xor.map(nm).join(' or ')+' instead',locked:'Locked: finish '+f.req.filter(r=>!g.done.includes(r)).map(nm).join(' and ')+' first',open:'Ready to start'}[st];
+ return `<b>${f.name}</b> <span class="dim">· ${f.days} days</span><div class="dim">${f.desc}</div>${fxLines(f.fx).replace('<div class="dim">No special bonuses.</div>','')}${f.xor.length?`<div class="dim">Cannot be combined with: ${f.xor.map(nm).join(', ')}.</div>`:''}<div style="margin:6px 0;color:#d9a441">${stx}${st==='cur'?' · '+Math.max(0,g.cur.end-day)+' days left':''}</div>${st==='open'?`<button onmousedown="focStart(me,'${f.id}');render()" ${g.cur?'disabled':''}>${g.cur?'Another focus is in progress':'Start this focus'}</button>`:''}${st==='cur'?'<button onmousedown="focCancel()">Cancel (loses progress)</button>':''}`}
+function focSelect(id){focSel=id;document.querySelectorAll('.fn').forEach(e=>e.classList.toggle('sel',e.dataset.id===id));const d=$('fdet');if(d)d.innerHTML=focDetail()}
+function focPanel(){const g=focGet(me),L=focList(me),NW=112,NH=62,GX=124,GY=88,mc=Math.max(...L.map(x=>x.col)),mr=Math.max(...L.map(x=>x.row)),W=(mc+1)*GX,H=(mr+1)*GY;
+ const px=f=>f.col*GX+(GX-NW)/2,py=f=>f.row*GY+6,cur=g.cur&&L.find(x=>x.id===g.cur.id);
+ const lines=L.flatMap(f=>f.req.map(r=>{const a=L.find(x=>x.id===r);if(!a)return'';const x1=px(a)+NW/2,y1=py(a)+NH,x2=px(f)+NW/2,y2=py(f),m=(y1+y2)/2;return `<path d="M${x1} ${y1}C${x1} ${m} ${x2} ${m} ${x2} ${y2}" fill="none" stroke="${g.done.includes(a.id)?'#7bc47f':'#566'}" stroke-width="2"/>`})).join('');
+ const nodes=L.map(f=>{const st=focSt(me,f);return `<div class="fn ${st}${f.id===focSel?' sel':''}" data-id="${f.id}" style="left:${px(f)}px;top:${py(f)}px;width:${NW}px;height:${NH}px" onmousedown="focSelect('${f.id}')"><b>${st==='done'?'✓ ':st==='cur'?'⏳ ':st==='blocked'?'✕ ':''}${f.name}</b><small>${f.days} days</small></div>`}).join('');
+ return `<h2>National focus</h2><p class="dim">One focus at a time. A focus needs the ones above it (joined by lines) to be finished. Some focuses exclude each other.</p>`+
+ (cur?`<div class="rw" style="cursor:default;display:block;background:#2f3a34;margin:6px 0;padding:8px"><b>In progress: ${cur.name}</b><div style="height:8px;background:#1d2421;border-radius:4px;margin:6px 0;overflow:hidden"><div style="height:100%;width:${Math.round(100*(1-(g.cur.end-day)/cur.days))}%;background:#d9a441"></div></div><span class="dim">${Math.max(0,g.cur.end-day)} days left</span></div>`:'<p style="color:#d9a441;margin:6px 0">No focus in progress. Pick one that is ready.</p>')+
+ `<div id="focT" onscroll="focSX=this.scrollLeft" style="overflow-x:auto;overflow-y:hidden;margin:6px 0"><div style="position:relative;width:${W}px;height:${H}px"><svg width="${W}" height="${H}" style="position:absolute;left:0;top:0">${lines}</svg>${nodes}</div></div><div id="fdet" class="rw" style="cursor:default;display:block;padding:8px;background:#1f2724">${focDetail()}</div>`}
 function natPanel(){const L=ldr(me),id=IDE_OF(me),I=IDEO[id],nx=(LDR[me]||[]).find(x=>x[0]>day);
  return `<h2>${T[me].n}</h2><div style="display:flex;gap:10px;align-items:center;margin:6px 0"><div style="width:84px;height:56px;flex:none;border:1px solid #000;box-shadow:0 0 0 2px #55635a">${flagSvg(me)}</div><div><div class="dim">Leader</div><div style="font-size:17px;font-family:'Special Elite','Courier New',monospace">${L.name}</div><div class="dim">${L.title}</div></div></div>
  ${L.txt?`<p class="dim">${L.txt}</p>`:''}<div style="margin:4px 0 10px">${fxLines(L.fx)}</div>
@@ -323,7 +416,13 @@ function sz(id){const m=mon(),lat=LAT[id];let a=1,d=1,mr=1;
  if(lat>=40&&(m===11||m<=1)){const s=lat>=55?1:lat>=47?.75:.4;a=1-.16*s;d=1+.06*s;mr=1+.3*s}
  else if(lat>=44&&LON[id]>=14&&(m===3||m===9)){a=.93;mr=1.2}
  return{att:a,def:d,march:mr}}
-const seaIcon=()=>{const m=mon();return m===11||m<=1?'❄️ ':m<=4?'🌱 ':m<=7?'☀️ ':'🍂 '};
+const seaIco=()=>{const m=mon();return m===11||m<=1?'❄️':m<=4?'🌱':m<=7?'☀️':'🍂'};
+function seaText(){const m=mon(),w=m===11||m<=1,mud=m===3||m===9;
+ const now=w?'Winter. In northern regions attackers fight up to 16% weaker, defenders up to 6% stronger, and armies march up to 30% slower. The effect is strongest in the far north (Russia, Scandinavia) and mild in southern Europe.':mud?'Mud season. In eastern Europe and Russia attackers fight 7% weaker and armies march 20% slower.':'No weather penalties this month.';
+ return now+' Winter lasts from December to February, and mud comes in April and October.'}
+const seaIcon=()=>`<span class="sea" title="${seaText().replace(/"/g,'&quot;')}" onclick="seaTip(event)">${seaIco()}</span> `;
+function seaTip(e){e.stopPropagation();const t=$('chiptip'),r=e.currentTarget.getBoundingClientRect();if(t.style.display==='block'&&t._i==='sea'){t.style.display='none';return}
+ t._i='sea';t.innerHTML='<b style="color:var(--acc)">'+seaIco()+'</b> '+seaText();t.style.display='block';const w=t.offsetWidth;t.style.left=Math.max(8,Math.min(innerWidth-w-8,r.left))+'px';t.style.top=(r.bottom+8)+'px';clearTimeout(chipT);chipT=setTimeout(()=>t.style.display='none',9000)}
 function seaLine(id){const z=sz(id);if(z.att>=1)return'';const m=mon(),w=m===11||m<=1;return `<br><span style="color:#8fc1e3">${w?'Winter':'Mud season'}: attackers ${Math.round((1-z.att)*100)}% weaker${z.def>1?', defenders '+Math.round((z.def-1)*100)+'% stronger':''}, armies march ${Math.round((z.march-1)*100)}% slower</span>`}
 const stk=(id,t=me)=>{const r=reg[id];return r.tag===t?r:(r.gu&&r.gu[t])||null};
 const bases=(who,h)=>same(who,h)||acc.has(who+'>'+h);
@@ -355,7 +454,7 @@ function declareWar(x,y,goal){if(x===y||same(x,y)||hostile(x,y)||npacts.has(wk(x
  const w={id:++wid,a:A,b:B,mx:x,my:y,goals:[goal||{by:x,type:'country',t:y}],score:0,day,offer:-999};WARS.push(w);
  const g=w.goals[0],gt=g.type==='country'?`conquer ${T[g.t].n}`:g.type==='region'?`take ${reg[g.t].name}`:`humiliate ${T[g.t].n} and demand tribute`;
  const m=`${T[x].n} declares war on ${T[y].n} (war goal: ${gt}).`+(B.length>1?` ${B.filter(q=>q!==y).map(q=>T[q].n).join(', ')} join${B.length>2?'':'s'} them.`:'');
- log(m);if(A.includes(me)||B.includes(me)){wl(m);if(B.includes(me)&&!A.includes(me))banner(`⚔ ${T[x].n} declares war on ${y===me?'you':T[y].n}!${y===me?'':' You are drawn in.'}`);else sfx('war')}}
+ log(m);if(A.includes(me)||B.includes(me)){wl(m);if(B.includes(me)&&!A.includes(me))banner(`⚔ ${T[x].n} declares war on ${y===me?'you':T[y].n}!${y===me?'':' You are drawn in.'}`);else if(A.includes(me)&&x!==me){banner(`⚔ ${T[x].n}, your ally, declares war on ${T[y].n}. You are drawn in.`)}else sfx('war')}}
 const front=i=>nb[i].filter(j=>hostile(reg[i].tag,reg[j].tag)).length;
 const log=m=>{logs.unshift(m);logs.length=Math.min(logs.length,40)};
 const owned=t=>ids.filter(i=>reg[i].tag===t);
@@ -890,7 +989,7 @@ function drawGrp(){if(!GRP.length)return;const pr=(id,k)=>{const c=cpos(id);retu
   ids.forEach(i=>{if(reg[i].grp!==g.id||reg[i].tag!==g.tag)return;[-1,0,1].forEach(k=>{const [x,y]=pr(i,k);if(x<-30||y<-30||x>VW+30||y>VH+30)return;ctx.fillStyle=c;ctx.strokeStyle='#14201a';ctx.lineWidth=2*dp;ctx.beginPath();ctx.arc(x,y-16*dp,8*dp,0,7);ctx.fill();ctx.stroke();ctx.fillStyle='#14201a';ctx.font='bold '+10*dp+'px system-ui,sans-serif';ctx.fillText(g.id,x,y-16*dp+dp/2)})});
   ctx.restore()})}
 
-function tick(){if(over)return;day++;calcSupply();evTick();warTick();grpTick();focTick();airTick();rpCheck();if(day%90===0)saveSlot('auto');
+function tick(){if(over)return;day++;calcSupply();evTick();warTick();grpTick();focTick();ldrCheck();airTick();rpCheck();if(day%90===0)saveSlot('auto');
  Object.keys(T).forEach(t=>{if(T[t].f==='nu'&&t!==me)return;
   men[t]+=sum(t,'ba')*BARR*(1+bn(t,'man'));rp[t]+=(sum(t,'fa')+sum(t,'ba'))*.022*(1+bn(t,'rs'));produce(t);if(t!==me)focAI(t);
   if(t!==me){const nx=TECH.filter(x=>can(t,x)&&rp[t]>=x[3]).sort((p,q)=>p[3]-q[3])[0];if(nx){rp[t]-=nx[3];tech[t].add(nx[0])}}});
@@ -1143,7 +1242,7 @@ function topUpdate(){const c=$('chips');if(!c._init){c.innerHTML=CHIPS.map(([k,i
 function trHtml(){return `<div style="text-align:right"><h2>${seaIcon()}${dateStr()}</h2><div class="dim">${T[me].n}</div></div><div class="row">${[['Pause',0],['1',1],['2',2],['3',3],['4',4],['5',5]].map(([l,s])=>`<button class="${spd===s?'on':''}" onmousedown="setSpeed(${s})">${l}</button>`).join('')}</div>`}
 function render(){if(!reg)return;calcSupply();drawMap();if(pickMode){$('card').style.display='none';return}
  put($('rail'),PANELS.map(([k,g,n])=>`<button class="${openP===k?'on':''}" title="${n}" aria-label="${n}" onmousedown="togP('${k}')">${g}</button>`).join(''));
- const d=$('drawer');d.style.display=openP?'block':'none';d.className=openP==='res'?'wide':'';if(openP){const ae=document.activeElement,keep=ae&&(ae.id==='dipq'||ae.id==='grpq')?ae.selectionStart:-1,kid=keep>=0?ae.id:'';const h='<button class="dclose" onmousedown="togP(openP)">✕ Close</button>'+panelHtml(),ch=d._h!==h;put(d,h);if(ch)syncSliders();if(keep>=0){const n=$(kid);if(n){n.focus();try{n.setSelectionRange(keep,keep)}catch(e){}}}}
+ const d=$('drawer');d.style.display=openP?'block':'none';d.className=openP==='res'||openP==='foc'?'wide':'';if(openP){const ae=document.activeElement,keep=ae&&(ae.id==='dipq'||ae.id==='grpq')?ae.selectionStart:-1,kid=keep>=0?ae.id:'';const h='<button class="dclose" onmousedown="togP(openP)">✕ Close</button>'+panelHtml(),ch=d._h!==h;put(d,h);if(ch)syncSliders();{const ft=$('focT');if(ft)ft.scrollLeft=focSX}if(keep>=0){const n=$(kid);if(n){n.focus();try{n.setSelectionRange(keep,keep)}catch(e){}}}}
  const c=$('card'),h=cardHtml();c.style.display=h?'block':'none';put(c,h);sendBar();topUpdate()}
 
 const BLURB={GER:'Industry at the heart of Europe, with rivals on every border.',UK:'A great navy and an empire to protect, but a small army.',SOV:'Endless land and manpower, slow to mobilise.',USA:'Far from the fighting, with the largest factories in the world.',JAP:'A strong fleet, short on land and resources.',FRA:'A large army behind strong fortifications.',ITA:'Mediterranean ambitions on a modest industry.',POL:'Squeezed between Germany and the Soviet Union.',CHN:'Huge, divided and poorly equipped.'};
